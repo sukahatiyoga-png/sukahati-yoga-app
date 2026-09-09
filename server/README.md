@@ -9,12 +9,21 @@ header comment in `prisma/schema.prisma` for what was added and why).
 
 ```
 npm install
-cp .env.example .env        # fill in DATABASE_URL from your Postgres provider (e.g. Supabase)
+cp .env.example .env        # fill in DATABASE_URL (pooled) and DIRECT_URL (unpooled) — see below
 npx prisma db push          # sync the schema to the database
 npm run seed                # seed packages, sessions, teachers, bookings, notifications, ...
                              # (idempotent — safe to re-run, it skips if already seeded)
 npm run dev                 # start the API on :4000
 ```
+
+### Two connection strings, on purpose
+
+Supabase (and similar hosted Postgres) gives you a **pooled** connection (PgBouncer,
+typically port 6543) and a **direct** one (port 5432). `DATABASE_URL` (pooled) is what the
+running app uses for normal queries. `DIRECT_URL` (unpooled) is what `prisma db push` /
+`migrate` need — schema changes take a session-level advisory lock that PgBouncer's
+transaction-pooling mode doesn't support, so running them against the pooled URL just hangs
+indefinitely. Both are required; see `.env.example`.
 
 ## Rules enforced in application code
 

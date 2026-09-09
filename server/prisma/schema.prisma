@@ -14,8 +14,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled connection (Supabase's transaction pooler, port 6543) — used by
+  // the running app for normal queries.
+  url       = env("DATABASE_URL")
+  // Direct, unpooled connection (port 5432) — used only for schema changes
+  // (`prisma db push` / `migrate`). Required because Supabase's transaction
+  // pooler doesn't support the session-level advisory lock Prisma takes
+  // during a schema push; against the pooler that lock just hangs forever.
+  directUrl = env("DIRECT_URL")
 }
 
 // ── People and access ──────────────────────────────────────────────────
