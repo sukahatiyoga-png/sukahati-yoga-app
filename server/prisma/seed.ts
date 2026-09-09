@@ -22,6 +22,14 @@ function atTime(day: Date, hhmm: string) {
 }
 
 async function main() {
+  // Idempotent: safe to run on every deploy. A fresh empty database has no
+  // locations; a previously-seeded one does, so skip rather than duplicate.
+  const existing = await db.location.count();
+  if (existing > 0) {
+    console.log("Already seeded — skipping.");
+    return;
+  }
+
   console.log("Seeding…");
 
   // ── Locations ──────────────────────────────────────────────────────

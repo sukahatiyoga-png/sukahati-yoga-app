@@ -1,8 +1,10 @@
 // Sukahati Yoga — schema modeled on project/Data Model.dc.html (15 tables,
 // grouped: people, catalogue, booking engine, money, operations).
-// SQLite has no native enum/array types, so enums are plain strings validated
-// in application code (see src/domain/enums.ts) and text[] columns are
-// JSON-encoded strings. A handful of display-copy columns (marked below)
+// Runs on Postgres (Supabase). Enum-like columns are still plain strings
+// validated in application code (see src/domain/enums.ts) rather than
+// native Postgres enums, and text[] columns are JSON-encoded strings —
+// kept from the original SQLite-compatible design so the schema isn't
+// tied to one database. A handful of display-copy columns (marked below)
 // were added beyond the proposed schema so the booking UI's exact wording
 // ("A first visit", "Free up to 12h before", …) is real, editable data
 // rather than hardcoded frontend strings.
@@ -12,7 +14,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
