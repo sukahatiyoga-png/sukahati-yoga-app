@@ -118,7 +118,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
   if (draft.step === "done" && draft.bookingResult) {
     const b = draft.bookingResult;
     return (
-      <div style={{ height: "100%", overflow: "auto", padding: "58px 20px 28px", boxSizing: "border-box" }}>
+      <div style={{ height: "100%", overflow: "auto", padding: "28px 20px", boxSizing: "border-box" }}>
         <div style={{ paddingTop: 30, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
           <div style={{ width: 96, height: 96, borderRadius: 999, background: "var(--color-accent-2-300)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-800)" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
@@ -148,7 +148,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div style={{ flex: 1, overflow: "auto", padding: "58px 20px 28px", boxSizing: "border-box" }}>
+      <div style={{ flex: 1, overflow: "auto", padding: "28px 20px", boxSizing: "border-box" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button style={{ flex: "none", width: 40, height: 40, borderRadius: 999, border: 0, background: "var(--color-neutral-100)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--color-text)" }} onClick={back}>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round"><path d="m15 6-6 6 6 6" /></svg>

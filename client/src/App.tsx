@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import IOSFrame from "./components/IOSFrame";
 import Toast from "./components/Toast";
 import TabBar from "./components/TabBar";
 import PackageSheet from "./components/PackageSheet";
@@ -81,30 +80,28 @@ export default function App() {
 
   return (
     <AppContext.Provider value={ctx}>
-      <IOSFrame>
-        <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden" }}>
-          <div style={{ flex: 1, overflow: "auto" }}>
-            {mode === "customer" && tab === "home" && <Home key={refreshTick} />}
-            {mode === "customer" && tab === "search" && <Search />}
-            {mode === "customer" && tab === "packages" && <Packages />}
-            {mode === "customer" && tab === "book" && <BookFlow draft={draft} setDraft={setDraft} onDone={() => setRefreshTick((n) => n + 1)} />}
-            {mode === "customer" && tab === "bookings" && <Bookings key={refreshTick} />}
-            {mode === "customer" && tab === "alerts" && <Alerts />}
-            {mode === "customer" && tab === "profile" && <Profile />}
-            {mode === "admin" && <AdminShell key={refreshTick} asec={asec} setAsec={setAsec} openPackageEditSheet={openPackageEditSheet} />}
-          </div>
-
-          {mode === "customer" && tab !== "book" && <TabBar tab={tab} />}
-
-          <Toast message={toast} />
-
-          {sheet?.kind === "pkg" && <PackageSheet id={sheet.id} onBook={(packageId) => goBook({ packageId })} />}
-          {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
-          {sheet?.kind === "pkgEdit" && (
-            <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />
-          )}
+      <div style={{ position: "relative", height: "100dvh", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden", boxShadow: "0 0 40px rgba(46,43,37,0.12)" }}>
+        <div style={{ flex: 1, overflow: "auto" }}>
+          {mode === "customer" && tab === "home" && <Home key={refreshTick} />}
+          {mode === "customer" && tab === "search" && <Search />}
+          {mode === "customer" && tab === "packages" && <Packages />}
+          {mode === "customer" && tab === "book" && <BookFlow draft={draft} setDraft={setDraft} onDone={() => setRefreshTick((n) => n + 1)} />}
+          {mode === "customer" && tab === "bookings" && <Bookings key={refreshTick} />}
+          {mode === "customer" && tab === "alerts" && <Alerts />}
+          {mode === "customer" && tab === "profile" && <Profile />}
+          {mode === "admin" && <AdminShell key={refreshTick} asec={asec} setAsec={setAsec} openPackageEditSheet={openPackageEditSheet} />}
         </div>
-      </IOSFrame>
+
+        {mode === "customer" && tab !== "book" && <TabBar tab={tab} />}
+
+        <Toast message={toast} />
+
+        {sheet?.kind === "pkg" && <PackageSheet id={sheet.id} onBook={(packageId) => goBook({ packageId })} />}
+        {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
+        {sheet?.kind === "pkgEdit" && (
+          <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />
+        )}
+      </div>
     </AppContext.Provider>
   );
 }

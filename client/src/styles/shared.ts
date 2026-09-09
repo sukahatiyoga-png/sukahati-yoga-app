@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-export const screenPad: CSSProperties = { padding: "58px 20px 28px", height: "100%", overflow: "auto", boxSizing: "border-box" };
+export const screenPad: CSSProperties = { padding: "28px 20px", height: "100%", overflow: "auto", boxSizing: "border-box" };
 export const kicker: CSSProperties = { fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-accent-700)" };
 export const h1: CSSProperties = { fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 34, lineHeight: 1.06, margin: "10px 0 0" };
 export const h2: CSSProperties = { fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 21, margin: "26px 0 12px" };

@@ -23,7 +23,7 @@ export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
   const title = NAV.find((n) => n.id === asec)?.name || "Dashboard";
 
   return (
-    <div style={{ padding: "58px 0 28px" }}>
+    <div style={{ padding: "28px 0" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 20px" }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>Studio admin · Sukahati</div>
