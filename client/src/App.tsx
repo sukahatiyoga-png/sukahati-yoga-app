@@ -6,6 +6,7 @@ import QrSheet from "./components/QrSheet";
 import PackageEditSheet from "./components/PackageEditSheet";
 import { AppContext, type AdminSection, type Tab } from "./context/AppContext";
 import { api, type Me, type Pkg } from "./lib/api";
+import { parseRoute, pathFor } from "./lib/routes";
 
 import Home from "./screens/Home";
 import Search from "./screens/Search";
@@ -22,10 +23,12 @@ type SheetState =
   | { kind: "pkgEdit"; pkg: Pkg | null }
   | null;
 
+const initialRoute = parseRoute(window.location.pathname);
+
 export default function App() {
   const [me, setMe] = useState<Me | null>(null);
-  const [mode, setMode] = useState<"customer" | "admin">("customer");
-  const [tab, setTab] = useState<Tab>("home");
+  const [mode, setMode] = useState<"customer" | "admin">(initialRoute.mode);
+  const [tab, setTab] = useState<Tab>(initialRoute.tab);
   const [asec, setAsec] = useState<AdminSection>("dash");
   const [sheet, setSheet] = useState<SheetState>(null);
   const [toast, setToastMsg] = useState<string | null>(null);
@@ -52,16 +55,38 @@ export default function App() {
   const goTab = useCallback((t: Tab) => {
     setTab(t);
     setSheet(null);
+    history.pushState(null, "", pathFor("customer", t));
   }, []);
 
   const goBook = useCallback((preset?: { sessionId?: string; packageId?: string; dayId?: string }) => {
     setDraft(initialDraft(preset));
     setTab("book");
     setSheet(null);
+    history.pushState(null, "", pathFor("customer", "book"));
   }, []);
 
-  const goAdmin = useCallback(() => { setMode("admin"); setSheet(null); }, []);
-  const exitAdmin = useCallback(() => { setMode("customer"); setTab("home"); setSheet(null); }, []);
+  const goAdmin = useCallback(() => {
+    setMode("admin");
+    setSheet(null);
+    history.pushState(null, "", pathFor("admin", "home"));
+  }, []);
+  const exitAdmin = useCallback(() => {
+    setMode("customer");
+    setTab("home");
+    setSheet(null);
+    history.pushState(null, "", pathFor("customer", "home"));
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => {
+      const r = parseRoute(window.location.pathname);
+      setMode(r.mode);
+      setTab(r.tab);
+      setSheet(null);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
   const openPackageSheet = useCallback((id: string) => setSheet({ kind: "pkg", id }), []);
   const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
