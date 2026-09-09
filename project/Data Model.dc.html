@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-38c667c3-0503-4ad3-9460-e93eb642f050/styles.css">
+<script src="_ds/organic-38c667c3-0503-4ad3-9460-e93eb642f050/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#f5ead8;font-family:"Figtree",system-ui,sans-serif}
+a{color:#8c491a}a:hover{color:#b2622d}
+</style>
+</helmet>
+<div style="max-width:1180px;margin:0 auto;padding:56px 24px 80px;color:var(--color-text);font-family:var(--font-body)">
+
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Sukahati Yoga · proposed schema</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:clamp(34px,5vw,52px);line-height:1.05;margin:14px 0 0;max-width:16em">Data model</h1>
+<p style="font-size:16.5px;line-height:1.6;color:var(--color-neutral-800);max-width:52ch;margin:16px 0 0;text-wrap:pretty">No database is connected to this project. What follows is the schema implied by the app: every table, field and relationship the screens read or write. Fifteen tables, grouped by what they do.</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:26px">
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:9px;background:var(--color-neutral-100);border-radius:999px;padding:9px 16px;font-size:13px;font-weight:600">
+<span style="width:10px;height:10px;border-radius:999px;display:block;background: {{ g.color }}"></span>{{ g.name }}
+</div>
+</sc-for>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:20px;margin-top:40px;align-items:start">
+<sc-for list="{{ tables }}" as="t" hint-placeholder-count="15">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-sm);min-width:0">
+<div style="display:flex;align-items:center;gap:10px">
+<span style="width:11px;height:11px;border-radius:999px;flex:none;display:block;background: {{ t.color }}"></span>
+<div style="font-family:var(--font-heading);font-weight:400;font-size:20px;line-height:1.15;flex:1;min-width:0">{{ t.name }}</div>
+</div>
+<div style="font-size:13px;color:var(--color-neutral-700);line-height:1.5;margin-top:9px">{{ t.note }}</div>
+<div style="display:flex;flex-direction:column;margin-top:16px;border-top:1px solid var(--color-divider)">
+<sc-for list="{{ t.fields }}" as="f" hint-placeholder-count="8">
+<div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--color-divider)">
+<div style="flex:1;min-width:0;font-size:13.5px;font-weight:600;font-feature-settings:'tnum'">{{ f.name }}</div>
+<div style="flex:none;font-size:12px;color:var(--color-neutral-700);text-align:right">{{ f.type }}</div>
+<sc-if value="{{ f.isKey }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="flex:none">{{ f.key }}</span>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:clamp(26px,3.4vw,34px);line-height:1.1;margin:64px 0 0">Relationships</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;margin-top:22px">
+<sc-for list="{{ relations }}" as="r" hint-placeholder-count="10">
+<div style="background:var(--color-accent-100);border-radius:var(--radius-md);padding:16px 18px">
+<div style="font-size:14px;font-weight:700">{{ r.pair }}</div>
+<div style="font-size:12.5px;color:var(--color-accent-800);margin-top:5px;line-height:1.5">{{ r.note }}</div>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:clamp(26px,3.4vw,34px);line-height:1.1;margin:64px 0 0">Rules the schema has to enforce</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px;margin-top:22px">
+<sc-for list="{{ rules }}" as="r" hint-placeholder-count="6">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:18px;display:flex;gap:13px;align-items:flex-start">
+<div style="flex:none;width:30px;height:30px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:14px">{{ r.n }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:14.5px;font-weight:700;line-height:1.3">{{ r.title }}</div>
+<div style="font-size:13px;color:var(--color-neutral-800);margin-top:5px;line-height:1.5;text-wrap:pretty">{{ r.body }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const GROUPS = [
+  { id: 'people', name: 'People and access', color: 'var(--color-accent-500)' },
+  { id: 'catalog', name: 'Catalogue', color: 'var(--color-accent-2-500)' },
+  { id: 'booking', name: 'Booking engine', color: 'var(--color-accent-700)' },
+  { id: 'money', name: 'Money', color: 'var(--color-accent-2-700)' },
+  { id: 'ops', name: 'Operations and comms', color: 'var(--color-neutral-500)' },
+];
+
+const TABLES = [
+  { name: 'users', group: 'people', note: 'One row per customer or staff account. Auth provider is recorded, never the password.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'full_name', type: 'text' },
+      { name: 'email', type: 'citext unique' },
+      { name: 'phone_e164', type: 'text' },
+      { name: 'auth_provider', type: 'enum email/phone/google' },
+      { name: 'role', type: 'enum customer/desk/teacher/owner' },
+      { name: 'locale', type: 'text' },
+      { name: 'timezone', type: 'text' },
+      { name: 'currency', type: 'char(3)' },
+      { name: 'loyalty_points', type: 'int' },
+      { name: 'referral_code', type: 'text unique' },
+      { name: 'referred_by', type: 'uuid', key: 'FK' },
+      { name: 'created_at', type: 'timestamptz' },
+      { name: 'deleted_at', type: 'timestamptz null' },
+    ] },
+  { name: 'user_preferences', group: 'people', note: 'Saved answers the booking form pre-fills, plus notification channel opt-ins.',
+    fields: [
+      { name: 'user_id', type: 'uuid', key: 'PK/FK' },
+      { name: 'usual_level', type: 'enum' },
+      { name: 'preferred_time', type: 'enum' },
+      { name: 'meal_preference', type: 'text' },
+      { name: 'injury_notes', type: 'text' },
+      { name: 'push_enabled', type: 'bool' },
+      { name: 'email_enabled', type: 'bool' },
+      { name: 'whatsapp_enabled', type: 'bool' },
+      { name: 'sms_enabled', type: 'bool' },
+      { name: 'marketing_consent_at', type: 'timestamptz' },
+    ] },
+  { name: 'locations', group: 'people', note: 'Multi-location support. A studio or a retreat site.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'name', type: 'text' },
+      { name: 'kind', type: 'enum studio/retreat' },
+      { name: 'address', type: 'text' },
+      { name: 'timezone', type: 'text' },
+      { name: 'default_currency', type: 'char(3)' },
+      { name: 'is_active', type: 'bool' },
+    ] },
+  { name: 'packages', group: 'catalog', note: 'What a guest can buy. Drop-in, week pass, monthly, private, online, retreat.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'location_id', type: 'uuid', key: 'FK' },
+      { name: 'name', type: 'text' },
+      { name: 'kind', type: 'enum single/pass/private/online/retreat' },
+      { name: 'price_minor', type: 'int' },
+      { name: 'currency', type: 'char(3)' },
+      { name: 'billing_unit', type: 'text' },
+      { name: 'validity_days', type: 'int null' },
+      { name: 'credit_count', type: 'int null' },
+      { name: 'capacity_per_session', type: 'int' },
+      { name: 'max_guests_per_booking', type: 'int' },
+      { name: 'inclusions', type: 'text[]' },
+      { name: 'exclusions', type: 'text[]' },
+      { name: 'cancellation_hours', type: 'int' },
+      { name: 'is_visible', type: 'bool' },
+      { name: 'is_recommended', type: 'bool' },
+      { name: 'sort_order', type: 'int' },
+    ] },
+  { name: 'package_images', group: 'catalog', note: 'Ordered gallery per package. Files live in object storage.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'package_id', type: 'uuid', key: 'FK' },
+      { name: 'storage_key', type: 'text' },
+      { name: 'alt_text', type: 'text' },
+      { name: 'position', type: 'int' },
+    ] },
+  { name: 'class_templates', group: 'catalog', note: 'The recurring weekly schedule sessions are generated from.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'location_id', type: 'uuid', key: 'FK' },
+      { name: 'title', type: 'text' },
+      { name: 'category', type: 'enum flow/hatha/yin/private/online' },
+      { name: 'level', type: 'enum' },
+      { name: 'duration_minutes', type: 'int' },
+      { name: 'weekday', type: 'smallint' },
+      { name: 'start_time', type: 'time' },
+      { name: 'default_teacher_id', type: 'uuid', key: 'FK' },
+      { name: 'default_room_id', type: 'uuid', key: 'FK' },
+      { name: 'capacity', type: 'int' },
+    ] },
+  { name: 'sessions', group: 'booking', note: 'A dated, bookable instance. The availability engine reads and locks this row.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'template_id', type: 'uuid null', key: 'FK' },
+      { name: 'location_id', type: 'uuid', key: 'FK' },
+      { name: 'retreat_id', type: 'uuid null', key: 'FK' },
+      { name: 'title', type: 'text' },
+      { name: 'starts_at', type: 'timestamptz' },
+      { name: 'ends_at', type: 'timestamptz' },
+      { name: 'teacher_id', type: 'uuid', key: 'FK' },
+      { name: 'room_id', type: 'uuid', key: 'FK' },
+      { name: 'capacity', type: 'int' },
+      { name: 'seats_taken', type: 'int' },
+      { name: 'status', type: 'enum scheduled/full/cancelled/blocked' },
+      { name: 'price_override_minor', type: 'int null' },
+    ] },
+  { name: 'retreats', group: 'booking', note: 'Multi-day product. Its own check-in window, rooms and daily programme.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'package_id', type: 'uuid', key: 'FK' },
+      { name: 'location_id', type: 'uuid', key: 'FK' },
+      { name: 'starts_on', type: 'date' },
+      { name: 'ends_on', type: 'date' },
+      { name: 'check_in_at', type: 'time' },
+      { name: 'check_out_at', type: 'time' },
+      { name: 'total_places', type: 'int' },
+      { name: 'places_taken', type: 'int' },
+      { name: 'early_bird_until', type: 'date' },
+    ] },
+  { name: 'bookings', group: 'booking', note: 'The order. One row per request, whatever it contains.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'reference', type: 'text unique' },
+      { name: 'user_id', type: 'uuid', key: 'FK' },
+      { name: 'package_id', type: 'uuid', key: 'FK' },
+      { name: 'session_id', type: 'uuid null', key: 'FK' },
+      { name: 'retreat_id', type: 'uuid null', key: 'FK' },
+      { name: 'guest_count', type: 'int' },
+      { name: 'level', type: 'enum' },
+      { name: 'special_requests', type: 'text' },
+      { name: 'status', type: 'enum pending/confirmed/cancelled/no_show/attended' },
+      { name: 'subtotal_minor', type: 'int' },
+      { name: 'discount_minor', type: 'int' },
+      { name: 'total_minor', type: 'int' },
+      { name: 'amount_paid_minor', type: 'int' },
+      { name: 'currency', type: 'char(3)' },
+      { name: 'coupon_id', type: 'uuid null', key: 'FK' },
+      { name: 'qr_token', type: 'text unique' },
+      { name: 'checked_in_at', type: 'timestamptz null' },
+      { name: 'cancelled_at', type: 'timestamptz null' },
+      { name: 'created_at', type: 'timestamptz' },
+    ] },
+  { name: 'booking_addons', group: 'booking', note: 'Mat hire, towel, smoothie, airport transfer. Priced per guest.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'booking_id', type: 'uuid', key: 'FK' },
+      { name: 'addon_id', type: 'uuid', key: 'FK' },
+      { name: 'quantity', type: 'int' },
+      { name: 'unit_price_minor', type: 'int' },
+    ] },
+  { name: 'waitlist_entries', group: 'booking', note: 'Position-ordered queue. A release creates a timed hold, not a booking.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'session_id', type: 'uuid', key: 'FK' },
+      { name: 'user_id', type: 'uuid', key: 'FK' },
+      { name: 'position', type: 'int' },
+      { name: 'notified_at', type: 'timestamptz null' },
+      { name: 'hold_expires_at', type: 'timestamptz null' },
+      { name: 'status', type: 'enum waiting/offered/claimed/expired' },
+    ] },
+  { name: 'payments', group: 'money', note: 'Every attempt, deposit and refund against a booking. Append-only.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'booking_id', type: 'uuid', key: 'FK' },
+      { name: 'kind', type: 'enum deposit/balance/full/refund' },
+      { name: 'method', type: 'enum card/fpx/grabpay/apple_pay/cash' },
+      { name: 'amount_minor', type: 'int' },
+      { name: 'currency', type: 'char(3)' },
+      { name: 'fx_rate', type: 'numeric' },
+      { name: 'status', type: 'enum pending/paid/failed/refunded' },
+      { name: 'provider_intent_id', type: 'text' },
+      { name: 'receipt_url', type: 'text' },
+      { name: 'due_at', type: 'timestamptz null' },
+      { name: 'paid_at', type: 'timestamptz null' },
+    ] },
+  { name: 'coupons', group: 'money', note: 'Codes, memberships and early-bird rules. Redemptions counted separately.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'code', type: 'text unique' },
+      { name: 'discount_type', type: 'enum percent/fixed' },
+      { name: 'discount_value', type: 'int' },
+      { name: 'applies_to_package_id', type: 'uuid null', key: 'FK' },
+      { name: 'min_guests', type: 'int' },
+      { name: 'starts_at', type: 'timestamptz' },
+      { name: 'expires_at', type: 'timestamptz' },
+      { name: 'max_redemptions', type: 'int' },
+      { name: 'redemption_count', type: 'int' },
+      { name: 'is_active', type: 'bool' },
+    ] },
+  { name: 'teachers · rooms', group: 'ops', note: 'Two small tables the conflict check joins against when a session is saved.',
+    fields: [
+      { name: 'teachers.id', type: 'uuid', key: 'PK' },
+      { name: 'teachers.user_id', type: 'uuid', key: 'FK' },
+      { name: 'teachers.specialties', type: 'text[]' },
+      { name: 'teachers.weekly_hour_cap', type: 'int' },
+      { name: 'rooms.id', type: 'uuid', key: 'PK' },
+      { name: 'rooms.location_id', type: 'uuid', key: 'FK' },
+      { name: 'rooms.name', type: 'text' },
+      { name: 'rooms.mat_capacity', type: 'int' },
+      { name: 'rooms.is_accommodation', type: 'bool' },
+      { name: 'rooms.beds', type: 'int null' },
+    ] },
+  { name: 'notifications', group: 'ops', note: 'One row per message sent, per channel. Drives the alerts screen and the audit trail.',
+    fields: [
+      { name: 'id', type: 'uuid', key: 'PK' },
+      { name: 'user_id', type: 'uuid', key: 'FK' },
+      { name: 'booking_id', type: 'uuid null', key: 'FK' },
+      { name: 'event', type: 'enum booking_confirmed/payment_received/reminder_7d/reminder_24h/cancelled/schedule_changed/payment_due/waitlist_open' },
+      { name: 'channel', type: 'enum push/email/sms/whatsapp' },
+      { name: 'title', type: 'text' },
+      { name: 'body', type: 'text' },
+      { name: 'scheduled_for', type: 'timestamptz' },
+      { name: 'sent_at', type: 'timestamptz null' },
+      { name: 'read_at', type: 'timestamptz null' },
+      { name: 'provider_message_id', type: 'text' },
+    ] },
+  { name: 'audit_log', group: 'ops', note: 'Who changed what. Written on every price, booking and refund change.',
+    fields: [
+      { name: 'id', type: 'bigserial', key: 'PK' },
+      { name: 'actor_user_id', type: 'uuid', key: 'FK' },
+      { name: 'entity_table', type: 'text' },
+      { name: 'entity_id', type: 'uuid' },
+      { name: 'action', type: 'enum create/update/delete/refund' },
+      { name: 'diff', type: 'jsonb' },
+      { name: 'ip_address', type: 'inet' },
+      { name: 'created_at', type: 'timestamptz' },
+    ] },
+];
+
+const RELATIONS = [
+  { pair: 'users → bookings', note: 'One customer, many bookings. Booking history is this join, ordered by created_at.' },
+  { pair: 'packages → bookings', note: 'Restricted delete. A package that has ever sold is hidden, never removed.' },
+  { pair: 'sessions → bookings', note: 'Nullable: retreat and private bookings carry retreat_id instead.' },
+  { pair: 'retreats → sessions', note: 'The daily programme. Generated when the retreat dates are saved.' },
+  { pair: 'bookings → payments', note: 'One to many. amount_paid_minor is the sum of paid rows, less refunds.' },
+  { pair: 'bookings → booking_addons', note: 'Cascade delete. Add-ons have no meaning without their booking.' },
+  { pair: 'sessions → waitlist_entries', note: 'Unique on (session_id, user_id). Position is contiguous per session.' },
+  { pair: 'teachers / rooms → sessions', note: 'Exclusion constraint on overlapping time ranges prevents double assignment.' },
+  { pair: 'coupons → bookings', note: 'redemption_count increments in the same transaction as the booking insert.' },
+  { pair: 'users → notifications', note: 'Channel rows respect user_preferences at send time, not at queue time.' },
+];
+
+const RULES = [
+  { title: 'No double booking', body: 'seats_taken and capacity live on the session row. Insert a booking inside a transaction that takes a row lock and re-checks capacity — never trust a count read a moment earlier.' },
+  { title: 'No conflicting assignment', body: 'A range exclusion constraint on (teacher_id, tstzrange) and (room_id, tstzrange) makes an overlapping session impossible at the database level, not just in the UI.' },
+  { title: 'Money in minor units', body: 'Every amount is an integer of the smallest unit with its own currency column. No floats, and no implicit conversion between currencies.' },
+  { title: 'Payments are append-only', body: 'A refund is a new negative-intent row, not an edit. A booking\'s paid total is always derivable from its payment rows.' },
+  { title: 'Notifications are scheduled, not fired', body: 'The 7-day and 24-hour reminders are written at booking time with scheduled_for. A schedule change rewrites the pending rows.' },
+  { title: 'Soft delete for people', body: 'users.deleted_at anonymises rather than removes, so bookings, payments and the audit log stay intact for accounting.' },
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    const colorOf = (g) => (GROUPS.find(x => x.id === g) || GROUPS[0]).color;
+    return {
+      groups: GROUPS,
+      tables: TABLES.map(t => ({
+        ...t,
+        color: colorOf(t.group),
+        fields: t.fields.map(f => ({ ...f, isKey: !!f.key, key: f.key || '' })),
+      })),
+      relations: RELATIONS,
+      rules: RULES.map((r, i) => ({ ...r, n: i + 1 })),
+    };
+  }
+}
+</script>
+</body>
+</html>

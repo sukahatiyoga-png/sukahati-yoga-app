@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-38c667c3-0503-4ad3-9460-e93eb642f050/styles.css">
+<script src="_ds/organic-38c667c3-0503-4ad3-9460-e93eb642f050/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#e6dbc6;font-family:"Figtree",system-ui,sans-serif}
+a{color:#8c491a}a:hover{color:#b2622d}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+<div style="position:relative;height:100%;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden">
+<div style="flex:1;overflow:auto">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="padding:58px 20px 28px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<div>
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Sukahati Yoga · Kuala Lumpur</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:34px;line-height:1.06;margin:10px 0 0">Selamat pagi,<br>Amelia</h1>
+</div>
+<div style="display:flex;gap:8px;flex:none">
+<button style="width:44px;height:44px;border-radius:999px;border:0;background:var(--color-neutral-100);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text);box-shadow:var(--shadow-sm);position:relative" onClick="{{ goAlerts }}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>
+<sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}">
+<span style="position:absolute;top:-2px;right:-2px;min-width:19px;height:19px;border-radius:999px;background:var(--color-accent-500);color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--color-bg)">{{ unreadCount }}</span>
+</sc-if>
+</button>
+<button style="width:44px;height:44px;border-radius:999px;border:0;background:var(--color-accent-2-300);color:var(--color-accent-2-900);font-family:var(--font-body);font-weight:700;font-size:14px;cursor:pointer;box-shadow:var(--shadow-sm)" onClick="{{ goProfile }}">AT</button>
+</div>
+</div>
+
+<div class="washed" style="margin-top:20px;border-radius:var(--radius-lg);overflow:hidden;height:146px">
+<img src="assets/photo.jpg" alt="Studio practice" style="width:100%;height:100%;object-fit:cover;display:block">
+</div>
+
+<div style="margin:-38px 14px 0;position:relative;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow-md)" onClick="{{ goBookings }}">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-700)">Next booking</div>
+<div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+<div style="flex:none;text-align:center">
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1">7:00</div>
+<div style="font-size:11px;letter-spacing:0.08em;color:var(--color-neutral-600)">AM</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:14px">
+<div style="font-weight:700;font-size:16px">Morning Flow</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">Tomorrow · Dewi · Studio A</div>
+</div>
+<span class="tag tag-accent-2" style="flex:none">Confirmed</span>
+</div>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:16px">
+<button class="btn btn-primary" style="flex:1.4;padding:15px 0;font-size:15px" onClick="{{ goBook }}">Book a class</button>
+<button class="btn btn-secondary" style="flex:1;padding:15px 0;font-size:15px" onClick="{{ goSearch }}">Search</button>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 12px">
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:0">Your pass</h2>
+<button class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px" onClick="{{ goBookings }}">Manage</button>
+</div>
+<div style="background:var(--color-accent-200);border-radius:var(--radius-lg);padding:18px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+<div style="font-weight:700;font-size:16px">1 Week Class Pass</div>
+<div style="font-size:13px;font-weight:600;color:var(--color-accent-800)">3 days left</div>
+</div>
+<div style="height:8px;border-radius:999px;background:var(--color-accent-300);margin-top:12px;overflow:hidden">
+<div style="width:57%;height:100%;background:var(--color-accent-600);border-radius:999px"></div>
+</div>
+<div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--color-accent-800);margin-top:9px">
+<span>Unlimited until Sun 13 Sep</span><span>{{ points }} pts</span>
+</div>
+</div>
+
+<div style="margin-top:16px;background:var(--color-accent-2-200);border-radius:var(--radius-lg);padding:18px" onClick="{{ openRetreat }}">
+<span class="tag tag-accent" style="margin-bottom:10px">Early bird · save {{ currency }} 200</span>
+<div style="font-family:var(--font-heading);font-size:20px;line-height:1.18">3-Day Retreat<br>Janda Baik</div>
+<div style="font-size:13px;color:var(--color-accent-2-900);margin-top:7px;line-height:1.45">10–12 October · 12 places · rooms, meals and six sessions included</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-top:12px">
+<span style="font-family:var(--font-heading);font-size:22px">{{ currency }} 1,800</span>
+<span style="font-size:12.5px;color:var(--color-accent-2-900)">per person · 4 rooms left</span>
+</div>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 12px">
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:0">Today at the studio</h2>
+<span style="font-size:12.5px;color:var(--color-neutral-700)">Live availability</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ todaySlots }}" as="t" hint-placeholder-count="4">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:54px"><div style="font-weight:700;font-size:15px">{{ t.time }}</div><div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">{{ t.ampm }}</div></div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:14px">
+<div style="font-weight:600;font-size:15px">{{ t.title }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">{{ t.teacher }}</div>
+</div>
+<sc-if value="{{ t.open }}" hint-placeholder-val="{{ true }}">
+<span class="tag tag-outline" style="flex:none">{{ t.spots }}</span>
+</sc-if>
+<sc-if value="{{ t.full }}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-ghost" style="flex:none;padding:7px 12px;font-size:12px" onClick="{{ t.waitlist }}">Waitlist</button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 20px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Find a session</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:34px;line-height:1.06;margin:10px 0 16px">Search</h1>
+
+<div class="field"><label for="q">Class, teacher or retreat</label><input class="input" id="q" placeholder="Try “yin” or “Dewi”" value="{{ query }}" onChange="{{ editQuery }}"></div>
+
+<div style="margin-top:20px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Date</div>
+<div style="display:flex;gap:8px;margin-top:10px;overflow:auto;padding-bottom:4px">
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+<button style="flex:none;width:54px;border:0;border-radius:20px;padding:11px 0;cursor:pointer;font-family:var(--font-body);text-align:center;background: {{ d.bg }};color: {{ d.fg }}" onClick="{{ d.pick }}">
+<div style="font-size:10.5px;letter-spacing:0.06em;opacity:0.78">{{ d.dow }}</div>
+<div style="font-family:var(--font-heading);font-size:19px;line-height:1.2;margin-top:3px">{{ d.num }}</div>
+</button>
+</sc-for>
+</div>
+
+<div style="margin-top:20px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Category</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+<button style="border:0;border-radius:999px;padding:9px 15px;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;background: {{ c.bg }};color: {{ c.fg }}" onClick="{{ c.pick }}">{{ c.name }}</button>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:14px;margin-top:20px">
+<div style="flex:1">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Price</div>
+<div style="display:flex;flex-direction:column;gap:7px;margin-top:10px">
+<sc-for list="{{ prices }}" as="p" hint-placeholder-count="4">
+<button style="border:0;border-radius:999px;padding:9px 0;cursor:pointer;font-family:var(--font-body);font-size:12.5px;font-weight:600;background: {{ p.bg }};color: {{ p.fg }}" onClick="{{ p.pick }}">{{ p.name }}</button>
+</sc-for>
+</div>
+</div>
+<div style="flex:1">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Duration</div>
+<div style="display:flex;flex-direction:column;gap:7px;margin-top:10px">
+<sc-for list="{{ durations }}" as="p" hint-placeholder-count="4">
+<button style="border:0;border-radius:999px;padding:9px 0;cursor:pointer;font-family:var(--font-body);font-size:12.5px;font-weight:600;background: {{ p.bg }};color: {{ p.fg }}" onClick="{{ p.pick }}">{{ p.name }}</button>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:22px;padding:14px 16px;background:var(--color-neutral-100);border-radius:var(--radius-md)">
+<div style="font-size:13.5px;font-weight:600">Only show places available</div>
+<sc-if value="{{ availOnly }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:50px;height:29px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ toggleAvail }}"><span style="width:23px;height:23px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ availAll }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:50px;height:29px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ toggleAvail }}"><span style="width:23px;height:23px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 12px">
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:0">{{ resultCount }} results</h2>
+<button class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px" onClick="{{ clearFilters }}">Clear</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ results }}" as="r" hint-placeholder-count="4">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px">
+<div style="display:flex;gap:12px;align-items:flex-start">
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:15.5px;line-height:1.2">{{ r.title }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:3px">{{ r.meta }}</div>
+<div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+<span class="tag tag-outline">{{ r.cat }}</span>
+<span class="tag tag-neutral">{{ r.rating }}</span>
+</div>
+</div>
+<div style="flex:none;text-align:right">
+<div style="font-family:var(--font-heading);font-size:19px;line-height:1">{{ r.price }}</div>
+<div style="font-size:11.5px;color:var(--color-neutral-600);margin-top:3px">{{ r.dur }}</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:13px;padding-top:12px;border-top:1px solid var(--color-divider)">
+<sc-if value="{{ r.open }}" hint-placeholder-val="{{ true }}">
+<span style="flex:1;font-size:12px;color:var(--color-accent-2-700);font-weight:600">{{ r.spots }} places left</span>
+<button class="btn btn-primary" style="flex:none;padding:8px 16px;font-size:12.5px" onClick="{{ r.book }}">Book</button>
+</sc-if>
+<sc-if value="{{ r.full }}" hint-placeholder-val="{{ false }}">
+<span style="flex:1;font-size:12px;color:var(--color-neutral-700);font-weight:600">Fully booked</span>
+<button class="btn btn-secondary" style="flex:none;padding:8px 16px;font-size:12.5px" onClick="{{ r.waitlist }}">Join waitlist</button>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPackages }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 20px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Choose your practice</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:34px;line-height:1.06;margin:10px 0 6px">Packages</h1>
+<div style="font-size:14.5px;color:var(--color-neutral-700);max-width:280px">Every option on the booking form, from a single drop-in to the October retreat.</div>
+
+<div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
+<sc-for list="{{ packages }}" as="p" hint-placeholder-count="6">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)" onClick="{{ p.open }}">
+<sc-if value="{{ p.recommended }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="margin-bottom:10px">{{ p.badge }}</span>
+</sc-if>
+<div style="display:flex;gap:12px;align-items:flex-start">
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-weight:400;font-size:19px;line-height:1.2">{{ p.name }}</div>
+<div style="font-size:13px;color:var(--color-neutral-700);margin-top:6px;line-height:1.45">{{ p.desc }}</div>
+</div>
+<div style="flex:none;text-align:right">
+<div style="font-family:var(--font-heading);font-size:23px;line-height:1">{{ p.price }}</div>
+<div style="font-size:11.5px;color:var(--color-neutral-600);margin-top:4px">{{ p.unit }}</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:15px;padding-top:13px;border-top:1px solid var(--color-divider)">
+<div style="flex:1;font-size:12px;color:var(--color-neutral-700)">{{ p.includes }}</div>
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-600)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="m9 6 6 6-6 6"/></svg>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBook }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 20px 28px">
+<sc-if value="{{ notDone }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:12px">
+<button style="flex:none;width:40px;height:40px;border-radius:999px;border:0;background:var(--color-neutral-100);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--color-text)" onClick="{{ back }}">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+</button>
+<div style="flex:1">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">{{ stepLabel }}</div>
+<div style="font-family:var(--font-heading);font-size:23px;line-height:1.15;margin-top:3px">{{ stepTitle }}</div>
+</div>
+</div>
+<div style="display:flex;gap:6px;margin-top:16px">
+<div style="flex:1;height:5px;border-radius:999px;background:var(--color-accent-500)"></div>
+<div style="flex:1;height:5px;border-radius:999px;background: {{ bar2 }}"></div>
+<div style="flex:1;height:5px;border-radius:999px;background: {{ bar3 }}"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ step1 }}" hint-placeholder-val="{{ true }}">
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">September 2026</div>
+<div style="display:flex;gap:8px;margin-top:11px;overflow:auto;padding-bottom:4px">
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+<button style="flex:none;width:54px;border:0;border-radius:20px;padding:11px 0;cursor:pointer;font-family:var(--font-body);text-align:center;background: {{ d.bg }};color: {{ d.fg }}" onClick="{{ d.pick }}">
+<div style="font-size:10.5px;letter-spacing:0.06em;opacity:0.78">{{ d.dow }}</div>
+<div style="font-family:var(--font-heading);font-size:19px;line-height:1.2;margin-top:3px">{{ d.num }}</div>
+</button>
+</sc-for>
+</div>
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Time slot · live capacity</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:11px">
+<sc-for list="{{ slots }}" as="s" hint-placeholder-count="4">
+<div style="border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:13px;align-items:center;background: {{ s.bg }}" onClick="{{ s.pick }}">
+<div style="flex:none;width:56px">
+<div style="font-weight:700;font-size:15px">{{ s.time }}</div>
+<div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">{{ s.ampm }}</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:13px">
+<div style="font-weight:600;font-size:15px">{{ s.title }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">{{ s.teacher }}</div>
+</div>
+<sc-if value="{{ s.open }}" hint-placeholder-val="{{ true }}">
+<span class="tag tag-outline" style="flex:none">{{ s.spots }}</span>
+</sc-if>
+<sc-if value="{{ s.full }}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-ghost" style="flex:none;padding:7px 12px;font-size:12px" onClick="{{ s.waitlist }}">Waitlist</button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ step2 }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Package</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:11px">
+<sc-for list="{{ pickPkgs }}" as="p" hint-placeholder-count="6">
+<button style="border:0;text-align:left;cursor:pointer;font-family:var(--font-body);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:12px;align-items:center;background: {{ p.bg }}" onClick="{{ p.pick }}">
+<div style="flex:1;min-width:0">
+<div style="font-weight:600;font-size:14.5px;line-height:1.25">{{ p.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:3px">{{ p.unit }}</div>
+</div>
+<div style="flex:none;font-family:var(--font-heading);font-size:17px">{{ p.price }}</div>
+</button>
+</sc-for>
+</div>
+
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Level</div>
+<div style="display:flex;gap:8px;margin-top:11px">
+<sc-for list="{{ levels }}" as="l" hint-placeholder-count="3">
+<button style="flex:1;border:0;border-radius:999px;padding:12px 0;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;background: {{ l.bg }};color: {{ l.fg }}" onClick="{{ l.pick }}">{{ l.name }}</button>
+</sc-for>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px">
+<div>
+<div style="font-size:14.5px;font-weight:600">Guests</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">Places held under your name</div>
+</div>
+<div style="display:flex;align-items:center;gap:12px;flex:none">
+<button style="width:34px;height:34px;border-radius:999px;border:0;background:var(--color-neutral-200);cursor:pointer;font-size:18px;font-weight:700;color:var(--color-text)" onClick="{{ lessGuests }}">−</button>
+<div style="font-family:var(--font-heading);font-size:20px;min-width:18px;text-align:center">{{ guests }}</div>
+<button style="width:34px;height:34px;border-radius:999px;border:0;background:var(--color-accent-500);cursor:pointer;font-size:18px;font-weight:700;color:#fff" onClick="{{ moreGuests }}">+</button>
+</div>
+</div>
+
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Add-ons</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:11px">
+<sc-for list="{{ addons }}" as="a" hint-placeholder-count="3">
+<button style="border:0;text-align:left;cursor:pointer;font-family:var(--font-body);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:12px;align-items:center;background: {{ a.bg }}" onClick="{{ a.toggle }}">
+<div style="flex:none;width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;background: {{ a.boxBg }};color:#fff">
+<sc-if value="{{ a.on }}" hint-placeholder-val="{{ false }}">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+</sc-if>
+</div>
+<div style="flex:1;min-width:0;font-size:14px;font-weight:600">{{ a.name }}</div>
+<div style="flex:none;font-size:13.5px;font-weight:600;color:var(--color-neutral-700)">{{ a.priceLabel }}</div>
+</button>
+</sc-for>
+</div>
+
+<div class="field" style="margin-top:20px">
+<label for="req">Special requests</label>
+<input class="input" id="req" placeholder="Injuries, first time, timezone" value="{{ notes }}" onChange="{{ editNotes }}">
+</div>
+</sc-if>
+
+<sc-if value="{{ step3 }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:22px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Date</span><span style="font-weight:600;text-align:right">{{ pickedDate }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Class</span><span style="font-weight:600;text-align:right">{{ pickedSlot }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Package</span><span style="font-weight:600;text-align:right">{{ pickedPkg }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Guests · level</span><span style="font-weight:600;text-align:right">{{ guests }} · {{ level }}</span>
+</div>
+</div>
+
+<div style="margin-top:20px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Promo code</div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<input class="input" style="flex:1" placeholder="EARLYBIRD" value="{{ promo }}" onChange="{{ editPromo }}">
+<button class="btn btn-secondary" style="flex:none;padding:12px 18px;font-size:13.5px" onClick="{{ applyPromo }}">Apply</button>
+</div>
+<sc-if value="{{ promoOk }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:9px;font-size:12.5px;font-weight:600;color:var(--color-accent-2-700)">{{ promoMsg }}</div>
+</sc-if>
+
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">How much to pay now</div>
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:11px">
+<sc-for list="{{ payModes }}" as="m" hint-placeholder-count="3">
+<button style="border:0;text-align:left;cursor:pointer;font-family:var(--font-body);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:12px;align-items:center;background: {{ m.bg }}" onClick="{{ m.pick }}">
+<div style="flex:1;min-width:0">
+<div style="font-size:14px;font-weight:600">{{ m.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ m.note }}</div>
+</div>
+<div style="flex:none;font-family:var(--font-heading);font-size:17px">{{ m.amount }}</div>
+</button>
+</sc-for>
+</div>
+
+<div style="margin-top:22px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Payment method</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:11px">
+<sc-for list="{{ methods }}" as="m" hint-placeholder-count="4">
+<button style="border:0;border-radius:999px;padding:11px 17px;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;background: {{ m.bg }};color: {{ m.fg }}" onClick="{{ m.pick }}">{{ m.name }}</button>
+</sc-for>
+</div>
+
+<div style="margin-top:22px;background:var(--color-accent-200);border-radius:var(--radius-lg);padding:6px 18px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-accent-300);font-size:13.5px">
+<span style="color:var(--color-accent-800)">{{ pickedPkg }} × {{ guests }}</span><span style="font-weight:600">{{ subtotal }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-accent-300);font-size:13.5px">
+<span style="color:var(--color-accent-800)">Add-ons</span><span style="font-weight:600">{{ addonTotal }}</span>
+</div>
+<sc-if value="{{ promoOk }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-accent-300);font-size:13.5px">
+<span style="color:var(--color-accent-800)">Discount</span><span style="font-weight:600">−{{ discount }}</span>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:13px 0">
+<span style="font-size:13.5px;font-weight:700;color:var(--color-accent-800)">Due now</span><span style="font-family:var(--font-heading);font-size:23px">{{ dueNow }}</span>
+</div>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:10px;line-height:1.5">Free cancellation up to 12 hours before the class. Receipts are emailed and stored under your profile.</div>
+</sc-if>
+
+<sc-if value="{{ stepDone }}" hint-placeholder-val="{{ false }}">
+<div style="padding-top:30px;display:flex;flex-direction:column;align-items:center;text-align:center">
+<div style="width:96px;height:96px;border-radius:999px;background:var(--color-accent-2-300);display:flex;align-items:center;justify-content:center">
+<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-800)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+</div>
+<div style="font-family:var(--font-heading);font-size:29px;line-height:1.1;margin-top:20px">Booking confirmed</div>
+<div style="font-size:14px;color:var(--color-neutral-700);margin-top:9px;max-width:250px;line-height:1.5">{{ paidLine }}</div>
+
+<div style="width:100%;margin-top:22px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:20px;text-align:left">
+<div style="font-weight:700;font-size:16px">{{ pickedSlot }}</div>
+<div style="font-size:13px;color:var(--color-neutral-700);margin-top:4px">{{ pickedDate }} · {{ pickedPkg }} · {{ guests }} guest(s)</div>
+<div style="display:flex;justify-content:center;margin-top:18px">
+<div style="width:150px;height:150px;border-radius:var(--radius-md);background:#fff;padding:12px;box-sizing:border-box;position:relative">
+<div style="width:100%;height:100%;background-image:repeating-linear-gradient(90deg,var(--color-neutral-900) 0 9px,transparent 9px 18px),repeating-linear-gradient(0deg,var(--color-neutral-900) 0 9px,transparent 9px 18px);background-blend-mode:difference;border-radius:4px"></div>
+<div style="position:absolute;top:12px;left:12px;width:36px;height:36px;border:8px solid var(--color-neutral-900);background:#fff"></div>
+<div style="position:absolute;top:12px;right:12px;width:36px;height:36px;border:8px solid var(--color-neutral-900);background:#fff"></div>
+<div style="position:absolute;bottom:12px;left:12px;width:36px;height:36px;border:8px solid var(--color-neutral-900);background:#fff"></div>
+</div>
+</div>
+<div style="text-align:center;font-size:12px;color:var(--color-neutral-700);margin-top:12px">Show this at the door · booking {{ bookingRef }}</div>
+</div>
+
+<button class="btn btn-primary btn-block" style="margin-top:18px;padding:15px 0" onClick="{{ goBookings }}">My bookings</button>
+<button class="btn btn-ghost btn-block" style="margin-top:8px;padding:13px 0" onClick="{{ goHome }}">Back to home</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBookings }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 20px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Amelia Tan</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:34px;line-height:1.06;margin:10px 0 16px">My bookings</h1>
+
+<div style="background:var(--color-accent-200);border-radius:var(--radius-lg);padding:18px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+<div style="font-weight:700;font-size:16px">1 Week Class Pass</div>
+<div style="font-size:13px;font-weight:600;color:var(--color-accent-800)">3 days left</div>
+</div>
+<div style="height:8px;border-radius:999px;background:var(--color-accent-300);margin-top:12px;overflow:hidden">
+<div style="width:57%;height:100%;background:var(--color-accent-600);border-radius:999px"></div>
+</div>
+<div style="font-size:12.5px;color:var(--color-accent-800);margin-top:9px">Started 6 Sep · ends Sunday 13 September</div>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:26px 0 12px">Upcoming</h2>
+<div style="display:flex;flex-direction:column;gap:11px">
+<sc-for list="{{ upcoming }}" as="b" hint-placeholder-count="2">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm)">
+<div style="display:flex;gap:14px;align-items:center" onClick="{{ b.open }}">
+<div style="flex:none;width:50px;text-align:center">
+<div style="font-size:10.5px;letter-spacing:0.06em;color:var(--color-neutral-600)">{{ b.mon }}</div>
+<div style="font-family:var(--font-heading);font-size:21px;line-height:1.1">{{ b.day }}</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:13px">
+<div style="font-weight:700;font-size:15px">{{ b.title }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">{{ b.meta }}</div>
+</div>
+<sc-if value="{{ b.confirmed }}" hint-placeholder-val="{{ true }}">
+<span class="tag tag-accent-2" style="flex:none">Confirmed</span>
+</sc-if>
+<sc-if value="{{ b.pending }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="flex:none">Pending</span>
+</sc-if>
+</div>
+<sc-if value="{{ b.balance }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:12px;background:var(--color-accent-100);border-radius:var(--radius-md);padding:11px 13px;display:flex;align-items:center;gap:10px">
+<span style="flex:1;font-size:12.5px;color:var(--color-accent-800);font-weight:600">Balance due {{ b.balance }}</span>
+<button class="btn btn-primary" style="flex:none;padding:7px 14px;font-size:12px" onClick="{{ b.pay }}">Pay</button>
+</div>
+</sc-if>
+<div style="display:flex;gap:8px;margin-top:12px">
+<button class="btn btn-ghost" style="flex:1;padding:10px 0;font-size:13px" onClick="{{ b.cancel }}">Cancel</button>
+<button class="btn btn-secondary" style="flex:1;padding:10px 0;font-size:13px" onClick="{{ b.open }}">Show QR</button>
+</div>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:26px 0 12px">Past</h2>
+<div style="display:flex;flex-direction:column;gap:10px;opacity:0.62">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:50px;text-align:center"><div style="font-size:10.5px;letter-spacing:0.06em;color:var(--color-neutral-600)">SEP</div><div style="font-family:var(--font-heading);font-size:20px;line-height:1.1">7</div></div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-neutral-300);padding-left:13px">
+<div style="font-weight:600;font-size:14.5px">Candlelight Yin</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">7:00 PM · Ayu · attended</div>
+</div>
+<button class="btn btn-ghost" style="flex:none;padding:6px 11px;font-size:11.5px">Receipt</button>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:50px;text-align:center"><div style="font-size:10.5px;letter-spacing:0.06em;color:var(--color-neutral-600)">SEP</div><div style="font-family:var(--font-heading);font-size:20px;line-height:1.1">6</div></div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-neutral-300);padding-left:13px">
+<div style="font-weight:600;font-size:14.5px">Morning Flow</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">7:00 AM · Dewi · attended</div>
+</div>
+<button class="btn btn-ghost" style="flex:none;padding:6px 11px;font-size:11.5px">Receipt</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 20px 28px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+<div>
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">{{ unreadLabel }}</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:34px;line-height:1.06;margin:10px 0 0">Notifications</h1>
+</div>
+<sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-ghost" style="flex:none;padding:8px 13px;font-size:12.5px" onClick="{{ markAll }}">Mark read</button>
+</sc-if>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+<sc-for list="{{ alerts }}" as="n" hint-placeholder-count="6">
+<div style="border-radius:var(--radius-md);padding:15px;display:flex;gap:12px;align-items:flex-start;background: {{ n.bg }}" onClick="{{ n.read }}">
+<div style="flex:none;width:36px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:center;background: {{ n.iconBg }};color: {{ n.iconFg }}">
+<sc-if value="{{ n.isCheck }}" hint-placeholder-val="{{ true }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+</sc-if>
+<sc-if value="{{ n.isClock }}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg>
+</sc-if>
+<sc-if value="{{ n.isCal }}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="4"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
+</sc-if>
+<sc-if value="{{ n.isCard }}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M2.5 10h19"/></svg>
+</sc-if>
+<sc-if value="{{ n.isUsers }}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 8.5a3 3 0 0 1 0 5"/></svg>
+</sc-if>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;gap:8px;align-items:baseline">
+<div style="flex:1;font-weight:700;font-size:14px;line-height:1.3">{{ n.title }}</div>
+<div style="flex:none;font-size:11px;color:var(--color-neutral-600)">{{ n.ago }}</div>
+</div>
+<div style="font-size:12.5px;color:var(--color-neutral-800);margin-top:4px;line-height:1.45">{{ n.body }}</div>
+<div style="display:flex;gap:7px;align-items:center;margin-top:9px">
+<span class="tag tag-neutral">{{ n.channel }}</span>
+<sc-if value="{{ n.hasAction }}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-secondary" style="padding:7px 13px;font-size:12px" onClick="{{ n.action }}">{{ n.actionLabel }}</button>
+</sc-if>
+</div>
+</div>
+<sc-if value="{{ n.unread }}" hint-placeholder-val="{{ true }}">
+<span style="flex:none;width:9px;height:9px;border-radius:999px;background:var(--color-accent-500);margin-top:5px"></span>
+</sc-if>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:26px 0 12px">How we reach you</h2>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--color-divider)">
+<div>
+<div style="font-size:14px;font-weight:600">{{ p.name }}</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">{{ p.note }}</div>
+</div>
+<sc-if value="{{ p.on }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:50px;height:29px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ p.toggle }}"><span style="width:23px;height:23px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ p.off }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:50px;height:29px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ p.toggle }}"><span style="width:23px;height:23px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 20px 28px">
+<div style="display:flex;align-items:center;gap:14px">
+<div style="flex:none;width:64px;height:64px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px">AT</div>
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1.12">Amelia Tan</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:3px">Member since Sep 2026 · signed in with Google</div>
+</div>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:20px">
+<div style="flex:1;background:var(--color-accent-200);border-radius:var(--radius-md);padding:14px">
+<div style="font-family:var(--font-heading);font-size:23px;line-height:1">{{ points }}</div>
+<div style="font-size:11.5px;color:var(--color-accent-800);margin-top:4px">Loyalty points</div>
+</div>
+<div style="flex:1;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px">
+<div style="font-family:var(--font-heading);font-size:23px;line-height:1">14</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:4px">Classes attended</div>
+</div>
+<div style="flex:1;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px">
+<div style="font-family:var(--font-heading);font-size:23px;line-height:1">2</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:4px">Friends referred</div>
+</div>
+</div>
+
+<div class="field" style="margin-top:20px"><label for="p-name">Full name</label><input class="input" id="p-name" value="{{ form.name }}" onChange="{{ editName }}"></div>
+<div class="field" style="margin-top:14px"><label for="p-email">Email</label><input class="input" id="p-email" value="{{ form.email }}" onChange="{{ editEmail }}"></div>
+<div class="field" style="margin-top:14px"><label for="p-phone">Phone</label><input class="input" id="p-phone" value="{{ form.phone }}" onChange="{{ editPhone }}"></div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:26px 0 12px">Saved preferences</h2>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Usual level</span><span style="font-weight:600">Beginner</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Preferred time</span><span style="font-weight:600">Mornings</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Meals</span><span style="font-weight:600">Vegetarian</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Payment method</span><span style="font-weight:600">Visa ···· 4218</span>
+</div>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:21px;margin:26px 0 12px">Refer a friend</h2>
+<div style="background:var(--color-accent-2-200);border-radius:var(--radius-lg);padding:18px">
+<div style="font-size:13.5px;color:var(--color-accent-2-900);line-height:1.5">Share your code and you both get {{ currency }} 25 off the next booking.</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:13px;background:var(--color-bg);border-radius:999px;padding:11px 18px">
+<span style="flex:1;font-family:var(--font-heading);font-size:17px;letter-spacing:0.06em">AMELIA25</span>
+<button class="btn btn-ghost" style="flex:none;padding:6px 12px;font-size:12px" onClick="{{ copyCode }}">Copy</button>
+</div>
+</div>
+
+<button class="btn btn-secondary btn-block" style="margin-top:24px;padding:14px 0" onClick="{{ goAdmin }}">Switch to studio admin</button>
+<button class="btn btn-ghost btn-block" style="margin-top:8px;padding:13px 0;font-size:13.5px">Sign out</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div style="padding:58px 0 28px">
+<div style="display:flex;align-items:center;gap:12px;padding:0 20px">
+<div style="flex:1">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Studio admin · Sukahati</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:30px;line-height:1.06;margin:8px 0 0">{{ adminTitle }}</h1>
+</div>
+<button class="btn btn-ghost" style="flex:none;padding:9px 14px;font-size:12.5px" onClick="{{ exitAdmin }}">Exit</button>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:16px;overflow:auto;padding:0 20px 4px">
+<sc-for list="{{ adminNav }}" as="a" hint-placeholder-count="8">
+<button style="flex:none;border:0;border-radius:999px;padding:10px 16px;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;background: {{ a.bg }};color: {{ a.fg }}" onClick="{{ a.pick }}">{{ a.name }}</button>
+</sc-for>
+</div>
+
+<div style="padding:0 20px">
+
+<sc-if value="{{ aDash }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+<div style="background:var(--color-accent-200);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:27px;line-height:1">12</div>
+<div style="font-size:12px;color:var(--color-accent-800);margin-top:4px">Bookings today</div>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:27px;line-height:1">{{ currency }} 2,340</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:4px">Revenue today</div>
+</div>
+<div style="background:var(--color-accent-2-200);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:27px;line-height:1">78%</div>
+<div style="font-size:12px;color:var(--color-accent-2-900);margin-top:4px">Occupancy</div>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:27px;line-height:1">3</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:4px">Pending payments</div>
+</div>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:10px">
+<div style="flex:1;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;align-items:baseline;gap:8px">
+<span style="font-family:var(--font-heading);font-size:20px">2</span>
+<span style="font-size:12px;color:var(--color-neutral-700)">cancellations this week</span>
+</div>
+<div style="flex:1;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;align-items:baseline;gap:8px">
+<span style="font-family:var(--font-heading);font-size:20px">5</span>
+<span style="font-size:12px;color:var(--color-neutral-700)">on waitlists</span>
+</div>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:26px 0 12px">Needs you now</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ adminTodo }}" as="t" hint-placeholder-count="3">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px;display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:14.5px;line-height:1.25">{{ t.title }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:3px">{{ t.body }}</div>
+</div>
+<button class="btn btn-primary" style="flex:none;padding:8px 14px;font-size:12px" onClick="{{ t.act }}">{{ t.cta }}</button>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:26px 0 12px">Today's check-in</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ checkins }}" as="c" hint-placeholder-count="4">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:12px;align-items:center">
+<div style="flex:none;width:38px;height:38px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ c.initials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:600;font-size:14.5px">{{ c.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ c.meta }}</div>
+</div>
+<sc-if value="{{ c.checkedIn }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent-2" style="flex:none">In</span>
+</sc-if>
+<sc-if value="{{ c.waiting }}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-secondary" style="flex:none;padding:7px 12px;font-size:12px" onClick="{{ c.scan }}">Scan QR</button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ aCal }}" hint-placeholder-val="{{ false }}">
+<div class="seg" style="width:100%;margin-top:20px">
+<sc-for list="{{ calViews }}" as="v" hint-placeholder-count="3">
+<button class="seg-opt" style="flex:1" onClick="{{ v.pick }}">{{ v.name }}</button>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:16px;overflow:auto;padding-bottom:4px">
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+<button style="flex:none;width:54px;border:0;border-radius:20px;padding:11px 0;cursor:pointer;font-family:var(--font-body);text-align:center;background: {{ d.bg }};color: {{ d.fg }}" onClick="{{ d.pick }}">
+<div style="font-size:10.5px;letter-spacing:0.06em;opacity:0.78">{{ d.dow }}</div>
+<div style="font-family:var(--font-heading);font-size:19px;line-height:1.2;margin-top:3px">{{ d.num }}</div>
+</button>
+</sc-for>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:18px">
+<sc-for list="{{ calSessions }}" as="c" hint-placeholder-count="4">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px">
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:none;width:52px">
+<div style="font-weight:700;font-size:14.5px">{{ c.time }}</div>
+<div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">{{ c.ampm }}</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:13px">
+<div style="font-weight:600;font-size:14.5px">{{ c.title }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ c.assign }}</div>
+</div>
+<div style="flex:none;font-size:12px;font-weight:600;color:var(--color-neutral-700)">{{ c.load }}</div>
+</div>
+<div style="height:7px;border-radius:999px;background:var(--color-neutral-200);margin-top:12px;overflow:hidden">
+<div style="height:100%;border-radius:999px;width: {{ c.pct }};background: {{ c.barColor }}"></div>
+</div>
+</div>
+</sc-for>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:16px">
+<button class="btn btn-secondary" style="flex:1;padding:13px 0;font-size:13.5px" onClick="{{ blockDate }}">Block this date</button>
+<button class="btn btn-secondary" style="flex:1;padding:13px 0;font-size:13.5px" onClick="{{ addSession }}">Add session</button>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:12px;line-height:1.5">Drag a session in the week view to move it — capacity and instructor conflicts are checked before the change is saved.</div>
+</sc-if>
+
+<sc-if value="{{ aBookings }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px;margin-top:20px;overflow:auto;padding-bottom:4px">
+<sc-for list="{{ bookingFilters }}" as="f" hint-placeholder-count="4">
+<button style="flex:none;border:0;border-radius:999px;padding:9px 15px;cursor:pointer;font-family:var(--font-body);font-size:12.5px;font-weight:600;background: {{ f.bg }};color: {{ f.fg }}" onClick="{{ f.pick }}">{{ f.name }}</button>
+</sc-for>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:16px">
+<sc-for list="{{ adminBookings }}" as="b" hint-placeholder-count="5">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm)">
+<div style="display:flex;gap:12px;align-items:flex-start">
+<div style="flex:none;width:40px;height:40px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13.5px">{{ b.initials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:15px;line-height:1.2">{{ b.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:3px">{{ b.meta }}</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+<span class="tag tag-outline">{{ b.pkg }}</span>
+<sc-if value="{{ b.paid }}" hint-placeholder-val="{{ true }}">
+<span class="tag tag-accent-2">Paid {{ b.amount }}</span>
+</sc-if>
+<sc-if value="{{ b.unpaid }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent">Due {{ b.amount }}</span>
+</sc-if>
+</div>
+</div>
+<div style="flex:none;font-size:11.5px;font-weight:700;color:var(--color-neutral-600);letter-spacing:0.06em;text-transform:uppercase">{{ b.status }}</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:13px">
+<sc-if value="{{ b.isPending }}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-ghost" style="flex:1;padding:10px 0;font-size:13px" onClick="{{ b.decline }}">Decline</button>
+<button class="btn btn-primary" style="flex:1.4;padding:10px 0;font-size:13px" onClick="{{ b.confirm }}">Confirm</button>
+</sc-if>
+<sc-if value="{{ b.isConfirmed }}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-ghost" style="flex:1;padding:10px 0;font-size:13px" onClick="{{ b.refund }}">Refund</button>
+<button class="btn btn-secondary" style="flex:1;padding:10px 0;font-size:13px" onClick="{{ b.remind }}">Send reminder</button>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ aCustomers }}" hint-placeholder-val="{{ false }}">
+<div class="field" style="margin-top:20px"><label for="cq">Find a customer</label><input class="input" id="cq" placeholder="Name, email or phone" value="{{ custQuery }}" onChange="{{ editCustQuery }}"></div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+<sc-for list="{{ customers }}" as="c" hint-placeholder-count="5">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px;display:flex;gap:12px;align-items:center" onClick="{{ c.open }}">
+<div style="flex:none;width:40px;height:40px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13.5px">{{ c.initials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:14.5px">{{ c.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ c.meta }}</div>
+</div>
+<div style="flex:none;text-align:right">
+<div style="font-family:var(--font-heading);font-size:16px">{{ c.spend }}</div>
+<div style="font-size:11px;color:var(--color-neutral-600);margin-top:2px">lifetime</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ aPackages }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:20px">
+<sc-for list="{{ adminPkgs }}" as="p" hint-placeholder-count="6">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm)">
+<div style="display:flex;gap:12px;align-items:flex-start" onClick="{{ p.edit }}">
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-size:17px;line-height:1.2">{{ p.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:4px">{{ p.unit }} · {{ p.capacity }}</div>
+</div>
+<div style="flex:none;text-align:right">
+<div style="font-family:var(--font-heading);font-size:19px;line-height:1">{{ p.price }}</div>
+<div style="font-size:11px;color:var(--color-neutral-600);margin-top:3px">{{ p.sold }} sold</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:13px;padding-top:12px;border-top:1px solid var(--color-divider)">
+<div style="flex:1;font-size:12px;color:var(--color-neutral-700)">{{ p.revenue }} this month</div>
+<sc-if value="{{ p.active }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ p.toggle }}"><span style="width:22px;height:22px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ p.hidden }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ p.toggle }}"><span style="width:22px;height:22px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+<button class="btn btn-primary btn-block" style="margin-top:16px;padding:14px 0" onClick="{{ newPackage }}">New package</button>
+</sc-if>
+
+<sc-if value="{{ aReports }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+<div style="background:var(--color-accent-200);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1">{{ currency }} 18,240</div>
+<div style="font-size:11.5px;color:var(--color-accent-800);margin-top:4px">Revenue, Sept to date</div>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1">146</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:4px">Bookings this month</div>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1">6.8%</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:4px">Cancellation rate</div>
+</div>
+<div style="background:var(--color-accent-2-200);border-radius:var(--radius-md);padding:16px">
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1">64%</div>
+<div style="font-size:11.5px;color:var(--color-accent-2-900);margin-top:4px">Retention, 3 months</div>
+</div>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:26px 0 12px">Revenue by package</h2>
+<div style="display:flex;flex-direction:column;gap:13px">
+<sc-for list="{{ revenueBars }}" as="r" hint-placeholder-count="5">
+<div>
+<div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px">
+<span style="font-weight:600">{{ r.name }}</span><span style="color:var(--color-neutral-700)">{{ r.amount }}</span>
+</div>
+<div style="height:9px;border-radius:999px;background:var(--color-neutral-200);margin-top:7px;overflow:hidden">
+<div style="height:100%;border-radius:999px;width: {{ r.pct }};background: {{ r.color }}"></div>
+</div>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:26px 0 12px">Peak booking times</h2>
+<div style="display:flex;gap:7px;align-items:flex-end;height:120px;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:16px">
+<sc-for list="{{ peakBars }}" as="p" hint-placeholder-count="7">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;height:100%">
+<div style="width:100%;border-radius:8px 8px 4px 4px;background: {{ p.color }};height: {{ p.h }}"></div>
+<div style="font-size:10px;color:var(--color-neutral-700)">{{ p.label }}</div>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top:16px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">{{ r.name }}</span><span style="font-weight:600;text-align:right">{{ r.value }}</span>
+</div>
+</sc-for>
+</div>
+<button class="btn btn-secondary btn-block" style="margin-top:16px;padding:13px 0;font-size:13.5px" onClick="{{ exportReport }}">Export this month as CSV</button>
+</sc-if>
+
+<sc-if value="{{ aPromos }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:20px">
+<sc-for list="{{ coupons }}" as="c" hint-placeholder-count="4">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px;display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-size:16px;letter-spacing:0.04em">{{ c.code }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:3px">{{ c.detail }}</div>
+</div>
+<sc-if value="{{ c.on }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ c.toggle }}"><span style="width:22px;height:22px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ c.off }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ c.toggle }}"><span style="width:22px;height:22px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:26px 0 12px">Loyalty and referrals</h2>
+<div style="background:var(--color-accent-2-200);border-radius:var(--radius-lg);padding:4px 18px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-accent-2-300);font-size:13.5px">
+<span style="color:var(--color-accent-2-900)">Points earned per class</span><span style="font-weight:600">20</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-accent-2-300);font-size:13.5px">
+<span style="color:var(--color-accent-2-900)">Free class at</span><span style="font-weight:600">400 points</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-accent-2-300);font-size:13.5px">
+<span style="color:var(--color-accent-2-900)">Referral reward</span><span style="font-weight:600">{{ currency }} 25 each</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;font-size:13.5px">
+<span style="color:var(--color-accent-2-900)">Members on a plan</span><span style="font-weight:600">38</span>
+</div>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:26px 0 12px">Automations</h2>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<sc-for list="{{ automations }}" as="a" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--color-divider)">
+<div style="flex:1;min-width:0">
+<div style="font-size:14px;font-weight:600">{{ a.name }}</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">{{ a.note }}</div>
+</div>
+<sc-if value="{{ a.on }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ a.toggle }}"><span style="width:22px;height:22px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ a.off }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:48px;height:28px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ a.toggle }}"><span style="width:22px;height:22px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ aResources }}" hint-placeholder-val="{{ false }}">
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:22px 0 12px">Teachers</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ teachers }}" as="t" hint-placeholder-count="3">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px;display:flex;gap:12px;align-items:center">
+<div style="flex:none;width:38px;height:38px;border-radius:999px;background:var(--color-accent-300);color:var(--color-accent-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ t.initials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:14.5px">{{ t.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ t.meta }}</div>
+</div>
+<span class="tag tag-outline" style="flex:none">{{ t.load }}</span>
+</div>
+</sc-for>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:24px 0 12px">Rooms and resources</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ rooms }}" as="r" hint-placeholder-count="4">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:15px 16px;display:flex;gap:12px;align-items:center">
+<div style="flex:1;min-width:0">
+<div style="font-weight:600;font-size:14.5px">{{ r.name }}</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">{{ r.meta }}</div>
+</div>
+<span class="tag tag-neutral" style="flex:none">{{ r.state }}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="margin-top:16px;background:var(--color-accent-200);border-radius:var(--radius-md);padding:15px 16px;display:flex;gap:11px;align-items:flex-start">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-800)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px"><path d="M12 4 3 19h18Z"/><path d="M12 10v4M12 17h.01"/></svg>
+<div style="flex:1;font-size:12.5px;color:var(--color-accent-800);line-height:1.5">Dewi is assigned to Studio A and the 5:30 PM private at once on Friday. Move one to save the schedule.</div>
+</div>
+
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:24px 0 12px">Access and security</h2>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<sc-for list="{{ accessRows }}" as="a" hint-placeholder-count="4">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">{{ a.name }}</span><span style="font-weight:600;text-align:right">{{ a.value }}</span>
+</div>
+</sc-for>
+</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:12px;line-height:1.5">Every change to a booking, price or refund is written to the audit log with the staff account that made it.</div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+
+</div>
+
+<sc-if value="{{ showBar }}" hint-placeholder-val="{{ true }}">
+<div style="flex:none;background:var(--color-neutral-100);border-top:1px solid var(--color-divider);border-radius:26px 26px 0 0;padding:10px 6px 30px;display:flex;gap:2px">
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:10px;font-weight:600;cursor:pointer;color: {{ c1 }}" onClick="{{ goHome }}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+Home
+</button>
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:10px;font-weight:600;cursor:pointer;color: {{ c2 }}" onClick="{{ goSearch }}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+Search
+</button>
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:10px;font-weight:600;cursor:pointer;color: {{ c3 }}" onClick="{{ goPackages }}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5l9 4.5 9-4.5Z"/><path d="M3 12.5 12 17l9-4.5"/><path d="M3 17 12 21.5 21 17"/></svg>
+Packages
+</button>
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:10px;font-weight:600;cursor:pointer;color: {{ c4 }}" onClick="{{ goBookings }}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="4"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
+Bookings
+</button>
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:10px;font-weight:600;cursor:pointer;position:relative;color: {{ c5 }}" onClick="{{ goAlerts }}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>
+Alerts
+<sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}">
+<span style="position:absolute;top:3px;right:10px;min-width:17px;height:17px;border-radius:999px;background:var(--color-accent-500);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ unreadCount }}</span>
+</sc-if>
+</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ showCta }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;background:var(--color-neutral-100);border-top:1px solid var(--color-divider);border-radius:26px 26px 0 0;padding:16px 20px 34px">
+<sc-if value="{{ ctaReady }}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-primary btn-block" style="padding:16px 0;font-size:16px" onClick="{{ next }}">{{ ctaLabel }}</button>
+</sc-if>
+<sc-if value="{{ ctaBlocked }}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-primary btn-block" style="padding:16px 0;font-size:16px;opacity:0.45;pointer-events:none">{{ ctaLabel }}</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:20px;right:20px;bottom:112px;background:var(--color-accent-2-800);color:var(--color-accent-2-100);border-radius:999px;padding:13px 20px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);text-align:center">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ pkgSheet }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(32,30,29,0.42);display:flex;flex-direction:column;justify-content:flex-end">
+<div style="background:var(--color-bg);border-radius:28px 28px 0 0;max-height:84%;overflow:auto;padding:14px 20px 30px;box-shadow:var(--shadow-lg)">
+<div style="display:flex;justify-content:center;padding-bottom:14px" onClick="{{ closeSheet }}">
+<div style="width:44px;height:5px;border-radius:999px;background:var(--color-neutral-400)"></div>
+</div>
+<sc-if value="{{ pkgSheet.recommended }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="margin-bottom:10px">{{ pkgSheet.badge }}</span>
+</sc-if>
+<div style="font-family:var(--font-heading);font-size:26px;line-height:1.12">{{ pkgSheet.name }}</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-top:11px">
+<div style="font-family:var(--font-heading);font-size:31px">{{ pkgSheet.price }}</div>
+<div style="font-size:13px;color:var(--color-neutral-700)">{{ pkgSheet.unit }}</div>
+</div>
+<div style="font-size:14px;line-height:1.55;color:var(--color-neutral-800);margin-top:13px">{{ pkgSheet.long }}</div>
+<div style="margin-top:18px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Good for</span><span style="font-weight:600;text-align:right">{{ pkgSheet.goodFor }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Valid</span><span style="font-weight:600;text-align:right">{{ pkgSheet.valid }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Capacity</span><span style="font-weight:600;text-align:right">{{ pkgSheet.capacity }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;font-size:13.5px">
+<span style="color:var(--color-neutral-700)">Cancellation</span><span style="font-weight:600;text-align:right">{{ pkgSheet.cancel }}</span>
+</div>
+</div>
+<div style="margin-top:16px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-700)">Included</div>
+<div style="font-size:13.5px;line-height:1.6;color:var(--color-neutral-800);margin-top:7px">{{ pkgSheet.incl }}</div>
+<div style="margin-top:14px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Not included</div>
+<div style="font-size:13.5px;line-height:1.6;color:var(--color-neutral-700);margin-top:7px">{{ pkgSheet.excl }}</div>
+<button class="btn btn-primary btn-block" style="margin-top:20px;padding:15px 0" onClick="{{ pkgSheet.book }}">Book with this package</button>
+<button class="btn btn-ghost btn-block" style="margin-top:8px;padding:13px 0" onClick="{{ closeSheet }}">Close</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ pkgEdit }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(32,30,29,0.42);display:flex;flex-direction:column;justify-content:flex-end">
+<div style="background:var(--color-bg);border-radius:28px 28px 0 0;max-height:86%;overflow:auto;padding:14px 20px 30px;box-shadow:var(--shadow-lg)">
+<div style="display:flex;justify-content:center;padding-bottom:14px" onClick="{{ closeSheet }}">
+<div style="width:44px;height:5px;border-radius:999px;background:var(--color-neutral-400)"></div>
+</div>
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1.15">{{ pkgEdit.heading }}</div>
+<div class="field" style="margin-top:18px"><label for="e-name">Name shown to guests</label><input class="input" id="e-name" value="{{ pkgEdit.name }}" onChange="{{ editPkgName }}"></div>
+<div style="display:flex;gap:10px;margin-top:14px">
+<div class="field" style="flex:1"><label for="e-price">Price (MYR)</label><input class="input" id="e-price" value="{{ pkgEdit.priceRaw }}" onChange="{{ editPkgPrice }}"></div>
+<div class="field" style="flex:1"><label for="e-unit">Billed as</label><input class="input" id="e-unit" value="{{ pkgEdit.unit }}" onChange="{{ editPkgUnit }}"></div>
+</div>
+<div class="field" style="margin-top:14px"><label for="e-cap">Capacity</label><input class="input" id="e-cap" value="{{ pkgEdit.capacity }}" onChange="{{ editPkgCap }}"></div>
+<div class="field" style="margin-top:14px"><label for="e-desc">Short description</label><input class="input" id="e-desc" value="{{ pkgEdit.desc }}" onChange="{{ editPkgDesc }}"></div>
+
+<div style="margin-top:18px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;border-bottom:1px solid var(--color-divider)">
+<div>
+<div style="font-weight:600;font-size:14.5px">Visible on booking form</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">Guests can choose this package</div>
+</div>
+<sc-if value="{{ pkgEdit.active }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ togglePkgActive }}"><span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ pkgEdit.hidden }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ togglePkgActive }}"><span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0">
+<div>
+<div style="font-weight:600;font-size:14.5px">Mark as recommended</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">Adds a badge beside the option</div>
+</div>
+<sc-if value="{{ pkgEdit.recommended }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-accent-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ togglePkgRec }}"><span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+<sc-if value="{{ pkgEdit.notRecommended }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ togglePkgRec }}"><span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span></button>
+</sc-if>
+</div>
+</div>
+<button class="btn btn-primary btn-block" style="margin-top:20px;padding:15px 0" onClick="{{ savePkg }}">{{ pkgEdit.saveLabel }}</button>
+<button class="btn btn-ghost btn-block" style="margin-top:8px;padding:13px 0" onClick="{{ closeSheet }}">Cancel</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ qrSheet }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(32,30,29,0.42);display:flex;flex-direction:column;justify-content:flex-end">
+<div style="background:var(--color-bg);border-radius:28px 28px 0 0;padding:14px 20px 30px;box-shadow:var(--shadow-lg);text-align:center">
+<div style="display:flex;justify-content:center;padding-bottom:14px" onClick="{{ closeSheet }}">
+<div style="width:44px;height:5px;border-radius:999px;background:var(--color-neutral-400)"></div>
+</div>
+<div style="font-family:var(--font-heading);font-size:23px;line-height:1.15">{{ qrSheet.title }}</div>
+<div style="font-size:13px;color:var(--color-neutral-700);margin-top:5px">{{ qrSheet.meta }}</div>
+<div style="display:flex;justify-content:center;margin-top:18px">
+<div style="width:180px;height:180px;border-radius:var(--radius-md);background:#fff;padding:14px;box-sizing:border-box;position:relative;box-shadow:var(--shadow-sm)">
+<div style="width:100%;height:100%;background-image:repeating-linear-gradient(90deg,var(--color-neutral-900) 0 10px,transparent 10px 20px),repeating-linear-gradient(0deg,var(--color-neutral-900) 0 10px,transparent 10px 20px);background-blend-mode:difference;border-radius:4px"></div>
+<div style="position:absolute;top:14px;left:14px;width:42px;height:42px;border:9px solid var(--color-neutral-900);background:#fff"></div>
+<div style="position:absolute;top:14px;right:14px;width:42px;height:42px;border:9px solid var(--color-neutral-900);background:#fff"></div>
+<div style="position:absolute;bottom:14px;left:14px;width:42px;height:42px;border:9px solid var(--color-neutral-900);background:#fff"></div>
+</div>
+</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:14px">Booking {{ qrSheet.ref }} · scanned at the door</div>
+<button class="btn btn-ghost btn-block" style="margin-top:18px;padding:13px 0" onClick="{{ closeSheet }}">Done</button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;480&quot;,&quot;height&quot;:&quot;940&quot;},&quot;currency&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;RM&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;startTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Home&quot;,&quot;Search&quot;,&quot;Packages&quot;,&quot;Book&quot;,&quot;Bookings&quot;,&quot;Alerts&quot;,&quot;Profile&quot;],&quot;default&quot;:&quot;Home&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+const PKGS = [
+  { id: 'p1', name: 'One Time Drop In', price: 50, unit: 'per class', sold: 14, active: true, recommended: false, badge: '', cat: 'Drop in', dur: '60 min', rating: '4.9 ★',
+    desc: 'A single class, any style on the schedule.', includes: 'Any class · Any level · Mat provided',
+    long: 'One class, whenever it suits you. Pay online or at the studio — nothing to commit to.',
+    goodFor: 'A first visit', valid: 'Day of booking', capacity: '10 per class', cancel: 'Free up to 12h before',
+    incl: 'One class of your choice · Mat and props · Filtered water and towel service',
+    excl: 'Parking · Retail purchases · Private sessions' },
+  { id: 'p2', name: '1 Week Class Pass', price: 300, unit: '7 days unlimited', sold: 6, active: true, recommended: true, badge: 'Recommended for tourist', cat: 'Pass', dur: '7 days', rating: '5.0 ★',
+    desc: 'Unlimited classes for seven days in a row.', includes: 'Unlimited classes · All levels · Mat provided',
+    long: 'Seven days of unlimited practice from your first class. The pass most visitors take.',
+    goodFor: 'Visitors and short stays', valid: '7 days from first class', capacity: 'Unlimited classes', cancel: 'Free up to 12h before',
+    incl: 'Unlimited studio classes for 7 days · Mat and props · One guest pass',
+    excl: 'Private sessions · Retreats · Workshops' },
+  { id: 'p3', name: 'Unlimited Monthly Pass', price: 500, unit: '30 days unlimited', sold: 9, active: true, recommended: false, badge: '', cat: 'Pass', dur: '30 days', rating: '4.8 ★',
+    desc: 'A full month of unlimited classes.', includes: 'Unlimited classes · Priority booking',
+    long: 'Thirty days of unlimited classes, with priority booking on the evening sessions that fill first.',
+    goodFor: 'A regular practice', valid: '30 days from first class', capacity: 'Unlimited classes', cancel: 'Free up to 12h before',
+    incl: 'Unlimited studio classes for 30 days · Priority booking · Two guest passes · 10% off retail',
+    excl: 'Private sessions · Retreat accommodation' },
+  { id: 'p4', name: 'Private Yoga Session (1 - TO - 1)', price: 200, unit: 'per session', sold: 4, active: true, recommended: false, badge: '', cat: 'Private', dur: '60 min', rating: '5.0 ★',
+    desc: 'One teacher, one guest, one hour.', includes: 'Private studio · By appointment',
+    long: 'An hour built around you — injury care, a deeper practice, or a quiet start. Times are arranged with the teacher after your request.',
+    goodFor: 'Injury care and beginners', valid: 'Session booked', capacity: '1 guest (2 on request)', cancel: 'Free up to 24h before',
+    incl: 'One hour with a senior teacher · Private studio · A written practice plan',
+    excl: 'Group classes · Room hire beyond the hour' },
+  { id: 'p5', name: 'Live Online Yoga Sessions (Zoom)', price: 80, unit: 'per session', sold: 3, active: true, recommended: false, badge: '', cat: 'Online', dur: '60 min', rating: '4.7 ★',
+    desc: 'Practise with us from anywhere over Zoom.', includes: 'Live on Zoom · Link sent by email',
+    long: 'The same classes, joined live from home. Tell us your timezone in the notes and we will place you in a slot that works.',
+    goodFor: 'Practising from abroad', valid: 'Session booked', capacity: '20 per session', cancel: 'Free up to 2h before',
+    incl: 'Live Zoom class · 48-hour replay link · Props list emailed ahead',
+    excl: 'Studio access · Mat hire' },
+  { id: 'p6', name: '3-Day Retreat · Janda Baik', price: 1800, unit: 'per person, 10–12 Oct', sold: 8, active: true, recommended: false, badge: 'Early bird', cat: 'Retreat', dur: '3 days', rating: '5.0 ★',
+    desc: 'Six sessions, a shared room and all meals in the hills.', includes: 'Room · All meals · 6 sessions · Transfers',
+    long: 'Three days away from the city: two practices a day, silent walks, and vegetarian meals cooked on site. Twelve places, four rooms left.',
+    goodFor: 'A proper reset', valid: '10–12 October 2026', capacity: '12 guests · 20 rooms', cancel: '50% refund up to 14 days before',
+    incl: 'Two nights accommodation · All meals · Six guided sessions · Return transfer from KL',
+    excl: 'Flights · Massage treatments · Optional hike guide' },
+];
+
+const DAYS = [
+  { id: 'd8', dow: 'TUE', num: '8', label: 'Tue 8 Sep' },
+  { id: 'd9', dow: 'WED', num: '9', label: 'Wed 9 Sep' },
+  { id: 'd10', dow: 'THU', num: '10', label: 'Thu 10 Sep' },
+  { id: 'd11', dow: 'FRI', num: '11', label: 'Fri 11 Sep' },
+  { id: 'd12', dow: 'SAT', num: '12', label: 'Sat 12 Sep' },
+  { id: 'd13', dow: 'SUN', num: '13', label: 'Sun 13 Sep' },
+  { id: 'd14', dow: 'MON', num: '14', label: 'Mon 14 Sep' },
+];
+
+const SLOTS = [
+  { id: 's1', time: '7:00', ampm: 'AM', title: 'Morning Flow', teacher: 'Dewi · all levels · Studio A', spots: 4, cap: 10, cat: 'Flow', dur: '60 min', rating: '4.9 ★', price: 50 },
+  { id: 's2', time: '9:30', ampm: 'AM', title: 'Gentle Hatha', teacher: 'Ayu · all levels · Studio A', spots: 6, cap: 10, cat: 'Hatha', dur: '75 min', rating: '4.8 ★', price: 50 },
+  { id: 's3', time: '5:30', ampm: 'PM', title: 'Slow Flow', teacher: 'Dewi · intermediate · Studio B', spots: 0, cap: 12, cat: 'Flow', dur: '60 min', rating: '4.9 ★', price: 50 },
+  { id: 's4', time: '7:00', ampm: 'PM', title: 'Candlelight Yin', teacher: 'Ayu · all levels · Studio B', spots: 2, cap: 12, cat: 'Yin', dur: '75 min', rating: '5.0 ★', price: 50 },
+];
+
+const ALERTS = [
+  { id: 'n1', kind: 'check', title: 'Booking confirmed', body: 'Morning Flow, Wednesday 9 September at 7:00 AM. Dewi will see you there.', ago: '18m', unread: true, channel: 'Push · Email', action: 'bookings', actionLabel: 'View booking' },
+  { id: 'n2', kind: 'card', title: 'Payment received', body: 'RM 300.00 for 1 Week Class Pass. Receipt sent to amelia.tan@gmail.com.', ago: '20m', unread: true, channel: 'Email', action: '', actionLabel: '' },
+  { id: 'n3', kind: 'clock', title: 'Your pass ends Sunday', body: '1 Week Class Pass — 3 days left. Renew any time to keep your place in the morning classes.', ago: '2h', unread: true, channel: 'Push', action: 'packages', actionLabel: 'See packages' },
+  { id: 'n4', kind: 'users', title: 'A place opened up', body: 'Slow Flow, today 5:30 PM. You were second on the waitlist — hold it within the hour.', ago: '3h', unread: false, channel: 'WhatsApp · Push', action: 'book', actionLabel: 'Claim place' },
+  { id: 'n5', kind: 'clock', title: 'Candlelight Yin in 24 hours', body: 'Doors open at 6:45 PM. Studio B, second floor. Reply CANCEL to release your place.', ago: '5h', unread: false, channel: 'SMS', action: '', actionLabel: '' },
+  { id: 'n6', kind: 'cal', title: 'October retreat is open', body: 'Three days in Janda Baik, 10–12 October. Early-bird price until 20 September.', ago: 'Yesterday', unread: false, channel: 'Email', action: 'packages', actionLabel: 'See retreat' },
+];
+
+const ADDONS = [
+  { id: 'a1', name: 'Mat and props hire', price: 5 },
+  { id: 'a2', name: 'Towel service', price: 3 },
+  { id: 'a3', name: 'Post-class smoothie', price: 12 },
+];
+
+const CATS = ['Flow', 'Hatha', 'Yin', 'Private', 'Online', 'Retreat'];
+const PRICES = ['Any price', 'Under 100', '100 – 400', '400 and up'];
+const DURATIONS = ['Any length', '60 min', '75 min', 'Multi-day'];
+const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
+const METHODS = ['Card', 'FPX', 'GrabPay', 'Apple Pay'];
+
+const ADMIN_NAV = [
+  { id: 'dash', name: 'Dashboard' }, { id: 'cal', name: 'Calendar' }, { id: 'bookings', name: 'Bookings' },
+  { id: 'customers', name: 'Customers' }, { id: 'packages', name: 'Packages' }, { id: 'reports', name: 'Reports' },
+  { id: 'promos', name: 'Promotions' }, { id: 'resources', name: 'Resources' },
+];
+
+const CHECKINS = [
+  { id: 'c1', name: 'Priya Menon', meta: '9:30 AM Gentle Hatha · Monthly pass', in: true },
+  { id: 'c2', name: 'Daniel Ooi', meta: '9:30 AM Gentle Hatha · Monthly pass', in: false },
+  { id: 'c3', name: 'Amelia Tan', meta: '7:00 PM Candlelight Yin · Week pass', in: false },
+  { id: 'c4', name: 'Sofia Lim', meta: '7:00 PM Candlelight Yin · Drop in', in: false },
+];
+
+const ADMIN_BOOKINGS = [
+  { id: 'ab1', name: 'Rafael Costa', meta: 'Wed 9 Sep · 5:30 PM · 1 guest', pkg: 'Private 1-to-1', amount: 200, paid: false, status: 'pending' },
+  { id: 'ab2', name: 'Jonas Weber', meta: 'Fri 11 Sep · 9:30 AM · Zoom · CET', pkg: 'Live Online', amount: 80, paid: true, status: 'pending' },
+  { id: 'ab3', name: 'Amelia Tan', meta: 'Wed 9 Sep · 7:00 AM · 1 guest', pkg: '1 Week Pass', amount: 300, paid: true, status: 'confirmed' },
+  { id: 'ab4', name: 'Nur Aisyah Rahman', meta: 'Thu 10 Sep · 7:00 PM · 2 guests', pkg: 'Monthly Pass', amount: 500, paid: true, status: 'confirmed' },
+  { id: 'ab5', name: 'Sofia Lim', meta: '10–12 Oct · retreat · shared room', pkg: '3-Day Retreat', amount: 900, paid: false, status: 'confirmed' },
+];
+
+const CUSTOMERS = [
+  { id: 'u1', name: 'Amelia Tan', meta: '14 classes · 2 no-shows · vegetarian', spend: 1150 },
+  { id: 'u2', name: 'Priya Menon', meta: '41 classes · monthly member since Feb', spend: 3400 },
+  { id: 'u3', name: 'Daniel Ooi', meta: '28 classes · monthly member', spend: 2600 },
+  { id: 'u4', name: 'Rafael Costa', meta: '3 privates · shoulder injury noted', spend: 600 },
+  { id: 'u5', name: 'Jonas Weber', meta: '6 online sessions · CET timezone', spend: 480 },
+  { id: 'u6', name: 'Sofia Lim', meta: '9 classes · retreat guest', spend: 1700 },
+];
+
+const COUPONS = [
+  { id: 'k1', code: 'EARLYBIRD', detail: '10% off · retreat only · 14 used of 30', on: true },
+  { id: 'k2', code: 'TOURIST300', detail: 'RM 30 off the week pass · 6 used', on: true },
+  { id: 'k3', code: 'BRINGAFRIEND', detail: 'Two for one, weekday mornings · 22 used', on: false },
+  { id: 'k4', code: 'BIRTHDAY', detail: 'Free class in your birthday month · automatic', on: true },
+];
+
+const AUTOMATIONS = [
+  { id: 'm1', name: 'Booking and payment confirmation', note: 'Email and push, immediately', on: true },
+  { id: 'm2', name: 'Reminder 7 days before', note: 'Retreats and workshops only', on: true },
+  { id: 'm3', name: 'Reminder 24 hours before', note: 'Push, SMS fallback', on: true },
+  { id: 'm4', name: 'Waitlist opening', note: 'WhatsApp, one-hour hold', on: true },
+  { id: 'm5', name: 'Abandoned booking nudge', note: 'Email after 2 hours', on: false },
+];
+
+const TEACHERS = [
+  { id: 't1', name: 'Dewi Anggraini', meta: 'Flow, Yin · Studio A and B', load: '11 classes' },
+  { id: 't2', name: 'Ayu Kartika', meta: 'Hatha, Yin · Studio A', load: '9 classes' },
+  { id: 't3', name: 'Marcus Teoh', meta: 'Privates, retreat lead', load: '4 sessions' },
+];
+
+const ROOMS = [
+  { id: 'rm1', name: 'Studio A', meta: '10 mats · street level', state: 'In use' },
+  { id: 'rm2', name: 'Studio B', meta: '12 mats · candles allowed', state: 'Free' },
+  { id: 'rm3', name: 'Private room', meta: '2 mats · 1-to-1 only', state: 'Booked 5:30 PM' },
+  { id: 'rm4', name: 'Janda Baik · 20 rooms', meta: 'Retreat site · 16 assigned', state: '4 left' },
+];
+
+class Component extends DCLogic {
+  state = {
+    mode: 'customer', tab: 'home', step: 1,
+    day: 'd9', slot: null, pkg: null, level: 'Beginner', notes: '', guests: 1, addons: [],
+    promo: '', promoOk: false, payMode: 'full', method: 'Card',
+    query: '', cat: null, price: 'Any price', duration: 'Any length', availOnly: true,
+    form: { name: 'Amelia Tan', email: 'amelia.tan@gmail.com', phone: '+6012 442 8871' },
+    sheet: null, toast: null, points: 340,
+    alerts: ALERTS.map(a => ({ ...a })),
+    pkgs: PKGS.map(p => ({ ...p })),
+    slots: SLOTS.map(s => ({ ...s })),
+    upcoming: [
+      { id: 'b1', mon: 'SEP', day: '9', title: 'Morning Flow', meta: '7:00 AM · Dewi · Studio A', status: 'confirmed', balance: 0, ref: 'SKH-4471' },
+      { id: 'b2', mon: 'OCT', day: '10', title: '3-Day Retreat · Janda Baik', meta: 'Check-in 2:00 PM · shared room · vegetarian', status: 'confirmed', balance: 900, ref: 'SKH-4482' },
+    ],
+    prefs: [
+      { id: 'f1', name: 'Push notifications', note: 'Confirmations, reminders, waitlist', on: true },
+      { id: 'f2', name: 'Email', note: 'Receipts and schedule changes', on: true },
+      { id: 'f3', name: 'WhatsApp', note: 'Waitlist and last-minute changes', on: true },
+      { id: 'f4', name: 'SMS', note: '24-hour class reminder', on: false },
+    ],
+    asec: 'dash', calView: 'Day', bookingFilter: 'All', custQuery: '', pkgDraft: null,
+    checkins: CHECKINS.map(c => ({ ...c })),
+    adminBookings: ADMIN_BOOKINGS.map(b => ({ ...b })),
+    coupons: COUPONS.map(c => ({ ...c })),
+    automations: AUTOMATIONS.map(a => ({ ...a })),
+  };
+
+  componentDidMount() {
+    const t = (this.props.startTab || 'Home').toLowerCase();
+    if (t !== 'home') this.setState({ tab: t });
+  }
+
+  cur() { return this.props.currency || 'RM'; }
+  money(v) { return this.cur() + ' ' + Number(v).toLocaleString('en-MY'); }
+
+  flash(msg) {
+    clearTimeout(this._t);
+    this.setState({ toast: msg });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2800);
+  }
+
+  totals() {
+    const s = this.state;
+    const pkg = s.pkgs.find(p => p.id === s.pkg);
+    const base = pkg ? pkg.price * s.guests : 0;
+    const add = ADDONS.filter(a => s.addons.includes(a.id)).reduce((n, a) => n + a.price, 0) * s.guests;
+    const disc = s.promoOk ? Math.round((base + add) * 0.1) : 0;
+    const total = base + add - disc;
+    return { base, add, disc, total, deposit: Math.round(total / 2) };
+  }
+
+  dueNowValue() {
+    const t = this.totals();
+    if (this.state.payMode === 'deposit') return t.deposit;
+    if (this.state.payMode === 'studio') return 0;
+    return t.total;
+  }
+
+  submit() {
+    const s = this.state;
+    const day = DAYS.find(d => d.id === s.day);
+    const slot = s.slots.find(x => x.id === s.slot);
+    const pkg = s.pkgs.find(p => p.id === s.pkg);
+    const ref = 'SKH-' + (4500 + Math.floor(Math.random() * 99));
+    const paid = this.dueNowValue();
+    const owed = this.totals().total - paid;
+    const alerts = [
+      { id: 'n' + Date.now(), kind: 'check', title: 'Booking confirmed', body: slot.title + ', ' + day.label + ' at ' + slot.time + ' ' + slot.ampm + '. Booking ' + ref + '.', ago: 'now', unread: true, channel: 'Push · Email', action: 'bookings', actionLabel: 'View booking' },
+      { id: 'n' + (Date.now() + 1), kind: 'card', title: paid > 0 ? 'Payment received' : 'Payment due at the studio', body: paid > 0 ? this.money(paid) + ' paid by ' + s.method + '. Receipt emailed.' : this.money(owed) + ' to settle when you arrive.', ago: 'now', unread: true, channel: 'Email', action: '', actionLabel: '' },
+    ];
+    this.setState(st => ({
+      step: 'done', bookingRef: ref, paidAmount: paid, owedAmount: owed,
+      points: st.points + 20,
+      alerts: [...alerts, ...st.alerts],
+      slots: st.slots.map(x => (x.id === slot.id ? { ...x, spots: Math.max(0, x.spots - st.guests) } : x)),
+      upcoming: [...st.upcoming, { id: 'b' + Date.now(), mon: 'SEP', day: day.num, title: slot.title, meta: slot.time + ' ' + slot.ampm + ' · ' + pkg.name, status: 'confirmed', balance: owed, ref }],
+    }));
+  }
+
+  next() {
+    const s = this.state;
+    if (s.step === 1) return this.setState({ step: 2 });
+    if (s.step === 2) return this.setState({ step: 3 });
+    if (s.step === 3) return this.submit();
+  }
+
+  back() {
+    const s = this.state;
+    if (s.step === 1) return this.setState({ tab: 'home' });
+    this.setState({ step: s.step - 1 });
+  }
+
+  chips(list, current, setter) {
+    const s = this.state;
+    return list.map(name => ({
+      name,
+      bg: current === name ? 'var(--color-accent-500)' : 'var(--color-neutral-100)',
+      fg: current === name ? '#fff' : 'var(--color-text)',
+      pick: () => this.setState({ [setter]: current === name && setter === 'cat' ? null : name }),
+    }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const on = 'var(--color-accent-700)';
+    const off = 'var(--color-neutral-600)';
+    const sel = 'var(--color-accent-200)';
+    const rest = 'var(--color-neutral-100)';
+
+    const cust = s.mode === 'customer';
+    const dayObj = DAYS.find(d => d.id === s.day);
+    const slotObj = s.slots.find(x => x.id === s.slot);
+    const pkgObj = s.pkgs.find(p => p.id === s.pkg);
+    const unread = s.alerts.filter(a => a.unread).length;
+    const t = this.totals();
+
+    const go = (tab) => () => this.setState({ tab, sheet: null });
+
+    const waitlist = (title) => () => this.flash('Added to the waitlist for ' + title);
+
+    const days = DAYS.map(d => ({
+      ...d,
+      bg: s.day === d.id ? 'var(--color-accent-500)' : 'var(--color-neutral-100)',
+      fg: s.day === d.id ? '#fff' : 'var(--color-text)',
+      pick: () => this.setState({ day: d.id }),
+    }));
+
+    const slots = s.slots.map(x => ({
+      ...x,
+      spots: x.spots + ' left',
+      open: x.spots > 0, full: x.spots === 0,
+      bg: s.slot === x.id ? sel : rest,
+      pick: () => (x.spots > 0 ? this.setState({ slot: x.id }) : this.flash('Added to the waitlist for ' + x.title)),
+      waitlist: waitlist(x.title),
+    }));
+
+    const packages = s.pkgs.map(p => ({
+      ...p,
+      price: this.money(p.price),
+      open: () => this.setState({ sheet: { kind: 'pkg', id: p.id } }),
+    }));
+
+    const pickPkgs = s.pkgs.map(p => ({
+      ...p,
+      price: this.money(p.price),
+      bg: s.pkg === p.id ? sel : rest,
+      pick: () => this.setState({ pkg: p.id }),
+    }));
+
+    const results = s.slots
+      .filter(x => (s.availOnly ? x.spots > 0 : true))
+      .filter(x => (s.duration === 'Any length' ? true : x.dur === s.duration))
+      .filter(x => (s.cat ? x.cat === s.cat : true))
+      .filter(x => (s.query ? (x.title + ' ' + x.teacher).toLowerCase().includes(s.query.toLowerCase()) : true))
+      .map(x => ({
+        ...x,
+        meta: dayObj.label + ' · ' + x.time + ' ' + x.ampm + ' · ' + x.teacher,
+        price: this.money(x.price), dur: x.dur,
+        open: x.spots > 0, full: x.spots === 0, spots: x.spots,
+        book: () => this.setState({ tab: 'book', step: 2, slot: x.id, pkg: 'p1' }),
+        waitlist: waitlist(x.title),
+      }));
+
+    const alerts = s.alerts.map(n => ({
+      ...n,
+      bg: n.unread ? 'var(--color-accent-100)' : 'var(--color-neutral-100)',
+      iconBg: n.unread ? 'var(--color-accent-500)' : 'var(--color-neutral-300)',
+      iconFg: n.unread ? '#fff' : 'var(--color-neutral-800)',
+      isCheck: n.kind === 'check', isClock: n.kind === 'clock', isCal: n.kind === 'cal',
+      isCard: n.kind === 'card', isUsers: n.kind === 'users',
+      hasAction: !!n.action,
+      read: () => this.setState(st => ({ alerts: st.alerts.map(a => (a.id === n.id ? { ...a, unread: false } : a)) })),
+      action: () => this.setState({ tab: n.action, sheet: null, step: 1 }),
+    }));
+
+    const upcoming = s.upcoming.map(b => ({
+      ...b,
+      confirmed: b.status === 'confirmed', pending: b.status === 'pending',
+      balance: b.balance > 0 ? this.money(b.balance) : null,
+      open: () => this.setState({ sheet: { kind: 'qr', id: b.id } }),
+      pay: () => {
+        this.setState(st => ({ upcoming: st.upcoming.map(x => (x.id === b.id ? { ...x, balance: 0 } : x)) }));
+        this.flash('Balance paid · receipt emailed');
+      },
+      cancel: () => {
+        this.setState(st => ({ upcoming: st.upcoming.filter(x => x.id !== b.id) }));
+        this.flash(b.title + ' cancelled · refund in 3 days');
+      },
+    }));
+
+    const addons = ADDONS.map(a => {
+      const isOn = s.addons.includes(a.id);
+      return {
+        ...a, on: isOn,
+        priceLabel: '+ ' + this.money(a.price),
+        bg: isOn ? sel : rest,
+        boxBg: isOn ? 'var(--color-accent-500)' : 'var(--color-neutral-300)',
+        toggle: () => this.setState(st => ({ addons: isOn ? st.addons.filter(x => x !== a.id) : [...st.addons, a.id] })),
+      };
+    });
+
+    const payModes = [
+      { id: 'full', name: 'Pay in full now', note: 'Confirmed instantly', amount: this.money(t.total) },
+      { id: 'deposit', name: 'Deposit 50%', note: 'Balance due before the class', amount: this.money(t.deposit) },
+      { id: 'studio', name: 'Pay at the studio', note: 'Place held for 12 hours', amount: this.money(0) },
+    ].map(m => ({ ...m, bg: s.payMode === m.id ? sel : rest, pick: () => this.setState({ payMode: m.id }) }));
+
+    const sheetPkg = s.sheet && s.sheet.kind === 'pkg' ? s.pkgs.find(p => p.id === s.sheet.id) : null;
+    const sheetBooking = s.sheet && s.sheet.kind === 'qr' ? s.upcoming.find(b => b.id === s.sheet.id) : null;
+
+    const ready = s.step === 1 ? !!(s.day && s.slot) : s.step === 2 ? !!s.pkg : true;
+    const stepTitles = { 1: 'Pick a date', 2: 'Package and guests', 3: 'Payment' };
+    const stepLabels = { 1: 'Step 1 of 3', 2: 'Step 2 of 3', 3: 'Step 3 of 3' };
+    const ctaLabels = { 1: 'Choose package', 2: 'Continue to payment', 3: s.payMode === 'studio' ? 'Confirm booking' : 'Pay ' + this.money(this.dueNowValue()) };
+
+    const editField = (k) => (e) => {
+      const v = e.target.value;
+      this.setState(st => ({ form: { ...st.form, [k]: v } }));
+    };
+
+    return {
+      currency: this.cur(),
+      isHome: cust && s.tab === 'home', isSearch: cust && s.tab === 'search',
+      isPackages: cust && s.tab === 'packages', isBook: cust && s.tab === 'book',
+      isBookings: cust && s.tab === 'bookings', isAlerts: cust && s.tab === 'alerts',
+      isProfile: cust && s.tab === 'profile', isAdmin: !cust,
+      showBar: cust && s.tab !== 'book',
+      showCta: cust && s.tab === 'book' && s.step !== 'done',
+      ctaReady: ready, ctaBlocked: !ready, ctaLabel: ctaLabels[s.step] || 'Continue',
+      c1: s.tab === 'home' ? on : off, c2: s.tab === 'search' ? on : off,
+      c3: s.tab === 'packages' ? on : off, c4: s.tab === 'bookings' ? on : off,
+      c5: s.tab === 'alerts' ? on : off,
+      goHome: go('home'), goSearch: go('search'), goPackages: go('packages'),
+      goBookings: go('bookings'), goAlerts: go('alerts'), goProfile: go('profile'),
+      goBook: () => this.setState({ tab: 'book', step: 1, sheet: null }),
+      goAdmin: () => this.setState({ mode: 'admin', sheet: null }),
+      openRetreat: () => this.setState({ sheet: { kind: 'pkg', id: 'p6' } }),
+
+      step1: s.step === 1, step2: s.step === 2, step3: s.step === 3,
+      stepDone: s.step === 'done', notDone: s.step !== 'done',
+      stepTitle: stepTitles[s.step] || '', stepLabel: stepLabels[s.step] || '',
+      bar2: s.step === 2 || s.step === 3 ? 'var(--color-accent-500)' : 'var(--color-accent-300)',
+      bar3: s.step === 3 ? 'var(--color-accent-500)' : 'var(--color-accent-300)',
+      next: () => this.next(), back: () => this.back(),
+
+      days, slots, packages, pickPkgs, addons, payModes, results,
+      todaySlots: slots,
+      resultCount: results.length,
+      cats: this.chips(CATS, s.cat, 'cat'),
+      prices: this.chips(PRICES, s.price, 'price'),
+      durations: this.chips(DURATIONS, s.duration, 'duration'),
+      methods: METHODS.map(name => ({
+        name,
+        bg: s.method === name ? 'var(--color-accent-500)' : 'var(--color-neutral-100)',
+        fg: s.method === name ? '#fff' : 'var(--color-text)',
+        pick: () => this.setState({ method: name }),
+      })),
+      levels: LEVELS.map(name => ({
+        name,
+        bg: s.level === name ? 'var(--color-accent-500)' : 'var(--color-neutral-100)',
+        fg: s.level === name ? '#fff' : 'var(--color-text)',
+        pick: () => this.setState({ level: name }),
+      })),
+      availOnly: s.availOnly, availAll: !s.availOnly,
+      toggleAvail: () => this.setState({ availOnly: !s.availOnly }),
+      clearFilters: () => this.setState({ cat: null, price: 'Any price', duration: 'Any length', query: '' }),
+      query: s.query, editQuery: (e) => this.setState({ query: e.target.value }),
+
+      guests: s.guests, level: s.level, notes: s.notes,
+      moreGuests: () => this.setState({ guests: Math.min(6, s.guests + 1) }),
+      lessGuests: () => this.setState({ guests: Math.max(1, s.guests - 1) }),
+      editNotes: (e) => this.setState({ notes: e.target.value }),
+
+      pickedDate: dayObj ? dayObj.label : '—',
+      pickedSlot: slotObj ? slotObj.title + ' · ' + slotObj.time + ' ' + slotObj.ampm : '—',
+      pickedPkg: pkgObj ? pkgObj.name : '—',
+      subtotal: this.money(t.base), addonTotal: this.money(t.add),
+      discount: this.money(t.disc), dueNow: this.money(this.dueNowValue()),
+      promo: s.promo, promoOk: s.promoOk,
+      promoMsg: 'EARLYBIRD applied · 10% off',
+      editPromo: (e) => this.setState({ promo: e.target.value }),
+      applyPromo: () => {
+        const ok = s.promo.trim().toUpperCase() === 'EARLYBIRD';
+        this.setState({ promoOk: ok });
+        this.flash(ok ? 'Promo applied · 10% off' : 'That code is not valid');
+      },
+      paidLine: s.paidAmount > 0
+        ? this.money(s.paidAmount) + ' paid by ' + s.method + '. Receipt emailed to you.'
+        : 'Nothing to pay now — settle at the studio when you arrive.',
+      bookingRef: s.bookingRef || 'SKH-0000',
+
+      upcoming, alerts,
+      unreadCount: unread, hasUnread: unread > 0,
+      unreadLabel: unread > 0 ? unread + ' unread' : 'All read',
+      markAll: () => this.setState(st => ({ alerts: st.alerts.map(a => ({ ...a, unread: false })) })),
+      prefs: s.prefs.map(p => ({
+        ...p, off: !p.on,
+        toggle: () => this.setState(st => ({ prefs: st.prefs.map(x => (x.id === p.id ? { ...x, on: !x.on } : x)) })),
+      })),
+
+      points: s.points,
+      form: s.form,
+      editName: editField('name'), editEmail: editField('email'), editPhone: editField('phone'),
+      copyCode: () => this.flash('AMELIA25 copied'),
+
+      pkgSheet: sheetPkg ? {
+        ...sheetPkg, price: this.money(sheetPkg.price),
+        book: () => this.setState({ sheet: null, tab: 'book', step: 1, pkg: sheetPkg.id }),
+      } : null,
+      qrSheet: sheetBooking ? {
+        title: sheetBooking.title, meta: sheetBooking.meta, ref: sheetBooking.ref,
+      } : null,
+      closeSheet: () => this.setState({ sheet: null, pkgDraft: null }),
+      toast: s.toast,
+
+      adminTitle: (ADMIN_NAV.find(a => a.id === s.asec) || {}).name || 'Dashboard',
+      adminNav: ADMIN_NAV.map(a => ({
+        ...a,
+        bg: s.asec === a.id ? 'var(--color-accent-500)' : 'var(--color-neutral-100)',
+        fg: s.asec === a.id ? '#fff' : 'var(--color-text)',
+        pick: () => this.setState({ asec: a.id, sheet: null }),
+      })),
+      aDash: s.asec === 'dash', aCal: s.asec === 'cal', aBookings: s.asec === 'bookings',
+      aCustomers: s.asec === 'customers', aPackages: s.asec === 'packages',
+      aReports: s.asec === 'reports', aPromos: s.asec === 'promos', aResources: s.asec === 'resources',
+      exitAdmin: () => this.setState({ mode: 'customer', tab: 'home', sheet: null }),
+
+      adminTodo: [
+        { id: 'x1', title: '2 requests awaiting confirmation', body: 'Rafael Costa and Jonas Weber', cta: 'Review', act: () => this.setState({ asec: 'bookings', bookingFilter: 'Pending' }) },
+        { id: 'x2', title: 'RM 1,100 unpaid', body: 'Two bookings past their deposit window', cta: 'Chase', act: () => this.flash('Payment reminders sent to 2 guests') },
+        { id: 'x3', title: 'Slow Flow is full', body: '5 guests waiting · Studio B holds 12', cta: 'Open more', act: () => this.flash('Capacity raised to 14 · waitlist notified') },
+      ],
+      checkins: s.checkins.map(c => ({
+        ...c,
+        initials: c.name.split(' ').slice(0, 2).map(w => w[0]).join(''),
+        checkedIn: c.in, waiting: !c.in,
+        scan: () => {
+          this.setState(st => ({ checkins: st.checkins.map(x => (x.id === c.id ? { ...x, in: true } : x)) }));
+          this.flash(c.name.split(' ')[0] + ' checked in');
+        },
+      })),
+
+      calViews: ['Day', 'Week', 'Month'].map(name => ({
+        name, pick: () => this.setState({ calView: name }),
+      })),
+      calSessions: s.slots.map(x => {
+        const taken = x.cap - x.spots;
+        const pct = Math.round((taken / x.cap) * 100);
+        return {
+          ...x,
+          assign: x.teacher,
+          load: taken + '/' + x.cap,
+          pct: pct + '%',
+          barColor: pct >= 100 ? 'var(--color-accent-600)' : 'var(--color-accent-2-500)',
+        };
+      }),
+      blockDate: () => this.flash(dayObj.label + ' blocked · 3 guests notified'),
+      addSession: () => this.flash('New session added to ' + dayObj.label),
+
+      bookingFilters: ['All', 'Pending', 'Confirmed', 'Unpaid'].map(name => ({
+        name,
+        bg: s.bookingFilter === name ? 'var(--color-accent-500)' : 'var(--color-neutral-100)',
+        fg: s.bookingFilter === name ? '#fff' : 'var(--color-text)',
+        pick: () => this.setState({ bookingFilter: name }),
+      })),
+      adminBookings: s.adminBookings
+        .filter(b => (s.bookingFilter === 'All' ? true
+          : s.bookingFilter === 'Unpaid' ? !b.paid : b.status === s.bookingFilter.toLowerCase()))
+        .map(b => ({
+          ...b,
+          initials: b.name.split(' ').slice(0, 2).map(w => w[0]).join(''),
+          amount: this.money(b.amount),
+          unpaid: !b.paid,
+          isPending: b.status === 'pending', isConfirmed: b.status === 'confirmed',
+          confirm: () => {
+            this.setState(st => ({ adminBookings: st.adminBookings.map(x => (x.id === b.id ? { ...x, status: 'confirmed' } : x)) }));
+            this.flash(b.name.split(' ')[0] + ' confirmed · email and push sent');
+          },
+          decline: () => {
+            this.setState(st => ({ adminBookings: st.adminBookings.filter(x => x.id !== b.id) }));
+            this.flash(b.name.split(' ')[0] + ' declined · guest notified');
+          },
+          refund: () => this.flash(this.money(b.amount) + ' refunded to ' + b.name.split(' ')[0]),
+          remind: () => this.flash('Reminder sent to ' + b.name.split(' ')[0]),
+        })),
+
+      custQuery: s.custQuery,
+      editCustQuery: (e) => this.setState({ custQuery: e.target.value }),
+      customers: CUSTOMERS
+        .filter(c => (s.custQuery ? c.name.toLowerCase().includes(s.custQuery.toLowerCase()) : true))
+        .map(c => ({
+          ...c,
+          initials: c.name.split(' ').slice(0, 2).map(w => w[0]).join(''),
+          spend: this.money(c.spend),
+          open: () => this.flash(c.name + ' · full profile opens on tap'),
+        })),
+
+      adminPkgs: s.pkgs.map(p => ({
+        ...p,
+        price: this.money(p.price),
+        revenue: this.money(p.price * p.sold),
+        hidden: !p.active,
+        edit: () => this.setState({ sheet: { kind: 'pkgEdit', id: p.id }, pkgDraft: { ...p } }),
+        toggle: () => {
+          this.setState(st => ({ pkgs: st.pkgs.map(x => (x.id === p.id ? { ...x, active: !x.active } : x)) }));
+          this.flash(p.active ? p.name + ' hidden from the form' : p.name + ' is live');
+        },
+      })),
+      newPackage: () => this.setState({
+        sheet: { kind: 'pkgEdit', id: 'new' },
+        pkgDraft: { id: 'p' + Date.now(), name: '', price: 0, unit: 'per class', capacity: '10 per class', sold: 0, active: true, recommended: false, badge: '', cat: 'Flow', dur: '60 min', rating: 'new', desc: '', includes: '', long: '', goodFor: '', valid: '', cancel: 'Free up to 12h before', incl: '', excl: '', isNew: true },
+      }),
+      pkgEdit: s.sheet && s.sheet.kind === 'pkgEdit' && s.pkgDraft ? {
+        ...s.pkgDraft,
+        priceRaw: String(s.pkgDraft.price),
+        hidden: !s.pkgDraft.active,
+        notRecommended: !s.pkgDraft.recommended,
+        heading: s.pkgDraft.isNew ? 'New package' : 'Edit package',
+        saveLabel: s.pkgDraft.isNew ? 'Add to booking form' : 'Save changes',
+      } : null,
+      editPkgName: (e) => { const v = e.target.value; this.setState(st => ({ pkgDraft: { ...st.pkgDraft, name: v } })); },
+      editPkgUnit: (e) => { const v = e.target.value; this.setState(st => ({ pkgDraft: { ...st.pkgDraft, unit: v } })); },
+      editPkgCap: (e) => { const v = e.target.value; this.setState(st => ({ pkgDraft: { ...st.pkgDraft, capacity: v } })); },
+      editPkgDesc: (e) => { const v = e.target.value; this.setState(st => ({ pkgDraft: { ...st.pkgDraft, desc: v } })); },
+      editPkgPrice: (e) => {
+        const v = e.target.value.replace(/[^0-9]/g, '');
+        this.setState(st => ({ pkgDraft: { ...st.pkgDraft, price: v === '' ? 0 : Number(v) } }));
+      },
+      togglePkgActive: () => this.setState(st => ({ pkgDraft: { ...st.pkgDraft, active: !st.pkgDraft.active } })),
+      togglePkgRec: () => this.setState(st => ({ pkgDraft: { ...st.pkgDraft, recommended: !st.pkgDraft.recommended, badge: st.pkgDraft.recommended ? '' : 'Recommended' } })),
+      savePkg: () => {
+        const d = s.pkgDraft;
+        if (!d) return;
+        const clean = { ...d, name: d.name || 'Untitled package' };
+        delete clean.isNew;
+        this.setState(st => ({
+          pkgs: d.isNew ? [...st.pkgs, clean] : st.pkgs.map(x => (x.id === d.id ? clean : x)),
+          sheet: null, pkgDraft: null,
+        }));
+        this.flash(d.isNew ? 'Package added to the booking form' : 'Package saved');
+      },
+
+      revenueBars: [
+        { name: 'Unlimited Monthly Pass', v: 4500 }, { name: '3-Day Retreat', v: 14400 },
+        { name: '1 Week Class Pass', v: 1800 }, { name: 'Private 1-to-1', v: 800 },
+        { name: 'One Time Drop In', v: 700 },
+      ].map((r, i) => ({
+        name: r.name, amount: this.money(r.v),
+        pct: Math.round((r.v / 14400) * 100) + '%',
+        color: i === 1 ? 'var(--color-accent-500)' : 'var(--color-accent-2-500)',
+      })),
+      peakBars: [
+        { label: 'Mon', h: 42 }, { label: 'Tue', h: 58 }, { label: 'Wed', h: 74 },
+        { label: 'Thu', h: 61 }, { label: 'Fri', h: 88 }, { label: 'Sat', h: 96 }, { label: 'Sun', h: 54 },
+      ].map(p => ({
+        label: p.label, h: p.h + '%',
+        color: p.h > 85 ? 'var(--color-accent-500)' : 'var(--color-accent-2-400)',
+      })),
+      reportRows: [
+        { name: 'Most popular date', value: 'Saturday 9:30 AM' },
+        { name: 'Average booking value', value: this.money(125) },
+        { name: 'Booking to payment rate', value: '92%' },
+        { name: 'Waitlist conversion', value: '61%' },
+      ],
+      exportReport: () => this.flash('September report exported'),
+
+      coupons: s.coupons.map(c => ({
+        ...c, off: !c.on,
+        toggle: () => this.setState(st => ({ coupons: st.coupons.map(x => (x.id === c.id ? { ...x, on: !x.on } : x)) })),
+      })),
+      automations: s.automations.map(a => ({
+        ...a, off: !a.on,
+        toggle: () => this.setState(st => ({ automations: st.automations.map(x => (x.id === a.id ? { ...x, on: !x.on } : x)) })),
+      })),
+      teachers: TEACHERS.map(t => ({ ...t, initials: t.name.split(' ').slice(0, 2).map(w => w[0]).join('') })),
+      rooms: ROOMS,
+      accessRows: [
+        { name: 'Owner', value: 'Full access' },
+        { name: 'Front desk', value: 'Bookings, check-in' },
+        { name: 'Teachers', value: 'Own roster only' },
+        { name: 'Audit log', value: '148 entries this month' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

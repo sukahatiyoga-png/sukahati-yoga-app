@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/organic-38c667c3-0503-4ad3-9460-e93eb642f050/styles.css">
+<script src="_ds/organic-38c667c3-0503-4ad3-9460-e93eb642f050/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0;background:#e6dbc6;font-family:"Figtree",system-ui,sans-serif}
+a{color:#8c491a}a:hover{color:#b2622d}
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+<div style="position:relative;height:100%;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden">
+
+<div style="flex:1;overflow:auto">
+
+<sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+<div style="padding:62px 20px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Sukahati Yoga · Studio</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:40px;line-height:1.05;margin:10px 0 6px">Today</h1>
+<div style="font-size:15px;color:var(--color-neutral-700)">Tuesday, 8 September · Jalan Cempedak</div>
+
+<div style="margin-top:24px;background:var(--color-accent-200);border-radius:var(--radius-lg);padding:20px;display:flex;align-items:center;gap:14px">
+<div style="width:52px;height:52px;border-radius:999px;background:var(--color-accent-500);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:22px;flex:none">{{ pendingCount }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:16px;line-height:1.25">Booking requests waiting</div>
+<div style="font-size:13px;color:var(--color-accent-800);margin-top:2px">From the public booking form</div>
+</div>
+<button class="btn btn-primary" style="flex:none;padding:10px 18px;font-size:14px" onClick="{{ goRequests }}">Review</button>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:16px">
+<div style="flex:1;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px">
+<div style="font-family:var(--font-heading);font-size:24px;line-height:1">27</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:4px;line-height:1.3">Booked<br>this week</div>
+</div>
+<div style="flex:1;background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px">
+<div style="font-family:var(--font-heading);font-size:24px;line-height:1">{{ weekRevenue }}</div>
+<div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:4px;line-height:1.3">Packages<br>sold</div>
+</div>
+<div style="flex:1;background:var(--color-accent-2-200);border-radius:var(--radius-md);padding:14px">
+<div style="font-family:var(--font-heading);font-size:24px;line-height:1">3</div>
+<div style="font-size:11.5px;color:var(--color-accent-2-800);margin-top:4px;line-height:1.3">Passes<br>expiring</div>
+</div>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:30px 0 12px">
+<h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0">Schedule</h2>
+<span style="font-size:13px;color:var(--color-neutral-700)">4 sessions</span>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:58px">
+<div style="font-weight:700;font-size:15px">7:00</div>
+<div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">AM</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:14px">
+<div style="font-weight:600;font-size:15px">Morning Flow</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">Dewi · Studio A</div>
+</div>
+<span class="tag tag-accent-2" style="flex:none">6/10</span>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:58px">
+<div style="font-weight:700;font-size:15px">9:30</div>
+<div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">AM</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:14px">
+<div style="font-weight:600;font-size:15px">Gentle Hatha</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">Ayu · Studio A</div>
+</div>
+<span class="tag tag-accent-2" style="flex:none">4/10</span>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:58px">
+<div style="font-weight:700;font-size:15px">5:30</div>
+<div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">PM</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-2-400);padding-left:14px">
+<div style="font-weight:600;font-size:15px">Private 1-to-1</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">Rafael Costa · shoulder care</div>
+</div>
+<span class="tag tag-outline" style="flex:none">1:1</span>
+</div>
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:58px">
+<div style="font-weight:700;font-size:15px">7:00</div>
+<div style="font-size:11px;color:var(--color-neutral-600);letter-spacing:0.06em">PM</div>
+</div>
+<div style="flex:1;min-width:0;border-left:2px solid var(--color-accent-300);padding-left:14px">
+<div style="font-weight:600;font-size:15px">Candlelight Yin</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">Dewi · Studio B</div>
+</div>
+<span class="tag tag-accent-2" style="flex:none">8/10</span>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRequests }}" hint-placeholder-val="{{ false }}">
+<div style="padding:62px 20px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Inbox</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:40px;line-height:1.05;margin:10px 0 18px">Requests</h1>
+
+<div class="seg" style="width:100%">
+<button class="seg-opt" style="flex:1" onClick="{{ showPending }}">Pending · {{ pendingCount }}</button>
+<button class="seg-opt" style="flex:1" onClick="{{ showConfirmed }}">Confirmed · {{ confirmedCount }}</button>
+</div>
+
+<sc-if value="{{ onPending }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:14px;margin-top:18px">
+<sc-for list="{{ pending }}" as="r" hint-placeholder-count="3">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow-sm)">
+<div style="display:flex;gap:13px;align-items:flex-start" onClick="{{ r.open }}">
+<div style="flex:none;width:44px;height:44px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ r.initials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:700;font-size:16.5px;line-height:1.2">{{ r.name }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:3px">{{ r.when }}</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+<span class="tag tag-accent">{{ r.pkg }}</span>
+<span class="tag tag-outline">{{ r.level }}</span>
+</div>
+</div>
+</div>
+<sc-if value="{{ r.showNote }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:12px;background:var(--color-bg);border-radius:var(--radius-md);padding:11px 13px;font-size:13px;line-height:1.45;color:var(--color-neutral-800)">“{{ r.note }}”</div>
+</sc-if>
+<div style="display:flex;gap:8px;margin-top:14px">
+<button class="btn btn-ghost" style="flex:1;padding:11px 0;font-size:14px" onClick="{{ r.decline }}">Decline</button>
+<button class="btn btn-primary" style="flex:1.4;padding:11px 0;font-size:14px" onClick="{{ r.confirm }}">Confirm</button>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ noPending }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:60px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px">
+<div style="width:96px;height:96px;border-radius:999px;background:var(--color-accent-2-200)"></div>
+<div style="font-family:var(--font-heading);font-size:22px">All caught up</div>
+<div style="font-size:13.5px;color:var(--color-neutral-700);max-width:220px">Every request has an answer. New ones land here as they come in.</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ onConfirmed }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+<sc-for list="{{ confirmed }}" as="c" hint-placeholder-count="2">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:13px;align-items:center" onClick="{{ c.open }}">
+<div style="flex:none;width:34px;height:34px;border-radius:999px;background:var(--color-accent-2-500);display:flex;align-items:center;justify-content:center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+</div>
+<div style="flex:1;min-width:0">
+<div style="font-weight:600;font-size:15px">{{ c.name }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:2px">{{ c.pkg }} · {{ c.when }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPackages }}" hint-placeholder-val="{{ false }}">
+<div style="padding:62px 20px 28px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-accent-700)">Offering</div>
+<h1 style="font-family:var(--font-heading);font-weight:400;font-size:40px;line-height:1.05;margin:10px 0 6px">Packages</h1>
+<div style="font-size:15px;color:var(--color-neutral-700)">What guests can pick when they book</div>
+
+<div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
+<sc-for list="{{ packages }}" as="p" hint-placeholder-count="5">
+<div style="background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow-sm)">
+<div style="display:flex;gap:12px;align-items:flex-start" onClick="{{ p.open }}">
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-weight:400;font-size:19px;line-height:1.2">{{ p.name }}</div>
+<div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:4px">{{ p.unit }} · {{ p.sold }} sold this month</div>
+</div>
+<div style="flex:none;text-align:right">
+<div style="font-family:var(--font-heading);font-size:22px;line-height:1">{{ p.price }}</div>
+</div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+<sc-if value="{{ p.recommended }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent">{{ p.badge }}</span>
+</sc-if>
+<sc-if value="{{ p.online }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-outline">Zoom</span>
+</sc-if>
+<div style="flex:1"></div>
+<sc-if value="{{ p.active }}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;display:flex;align-items:center;gap:7px" onClick="{{ p.toggle }}">
+<span style="width:9px;height:9px;border-radius:999px;background:var(--color-accent-2-500);display:inline-block"></span>Live
+</button>
+</sc-if>
+<sc-if value="{{ p.hidden }}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;display:flex;align-items:center;gap:7px;opacity:0.6" onClick="{{ p.toggle }}">
+<span style="width:9px;height:9px;border-radius:999px;background:var(--color-neutral-400);display:inline-block"></span>Hidden
+</button>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+
+<button class="btn btn-primary btn-block" style="margin-top:20px;padding:15px 0" onClick="{{ newPackage }}">New package</button>
+</div>
+</sc-if>
+
+</div>
+
+<div style="flex:none;background:var(--color-neutral-100);border-top:1px solid var(--color-divider);border-radius:26px 26px 0 0;padding:10px 12px 30px;display:flex;gap:4px">
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:11px;font-weight:600;cursor:pointer;color: {{ c1 }}" onClick="{{ goToday }}">
+<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+Today
+</button>
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:11px;font-weight:600;cursor:pointer;position:relative;color: {{ c2 }}" onClick="{{ goRequests }}">
+<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13l2.5 8v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Z"/></svg>
+Requests
+<sc-if value="{{ hasPending }}" hint-placeholder-val="{{ true }}">
+<span style="position:absolute;top:4px;right:26px;min-width:18px;height:18px;border-radius:999px;background:var(--color-accent-500);color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px">{{ pendingCount }}</span>
+</sc-if>
+</button>
+<button style="flex:1;background:none;border:0;padding:8px 0;display:flex;flex-direction:column;align-items:center;gap:5px;font-family:var(--font-body);font-size:11px;font-weight:600;cursor:pointer;color: {{ c3 }}" onClick="{{ goPackages }}">
+<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 7.5l9 4.5 9-4.5Z"/><path d="M3 12.5 12 17l9-4.5"/><path d="M3 17 12 21.5 21 17"/></svg>
+Packages
+</button>
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:20px;right:20px;bottom:110px;background:var(--color-accent-2-800);color:var(--color-accent-2-100);border-radius:999px;padding:13px 20px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow-lg);text-align:center">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ sheetRequest }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(32,30,29,0.42);display:flex;flex-direction:column;justify-content:flex-end">
+<div style="background:var(--color-bg);border-radius:28px 28px 0 0;max-height:82%;overflow:auto;padding:14px 20px 30px;box-shadow:var(--shadow-lg)">
+<div style="display:flex;justify-content:center;padding-bottom:14px" onClick="{{ closeSheet }}">
+<div style="width:44px;height:5px;border-radius:999px;background:var(--color-neutral-400)"></div>
+</div>
+<div style="display:flex;gap:14px;align-items:center">
+<div style="flex:none;width:56px;height:56px;border-radius:999px;background:var(--color-accent-2-300);color:var(--color-accent-2-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px">{{ sheetRequest.initials }}</div>
+<div style="flex:1;min-width:0">
+<div style="font-family:var(--font-heading);font-size:24px;line-height:1.15">{{ sheetRequest.name }}</div>
+<div style="font-size:13px;color:var(--color-neutral-700);margin-top:3px">Requested {{ sheetRequest.received }}</div>
+</div>
+</div>
+
+<div style="display:flex;gap:8px;margin-top:16px">
+<a class="btn btn-secondary" style="flex:1;padding:11px 0;font-size:13.5px;text-decoration:none" href="tel:{{ sheetRequest.phone }}">Call</a>
+<a class="btn btn-secondary" style="flex:1;padding:11px 0;font-size:13.5px;text-decoration:none" href="mailto:{{ sheetRequest.email }}">Email</a>
+<a class="btn btn-secondary" style="flex:1;padding:11px 0;font-size:13.5px;text-decoration:none" href="https://wa.me/">WhatsApp</a>
+</div>
+
+<div style="margin-top:18px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:14px">
+<span style="color:var(--color-neutral-700)">Date</span><span style="font-weight:600;text-align:right">{{ sheetRequest.date }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:14px">
+<span style="color:var(--color-neutral-700)">Time slot</span><span style="font-weight:600;text-align:right">{{ sheetRequest.time }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:14px">
+<span style="color:var(--color-neutral-700)">Package</span><span style="font-weight:600;text-align:right">{{ sheetRequest.pkg }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:14px">
+<span style="color:var(--color-neutral-700)">Level</span><span style="font-weight:600;text-align:right">{{ sheetRequest.level }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--color-divider);font-size:14px">
+<span style="color:var(--color-neutral-700)">Phone</span><span style="font-weight:600;text-align:right">{{ sheetRequest.phone }}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:13px 0;font-size:14px">
+<span style="color:var(--color-neutral-700)">Amount due</span><span style="font-weight:600;text-align:right">{{ sheetRequest.amount }}</span>
+</div>
+</div>
+
+<sc-if value="{{ sheetRequest.showNote }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:14px">
+<div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-700);margin-bottom:7px">Notes</div>
+<div style="background:var(--color-accent-100);border-radius:var(--radius-md);padding:14px 16px;font-size:14px;line-height:1.5">{{ sheetRequest.note }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sheetRequest.isPending }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:8px;margin-top:20px">
+<button class="btn btn-ghost" style="flex:1;padding:15px 0" onClick="{{ sheetRequest.decline }}">Decline</button>
+<button class="btn btn-primary" style="flex:1.5;padding:15px 0" onClick="{{ sheetRequest.confirm }}">Confirm booking</button>
+</div>
+</sc-if>
+<sc-if value="{{ sheetRequest.isConfirmed }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:10px;margin-top:20px;background:var(--color-accent-2-200);border-radius:999px;padding:14px 20px;font-size:14px;font-weight:600;color:var(--color-accent-2-900)">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+Confirmed · guest notified by email
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sheetPackage }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(32,30,29,0.42);display:flex;flex-direction:column;justify-content:flex-end">
+<div style="background:var(--color-bg);border-radius:28px 28px 0 0;max-height:86%;overflow:auto;padding:14px 20px 30px;box-shadow:var(--shadow-lg)">
+<div style="display:flex;justify-content:center;padding-bottom:14px" onClick="{{ closeSheet }}">
+<div style="width:44px;height:5px;border-radius:999px;background:var(--color-neutral-400)"></div>
+</div>
+<div style="font-family:var(--font-heading);font-size:26px;line-height:1.15">{{ sheetPackage.heading }}</div>
+
+<div class="field" style="margin-top:18px">
+<label for="pkg-name">Name shown to guests</label>
+<input class="input" id="pkg-name" value="{{ sheetPackage.name }}" onChange="{{ editName }}">
+</div>
+<div style="display:flex;gap:10px;margin-top:14px">
+<div class="field" style="flex:1">
+<label for="pkg-price">Price (MYR)</label>
+<input class="input" id="pkg-price" value="{{ sheetPackage.priceRaw }}" onChange="{{ editPrice }}">
+</div>
+<div class="field" style="flex:1">
+<label for="pkg-unit">Billed as</label>
+<input class="input" id="pkg-unit" value="{{ sheetPackage.unit }}" onChange="{{ editUnit }}">
+</div>
+</div>
+<div class="field" style="margin-top:14px">
+<label for="pkg-desc">Short description</label>
+<input class="input" id="pkg-desc" value="{{ sheetPackage.desc }}" onChange="{{ editDesc }}">
+</div>
+
+<div style="margin-top:18px;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:4px 16px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;border-bottom:1px solid var(--color-divider)">
+<div>
+<div style="font-weight:600;font-size:14.5px">Visible on booking form</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">Guests can choose this package</div>
+</div>
+<sc-if value="{{ sheetPackage.active }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-accent-2-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ toggleSheetActive }}">
+<span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span>
+</button>
+</sc-if>
+<sc-if value="{{ sheetPackage.hidden }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ toggleSheetActive }}">
+<span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span>
+</button>
+</sc-if>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0">
+<div>
+<div style="font-weight:600;font-size:14.5px">Mark as recommended</div>
+<div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">Adds a badge beside the option</div>
+</div>
+<sc-if value="{{ sheetPackage.recommended }}" hint-placeholder-val="{{ false }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-accent-500);padding:3px;display:flex;justify-content:flex-end;cursor:pointer" onClick="{{ toggleSheetRec }}">
+<span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span>
+</button>
+</sc-if>
+<sc-if value="{{ sheetPackage.notRecommended }}" hint-placeholder-val="{{ true }}">
+<button style="flex:none;width:52px;height:30px;border-radius:999px;border:0;background:var(--color-neutral-300);padding:3px;display:flex;justify-content:flex-start;cursor:pointer" onClick="{{ toggleSheetRec }}">
+<span style="width:24px;height:24px;border-radius:999px;background:#fff;display:block"></span>
+</button>
+</sc-if>
+</div>
+</div>
+
+<button class="btn btn-primary btn-block" style="margin-top:20px;padding:15px 0" onClick="{{ savePackage }}">{{ sheetPackage.saveLabel }}</button>
+<button class="btn btn-ghost btn-block" style="margin-top:8px;padding:13px 0" onClick="{{ closeSheet }}">Cancel</button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;currency&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;RM&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;startTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Today&quot;,&quot;Requests&quot;,&quot;Packages&quot;],&quot;default&quot;:&quot;Today&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+const REQS = [
+  { id: 'r1', name: 'Amelia Tan', email: 'amelia.tan@gmail.com', phone: '+6012 442 8871',
+    date: 'Wed 9 Sep 2026', time: '7:00 AM · Morning Flow', pkgId: 'p2', level: 'Beginner',
+    note: 'Visiting from Singapore until the 16th — hoping to come most mornings.',
+    received: '18 min ago', status: 'pending' },
+  { id: 'r2', name: 'Rafael Costa', email: 'r.costa@outlook.com', phone: '+6011 208 7734',
+    date: 'Wed 9 Sep 2026', time: '5:30 PM · Private', pkgId: 'p4', level: 'Intermediate',
+    note: 'Recovering from a shoulder injury, cleared by my physio for gentle practice.',
+    received: '1 hour ago', status: 'pending' },
+  { id: 'r3', name: 'Nur Aisyah Rahman', email: 'aisyah.r@gmail.com', phone: '+6013 771 9052',
+    date: 'Thu 10 Sep 2026', time: '7:00 PM · Candlelight Yin', pkgId: 'p3', level: 'Advanced',
+    note: '', received: '3 hours ago', status: 'pending' },
+  { id: 'r4', name: 'Jonas Weber', email: 'jonas.weber@web.de', phone: '+49 171 553 2210',
+    date: 'Fri 11 Sep 2026', time: '9:30 AM · Online', pkgId: 'p5', level: 'Beginner',
+    note: 'I am on CET — is the morning slot 3:30am my time? Happy to take an evening one.',
+    received: 'Yesterday', status: 'pending' },
+  { id: 'r5', name: 'Priya Menon', email: 'priya.menon@gmail.com', phone: '+6017 330 4418',
+    date: 'Tue 8 Sep 2026', time: '9:30 AM · Gentle Hatha', pkgId: 'p1', level: 'Beginner',
+    note: '', received: 'Yesterday', status: 'confirmed' },
+  { id: 'r6', name: 'Daniel Ooi', email: 'd.ooi@gmail.com', phone: '+6012 900 6621',
+    date: 'Tue 8 Sep 2026', time: '7:00 AM · Morning Flow', pkgId: 'p3', level: 'Intermediate',
+    note: '', received: '2 days ago', status: 'confirmed' },
+];
+
+const PKGS = [
+  { id: 'p1', name: 'One Time Drop In', price: 50, unit: 'per class', desc: 'A single class, any style.', sold: 14, active: true, recommended: false, online: false, badge: '' },
+  { id: 'p2', name: '1 Week Class Pass', price: 300, unit: '7 days unlimited', desc: 'Unlimited classes for seven days.', sold: 6, active: true, recommended: true, online: false, badge: 'For tourists' },
+  { id: 'p3', name: 'Unlimited Monthly Pass', price: 500, unit: '30 days unlimited', desc: 'Unlimited classes for a month.', sold: 9, active: true, recommended: false, online: false, badge: '' },
+  { id: 'p4', name: 'Private Yoga Session (1-TO-1)', price: 200, unit: 'per session', desc: 'One teacher, one guest.', sold: 4, active: true, recommended: false, online: false, badge: '' },
+  { id: 'p5', name: 'Live Online Yoga Sessions', price: null, unit: 'per session', desc: 'Joined over Zoom from anywhere.', sold: 3, active: false, recommended: false, online: true, badge: '' },
+];
+
+class Component extends DCLogic {
+  state = {
+    tab: 'today', filter: 'pending', sheet: null, draft: null, toast: null,
+    reqs: REQS.map(r => ({ ...r })), pkgs: PKGS.map(p => ({ ...p })),
+  };
+
+  componentDidMount() {
+    const t = (this.props.startTab || 'Today').toLowerCase();
+    if (t !== 'today') this.setState({ tab: t });
+  }
+
+  cur() { return this.props.currency || 'RM'; }
+
+  money(v) { return v === null || v === undefined ? 'On request' : this.cur() + ' ' + v; }
+
+  pkgOf(id) { return this.state.pkgs.find(p => p.id === id) || {}; }
+
+  flash(msg) {
+    clearTimeout(this._t);
+    this.setState({ toast: msg });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+
+  setStatus(id, status, verb) {
+    const r = this.state.reqs.find(x => x.id === id);
+    this.setState(s => ({
+      reqs: s.reqs.map(x => (x.id === id ? { ...x, status } : x)),
+      sheet: null,
+    }));
+    this.flash(r.name.split(' ')[0] + ' ' + verb);
+  }
+
+  initials(name) {
+    return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('');
+  }
+
+  reqView(r) {
+    const pkg = this.pkgOf(r.pkgId);
+    return {
+      ...r,
+      initials: this.initials(r.name),
+      pkg: pkg.name || '—',
+      amount: this.money(pkg.price),
+      when: r.date.replace(' 2026', '') + ' · ' + r.time,
+      showNote: !!r.note && this.props.showNotes !== false,
+      isPending: r.status === 'pending',
+      isConfirmed: r.status === 'confirmed',
+      open: () => this.setState({ sheet: { kind: 'request', id: r.id } }),
+      confirm: () => this.setStatus(r.id, 'confirmed', 'is confirmed — email sent'),
+      decline: () => this.setStatus(r.id, 'declined', 'was declined'),
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const pending = s.reqs.filter(r => r.status === 'pending').map(r => this.reqView(r));
+    const confirmed = s.reqs.filter(r => r.status === 'confirmed').map(r => this.reqView(r));
+    const active = 'var(--color-accent-700)';
+    const idle = 'var(--color-neutral-600)';
+
+    const packages = s.pkgs.map(p => ({
+      ...p,
+      price: this.money(p.price),
+      hidden: !p.active,
+      notRecommended: !p.recommended,
+      open: () => this.setState({ sheet: { kind: 'package', id: p.id }, draft: { ...p } }),
+      toggle: () => {
+        this.setState(st => ({ pkgs: st.pkgs.map(x => (x.id === p.id ? { ...x, active: !x.active } : x)) }));
+        this.flash(p.name + (p.active ? ' hidden from the form' : ' is live on the form'));
+      },
+    }));
+
+    let sheetRequest = null;
+    let sheetPackage = null;
+    if (s.sheet && s.sheet.kind === 'request') {
+      const r = s.reqs.find(x => x.id === s.sheet.id);
+      if (r) sheetRequest = this.reqView(r);
+    }
+    if (s.sheet && s.sheet.kind === 'package' && s.draft) {
+      const d = s.draft;
+      sheetPackage = {
+        ...d,
+        priceRaw: d.price === null ? '' : String(d.price),
+        hidden: !d.active,
+        notRecommended: !d.recommended,
+        heading: d.isNew ? 'New package' : 'Edit package',
+        saveLabel: d.isNew ? 'Add package' : 'Save changes',
+      };
+    }
+
+    const edit = (k) => (e) => {
+      const v = e.target.value;
+      this.setState(st => ({ draft: { ...st.draft, [k]: v } }));
+    };
+
+    return {
+      isToday: s.tab === 'today', isRequests: s.tab === 'requests', isPackages: s.tab === 'packages',
+      c1: s.tab === 'today' ? active : idle,
+      c2: s.tab === 'requests' ? active : idle,
+      c3: s.tab === 'packages' ? active : idle,
+      goToday: () => this.setState({ tab: 'today', sheet: null }),
+      goRequests: () => this.setState({ tab: 'requests', filter: 'pending', sheet: null }),
+      goPackages: () => this.setState({ tab: 'packages', sheet: null }),
+      showPending: () => this.setState({ filter: 'pending' }),
+      showConfirmed: () => this.setState({ filter: 'confirmed' }),
+      onPending: s.filter === 'pending', onConfirmed: s.filter === 'confirmed',
+      pending, confirmed,
+      noPending: pending.length === 0,
+      pendingCount: pending.length, confirmedCount: confirmed.length,
+      hasPending: pending.length > 0,
+      weekRevenue: this.cur() + ' 1,450',
+      packages,
+      sheetRequest, sheetPackage,
+      closeSheet: () => this.setState({ sheet: null, draft: null }),
+      editName: edit('name'), editUnit: edit('unit'), editDesc: edit('desc'),
+      editPrice: (e) => {
+        const v = e.target.value.replace(/[^0-9.]/g, '');
+        this.setState(st => ({ draft: { ...st.draft, price: v === '' ? null : Number(v) } }));
+      },
+      toggleSheetActive: () => this.setState(st => ({ draft: { ...st.draft, active: !st.draft.active } })),
+      toggleSheetRec: () => this.setState(st => ({ draft: { ...st.draft, recommended: !st.draft.recommended } })),
+      newPackage: () => this.setState({
+        sheet: { kind: 'package', id: 'new' },
+        draft: { id: 'p' + Date.now(), name: '', price: null, unit: 'per class', desc: '', sold: 0, active: true, recommended: false, online: false, badge: '', isNew: true },
+      }),
+      savePackage: () => {
+        const d = this.state.draft;
+        if (!d) return;
+        const clean = { ...d, name: d.name || 'Untitled package' };
+        delete clean.isNew;
+        this.setState(st => ({
+          pkgs: d.isNew ? [...st.pkgs, clean] : st.pkgs.map(x => (x.id === d.id ? clean : x)),
+          sheet: null, draft: null,
+        }));
+        this.flash(d.isNew ? 'Package added to the booking form' : 'Package saved');
+      },
+      toast: s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>
