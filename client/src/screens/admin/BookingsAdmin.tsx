@@ -9,9 +9,11 @@ export default function BookingsAdmin() {
   const { flash } = useApp();
   const [filter, setFilter] = useState("All");
   const [bookings, setBookings] = useState<BookingAdmin[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   function reload() {
-    api.adminBookings(filter === "All" ? undefined : filter).then(setBookings);
+    setError(null);
+    api.adminBookings(filter === "All" ? undefined : filter).then(setBookings).catch((e) => setError(e instanceof Error ? e.message : "Could not load bookings"));
   }
   useEffect(reload, [filter]);
 
@@ -49,8 +51,10 @@ export default function BookingsAdmin() {
         ))}
       </div>
 
+      {error && <div style={{ marginTop: 16, fontSize: 13.5, color: "var(--color-accent-700)", background: "var(--color-accent-100)", borderRadius: "var(--radius-sm)", padding: "10px 14px" }}>{error}</div>}
+
       <div style={{ display: "flex", flexDirection: "column", gap: 11, marginTop: 16 }}>
-        {bookings.length === 0 && <div style={{ fontSize: 13, color: "var(--color-neutral-600)" }}>No bookings match this filter.</div>}
+        {!error && bookings.length === 0 && <div style={{ fontSize: 13, color: "var(--color-neutral-600)" }}>No bookings match this filter.</div>}
         {bookings.map((b) => (
           <div key={b.id} style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 16, boxShadow: "var(--shadow-sm)" }}>
             <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
