@@ -145,6 +145,61 @@ adminRouter.get("/customers", async (req, res) => {
   res.json(out);
 });
 
+adminRouter.get("/customers/:id", async (req, res) => {
+  const u = await db.user.findUnique({ where: { id: req.params.id }, include: { preferences: true } });
+  if (!u || u.role !== "customer") return res.status(404).json({ error: "Customer not found" });
+
+  const bookings = await db.booking.findMany({
+    where: { userId: u.id },
+    include: {
+      package: true, session: { include: { teacher: true, room: true } }, retreat: true,
+      addons: { include: { addon: true } }, payments: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  const now = new Date();
+  const effectiveDate = (b: any) => b.session?.startsAt ?? b.retreat?.startsOn ?? b.createdAt;
+  const serializeBooking = (b: any) => {
+    const meta = b.session
+      ? `${timeParts(b.session.startsAt).time} ${timeParts(b.session.startsAt).ampm} · ${b.session.teacher.name.split(" ")[0]} · ${b.session.room.name}`
+      : b.retreat ? `Retreat · ${b.retreat.startsOn.toDateString()}` : b.package.name;
+    return {
+      id: b.id, reference: b.reference, title: b.session?.title || b.package.name, meta, status: b.status,
+      packageName: b.package.name, sessionDate: b.session ? b.session.startsAt.toISOString() : null,
+      teacherName: b.session?.teacher.name || null, roomName: b.session?.room.name || null,
+      guestCount: b.guestCount, level: b.level, specialRequests: b.specialRequests,
+      subtotalMinor: b.subtotalMinor, discountMinor: b.discountMinor, totalMinor: b.totalMinor,
+      amountPaidMinor: b.amountPaidMinor, balanceMinor: Math.max(0, b.totalMinor - b.amountPaidMinor),
+      currency: b.currency, addons: b.addons.map((a: any) => ({ name: a.addon.name, quantity: a.quantity })),
+      payments: b.payments.map((p: any) => ({ kind: p.kind, method: p.method, amountMinor: p.amountMinor, status: p.status, paidAt: p.paidAt ? p.paidAt.toISOString() : null })),
+      qrToken: b.qrToken, checkedInAt: b.checkedInAt ? b.checkedInAt.toISOString() : null,
+      cancelledAt: b.cancelledAt ? b.cancelledAt.toISOString() : null, createdAt: b.createdAt.toISOString(),
+    };
+  };
+  const upcoming = bookings.filter((b) => ["pending", "confirmed"].includes(b.status) && effectiveDate(b) >= now);
+  const past = bookings.filter((b) => !upcoming.includes(b));
+  const attended = bookings.filter((b) => b.status === "attended").length;
+  const noShows = bookings.filter((b) => b.status === "no_show").length;
+  const spendMinor = bookings.reduce((n, b) => n + b.amountPaidMinor, 0);
+
+  res.json({
+    id: u.id, name: u.fullName, email: u.email, phone: u.phoneE164 || "", memberSince: u.createdAt.toISOString(),
+    authProvider: u.authProvider, points: u.loyaltyPoints, referralCode: u.referralCode, adminNotes: u.adminNotes,
+    preferences: u.preferences ? {
+      usualLevel: u.preferences.usualLevel, preferredTime: u.preferences.preferredTime, mealPreference: u.preferences.mealPreference,
+    } : null,
+    stats: { classesAttended: attended, noShows, spendMinor },
+    bookings: { upcoming: upcoming.map(serializeBooking), past: past.map(serializeBooking) },
+  });
+});
+
+adminRouter.patch("/customers/:id/notes", async (req, res) => {
+  const u = await db.user.findUnique({ where: { id: req.params.id } });
+  if (!u || u.role !== "customer") return res.status(404).json({ error: "Customer not found" });
+  await db.user.update({ where: { id: u.id }, data: { adminNotes: String(req.body?.notes || "") } });
+  res.json({ ok: true });
+});
+
 // ── Reports ────────────────────────────────────────────────────────────
 adminRouter.get("/reports", async (_req, res) => {
   const now = new Date();

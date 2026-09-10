@@ -79,6 +79,23 @@ export interface NotificationItem {
 }
 
 export interface Customer { id: string; name: string; initials: string; meta: string; spendMinor: number }
+
+export interface CustomerBookingDetail {
+  id: string; reference: string; title: string; meta: string; status: string;
+  packageName: string; sessionDate: string | null; teacherName: string | null; roomName: string | null;
+  guestCount: number; level: string | null; specialRequests: string;
+  subtotalMinor: number; discountMinor: number; totalMinor: number; amountPaidMinor: number; balanceMinor: number;
+  currency: string; addons: { name: string; quantity: number }[];
+  payments: { kind: string; method: string; amountMinor: number; status: string; paidAt: string | null }[];
+  qrToken: string; checkedInAt: string | null; cancelledAt: string | null; createdAt: string;
+}
+export interface CustomerDetail {
+  id: string; name: string; email: string; phone: string; memberSince: string; authProvider: string;
+  points: number; referralCode: string; adminNotes: string;
+  preferences: { usualLevel: string | null; preferredTime: string | null; mealPreference: string | null } | null;
+  stats: { classesAttended: number; noShows: number; spendMinor: number };
+  bookings: { upcoming: CustomerBookingDetail[]; past: CustomerBookingDetail[] };
+}
 export interface Coupon { id: string; code: string; detail: string; on: boolean }
 export interface Automation { id: string; name: string; note: string; on: boolean }
 export interface Teacher { id: string; name: string; initials: string; meta: string; load: string }
@@ -180,6 +197,8 @@ export const api = {
     addSession: (data: Record<string, unknown>) => post<{ ok: boolean; id: string }>("/admin/sessions", data),
     blockDay: (date: string) => post<{ ok: boolean; sessionsBlocked: number; guestsNotified: number }>(`/admin/days/${date}/block`),
     customers: (q?: string) => get<Customer[]>(`/admin/customers${q ? "?q=" + encodeURIComponent(q) : ""}`),
+    customerDetail: (id: string) => get<CustomerDetail>(`/admin/customers/${id}`),
+    setCustomerNotes: (id: string, notes: string) => patch<{ ok: boolean }>(`/admin/customers/${id}/notes`, { notes }),
     reports: () => get<Reports>("/admin/reports"),
     coupons: () => get<Coupon[]>("/admin/coupons"),
     toggleCoupon: (id: string) => patch<{ ok: boolean; on: boolean }>(`/admin/coupons/${id}/toggle`),

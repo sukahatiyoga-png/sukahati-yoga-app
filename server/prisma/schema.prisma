@@ -40,6 +40,7 @@ model User {
   currency       String    @default("MYR")
   loyaltyPoints  Int       @default(0)
   referralCode   String    @unique
+  adminNotes     String    @default("") // internal studio notes, staff-only
   referredById   String?
   referredBy     User?     @relation("Referrals", fields: [referredById], references: [id])
   referrals      User[]    @relation("Referrals")
