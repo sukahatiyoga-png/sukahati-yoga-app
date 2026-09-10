@@ -10,11 +10,17 @@ import { usersRouter } from "./routes/users";
 import { adminRouter } from "./routes/admin";
 import { addonsRouter } from "./routes/addons";
 import { authRouter } from "./routes/auth";
+import { teacherRegistrationRouter } from "./routes/teacherRegistration";
+import { adminTeachersRouter } from "./routes/adminTeachers";
 import { requireAuth, requireStaff } from "./domain/auth";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Raised from Express's 100kb default so the teacher-registration form can
+// submit a profile photo and certification file as base64 data URLs — no
+// object storage (S3/Cloudinary) is wired up, so this is the whole upload
+// path. Keep files modest; the client enforces a size cap before encoding.
+app.use(express.json({ limit: "12mb" }));
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
@@ -25,6 +31,8 @@ app.use("/api/bookings", requireAuth, bookingsRouter);
 app.use("/api/notifications", requireAuth, notificationsRouter);
 app.use("/api/users", requireAuth, usersRouter);
 app.use("/api/admin", requireAuth, requireStaff, adminRouter);
+app.use("/api/admin/teacher-registrations", requireAuth, requireStaff, adminTeachersRouter);
+app.use("/api/teacher-registration", teacherRegistrationRouter); // public — no customer account required
 app.use("/api/addons", addonsRouter);
 
 // Serve the built client (client/dist) when it's present alongside this

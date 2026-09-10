@@ -9,11 +9,12 @@ import PackagesAdmin from "./PackagesAdmin";
 import Reports from "./Reports";
 import Promotions from "./Promotions";
 import Resources from "./Resources";
+import TeacherRegistrations from "./TeacherRegistrations";
 
 const NAV: { id: AdminSection; name: string }[] = [
   { id: "dash", name: "Dashboard" }, { id: "cal", name: "Calendar" }, { id: "bookings", name: "Bookings" },
-  { id: "customers", name: "Customers" }, { id: "packages", name: "Packages" }, { id: "reports", name: "Reports" },
-  { id: "promos", name: "Promotions" }, { id: "resources", name: "Resources" },
+  { id: "customers", name: "Customers" }, { id: "packages", name: "Packages" }, { id: "teacherReg", name: "Teacher Registrations" },
+  { id: "reports", name: "Reports" }, { id: "promos", name: "Promotions" }, { id: "resources", name: "Resources" },
 ];
 
 export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
@@ -50,6 +51,7 @@ export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
         {asec === "bookings" && <BookingsAdmin />}
         {asec === "customers" && <Customers />}
         {asec === "packages" && <PackagesAdmin openPackageEditSheet={openPackageEditSheet} />}
+        {asec === "teacherReg" && <TeacherRegistrations />}
         {asec === "reports" && <Reports />}
         {asec === "promos" && <Promotions />}
         {asec === "resources" && <Resources />}

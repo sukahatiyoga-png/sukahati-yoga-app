@@ -92,6 +92,35 @@ export interface Dashboard {
   cancellationsThisWeek: number; waitlistCount: number; todo: DashboardTodo[];
 }
 
+export interface TeacherSessionItem {
+  id: string; date: string | null; startTime: string; endTime: string; className: string;
+  yogaStyle: string; duration: string; capacity: number; bookingCount?: number; status: string;
+}
+export interface TeacherVisitItem {
+  id: string; visitType: string; status: string; title: string; description: string;
+  proposedDate: string | null; numberOfSessions: number; expectedStudents: number | null;
+  sessionDuration: string; preferredTime: string; createdAt: string;
+  websiteIntro?: string; socialLinks?: string; equipmentNeeds?: string; travelNotes?: string;
+  dietaryNeeds?: string; additionalComments?: string;
+  sessions: TeacherSessionItem[];
+}
+export interface TeacherProfileItem {
+  id?: string; teacherCode: string; fullName: string; preferredName: string; email: string; phone: string;
+  country: string; city: string; profilePhotoUrl: string; instagram: string; website: string; bio: string;
+  yearsExperience: string; certification: string; certificationSchool: string; certificationLevel: string;
+  teachingStyles: string[]; teachingSpecialties: string; certificationFileUrl: string; status: string;
+  adminNotes?: string; createdAt: string; updatedAt?: string;
+}
+export interface TeacherRegSessionInput { date?: string; time?: string; className?: string; style?: string; duration?: string; capacity?: number }
+export interface TeacherRegistrationSubmitPayload {
+  personal: { fullName: string; preferredName?: string; email: string; phone: string; country?: string; city?: string; profilePhotoUrl?: string; instagram?: string; website?: string };
+  teaching: { yogaStyles: string[]; yearsExperience?: string; certification?: string; certificationSchool?: string; certificationLevel?: string; bio?: string; teachingSpecialties?: string; certificationFileUrl?: string };
+  visit: { visitType: string; proposedDate?: string; numberOfSessions?: number; title?: string; description?: string; expectedStudents?: number; sessionDuration?: string; preferredTime?: string; sessions: TeacherRegSessionInput[] };
+  additional: { websiteIntro?: string; socialLinks?: string; equipmentNeeds?: string; travelNotes?: string; dietaryNeeds?: string; additionalComments?: string; agreedToTerms: boolean };
+}
+export interface TeacherRegRow { id: string; teacherCode: string; name: string; initials: string; style: string; nextVisit: string; status: string }
+export interface TeacherRegDashboard { totalTeachers: number; pendingRegistrations: number; upcomingTeachers: number; thisMonth: number; completedVisits: number }
+
 export interface Reports {
   revenueMinor: number; bookingsThisMonth: number; cancellationRate: number; retentionPct: number;
   revenueByPackage: { name: string; amountMinor: number; pct: number }[];
@@ -162,5 +191,26 @@ export const api = {
     conflicts: () => get<{ notes: string[] }>("/admin/conflicts"),
     access: () => get<{ name: string; value: string }[]>("/admin/access"),
     checkins: () => get<CheckinItem[]>("/admin/checkins"),
+  },
+
+  teacherRegistration: {
+    checkDuplicate: (data: { email: string; phone: string }) =>
+      post<{ found: boolean; teacherCode?: string; fullName?: string }>("/teacher-registration/check-duplicate", data),
+    submit: (data: TeacherRegistrationSubmitPayload) =>
+      post<{ teacherCode: string; teacherProfileId: string; visitId: string; isReturning: boolean }>("/teacher-registration/submit", data),
+    lookup: (code: string, email: string) =>
+      get<{ profile: TeacherProfileItem; visits: TeacherVisitItem[] }>(`/teacher-registration/${encodeURIComponent(code)}?email=${encodeURIComponent(email)}`),
+  },
+
+  adminTeacherReg: {
+    dashboard: () => get<TeacherRegDashboard>("/admin/teacher-registrations/dashboard"),
+    list: (params: { status?: string; q?: string; style?: string }) => {
+      const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v) as [string, string][]).toString();
+      return get<TeacherRegRow[]>(`/admin/teacher-registrations${qs ? "?" + qs : ""}`);
+    },
+    detail: (id: string) => get<{ profile: TeacherProfileItem; visits: TeacherVisitItem[] }>(`/admin/teacher-registrations/${id}`),
+    setStatus: (id: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/teacher-registrations/${id}/status`, { status }),
+    setNotes: (id: string, notes: string) => patch<{ ok: boolean }>(`/admin/teacher-registrations/${id}/notes`, { notes }),
+    setVisitStatus: (visitId: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/teacher-registrations/visits/${visitId}/status`, { status }),
   },
 };

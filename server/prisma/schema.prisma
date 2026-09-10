@@ -367,3 +367,97 @@ model AutomationSetting {
   isActive Boolean @default(true)
   sortOrder Int    @default(0)
 }
+
+// ── Guest teacher registration ─────────────────────────────────────────
+// Separate from `Teacher` (the internal roster that teaches scheduled
+// studio classes). A TeacherProfile is created once per person from the
+// public /teacher-registration form; every subsequent registration by the
+// same person (matched on email or phone) attaches a new TeacherVisit to
+// the same profile instead of creating a duplicate.
+
+model TeacherProfile {
+  id                  String   @id @default(cuid())
+  teacherCode         String   @unique // "SY-T-000001"
+  fullName            String
+  preferredName       String   @default("")
+  email               String   @unique
+  phone               String
+  country             String   @default("")
+  city                String   @default("")
+  profilePhotoUrl     String   @default("") // data URL
+  instagram           String   @default("")
+  website             String   @default("")
+  bio                 String   @default("")
+  yearsExperience     String   @default("")
+  certification       String   @default("")
+  certificationSchool String   @default("")
+  certificationLevel  String   @default("")
+  teachingStyles      String   @default("[]") // JSON string[]
+  teachingSpecialties String   @default("")
+  certificationFileUrl String  @default("") // data URL
+  status              String   @default("pending") // pending | approved | active | archived
+  adminNotes          String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  visits        TeacherVisit[]
+  sessions      TeacherSession[]
+  notifications TeacherNotification[]
+}
+
+model TeacherVisit {
+  id                 String    @id @default(cuid())
+  teacherProfileId   String
+  teacherProfile     TeacherProfile @relation(fields: [teacherProfileId], references: [id])
+  visitType          String // guest_teacher | workshop | retreat | teacher_training | private_session | special_event | other
+  status             String    @default("pending") // pending | confirmed | completed | cancelled
+  title              String    @default("")
+  description        String    @default("")
+  proposedDate       DateTime?
+  numberOfSessions   Int       @default(1)
+  expectedStudents   Int?
+  sessionDuration    String    @default("")
+  preferredTime      String    @default("")
+  websiteIntro       String    @default("")
+  socialLinks        String    @default("")
+  equipmentNeeds     String    @default("")
+  travelNotes        String    @default("")
+  dietaryNeeds       String    @default("")
+  additionalComments String    @default("")
+  agreedToTerms      Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+
+  sessions TeacherSession[]
+}
+
+model TeacherSession {
+  id               String    @id @default(cuid())
+  teacherVisitId   String
+  teacherVisit     TeacherVisit @relation(fields: [teacherVisitId], references: [id], onDelete: Cascade)
+  teacherProfileId String
+  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id])
+  date             DateTime?
+  startTime        String    @default("")
+  endTime          String    @default("")
+  className        String    @default("")
+  yogaStyle        String    @default("")
+  duration         String    @default("")
+  capacity         Int       @default(0)
+  bookingCount     Int       @default(0)
+  status           String    @default("scheduled") // scheduled | completed | cancelled
+}
+
+// A logged record of what would be sent to the teacher (registration
+// received, approved, reminder). No email/SMS provider is wired up yet —
+// see server README — so these are a communication log the admin can read,
+// not a delivery guarantee.
+model TeacherNotification {
+  id               String   @id @default(cuid())
+  teacherProfileId String
+  teacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id])
+  event            String // registration_received | approved | reminder
+  channel          String // email | whatsapp
+  title            String
+  body             String
+  sentAt           DateTime @default(now())
+}
