@@ -126,21 +126,38 @@ export default function App() {
     openPackageSheet, openQrSheet, closeSheet,
   };
 
+  if (mode === "admin") {
+    return (
+      <AppContext.Provider value={ctx}>
+        <div style={{ position: "relative", height: "100dvh", width: "100%", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden" }}>
+          <AdminShell key={refreshTick} asec={asec} setAsec={setAsec} openPackageEditSheet={openPackageEditSheet} />
+
+          <Toast message={toast} />
+
+          {sheet?.kind === "pkg" && <PackageSheet id={sheet.id} onBook={(packageId) => goBook({ packageId })} />}
+          {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
+          {sheet?.kind === "pkgEdit" && (
+            <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />
+          )}
+        </div>
+      </AppContext.Provider>
+    );
+  }
+
   return (
     <AppContext.Provider value={ctx}>
       <div style={{ position: "relative", height: "100dvh", width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden" }}>
         <div style={{ flex: 1, overflow: "auto" }}>
-          {mode === "customer" && tab === "home" && <Home key={refreshTick} />}
-          {mode === "customer" && tab === "search" && <Search />}
-          {mode === "customer" && tab === "packages" && <Packages />}
-          {mode === "customer" && tab === "book" && <BookFlow draft={draft} setDraft={setDraft} onDone={() => setRefreshTick((n) => n + 1)} />}
-          {mode === "customer" && tab === "bookings" && <Bookings key={refreshTick} />}
-          {mode === "customer" && tab === "alerts" && <Alerts />}
-          {mode === "customer" && tab === "profile" && <Profile />}
-          {mode === "admin" && <AdminShell key={refreshTick} asec={asec} setAsec={setAsec} openPackageEditSheet={openPackageEditSheet} />}
+          {tab === "home" && <Home key={refreshTick} />}
+          {tab === "search" && <Search />}
+          {tab === "packages" && <Packages />}
+          {tab === "book" && <BookFlow draft={draft} setDraft={setDraft} onDone={() => setRefreshTick((n) => n + 1)} />}
+          {tab === "bookings" && <Bookings key={refreshTick} />}
+          {tab === "alerts" && <Alerts />}
+          {tab === "profile" && <Profile />}
         </div>
 
-        {mode === "customer" && tab !== "book" && <TabBar tab={tab} />}
+        {tab !== "book" && <TabBar tab={tab} />}
 
         <Toast message={toast} />
 
