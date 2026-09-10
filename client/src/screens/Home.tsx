@@ -22,11 +22,11 @@ export default function Home() {
 
   useEffect(() => {
     const todayIso = isoDate(new Date());
-    api.myBookings(me.id).then((b) => setNextBooking(b.upcoming[0] || null));
+    api.myBookings().then((b) => setNextBooking(b.upcoming[0] || null));
     api.activePass(me.id).then(setPass);
     api.packages().then((list) => setRetreat(list.find((p) => p.kind === "retreat") || null));
     api.sessions({ date: todayIso }).then(setToday);
-    api.notifications(me.id).then((list) => setUnread(list.filter((n) => n.unread).length));
+    api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length));
   }, [me.id]);
 
   const initials = me.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -137,7 +137,7 @@ export default function Home() {
             {t.spots > 0 ? (
               <span className="tag tag-outline" style={{ flex: "none" }}>{t.spots} left</span>
             ) : (
-              <button className="btn btn-ghost" style={{ flex: "none", padding: "7px 12px", fontSize: 12 }} onClick={() => api.waitlist(t.id, me.id).then(() => flash("Added to the waitlist for " + t.title))}>Waitlist</button>
+              <button className="btn btn-ghost" style={{ flex: "none", padding: "7px 12px", fontSize: 12 }} onClick={() => api.waitlist(t.id).then(() => flash("Added to the waitlist for " + t.title))}>Waitlist</button>
             )}
           </div>
         ))}

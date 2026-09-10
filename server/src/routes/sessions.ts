@@ -1,6 +1,7 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { db } from "../db";
 import { startOfDay, endOfDay, timeParts } from "../domain/format";
+import { requireAuth } from "../domain/auth";
 
 export const sessionsRouter = Router();
 
@@ -64,9 +65,8 @@ sessionsRouter.get("/:id", async (req, res) => {
   res.json(await serialize(s, dropIn?.priceMinor ?? 5000));
 });
 
-sessionsRouter.post("/:id/waitlist", async (req, res) => {
-  const { userId } = req.body || {};
-  if (!userId) return res.status(400).json({ error: "userId required" });
+sessionsRouter.post("/:id/waitlist", requireAuth, async (req: Request<{ id: string }>, res: Response) => {
+  const userId = req.userId!;
   const session = await db.session.findUnique({ where: { id: req.params.id } });
   if (!session) return res.status(404).json({ error: "Session not found" });
   const existing = await db.waitlistEntry.findUnique({ where: { sessionId_userId: { sessionId: session.id, userId } } });

@@ -9,6 +9,8 @@ import { notificationsRouter } from "./routes/notifications";
 import { usersRouter } from "./routes/users";
 import { adminRouter } from "./routes/admin";
 import { addonsRouter } from "./routes/addons";
+import { authRouter } from "./routes/auth";
+import { requireAuth, requireStaff } from "./domain/auth";
 
 const app = express();
 app.use(cors());
@@ -16,12 +18,13 @@ app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
-app.use("/api/packages", packagesRouter);
-app.use("/api/sessions", sessionsRouter);
-app.use("/api/bookings", bookingsRouter);
-app.use("/api/notifications", notificationsRouter);
-app.use("/api/users", usersRouter);
-app.use("/api/admin", adminRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/packages", packagesRouter); // browsing is public; write routes protect themselves inline
+app.use("/api/sessions", sessionsRouter); // browsing is public; waitlist protects itself inline
+app.use("/api/bookings", requireAuth, bookingsRouter);
+app.use("/api/notifications", requireAuth, notificationsRouter);
+app.use("/api/users", requireAuth, usersRouter);
+app.use("/api/admin", requireAuth, requireStaff, adminRouter);
 app.use("/api/addons", addonsRouter);
 
 // Serve the built client (client/dist) when it's present alongside this

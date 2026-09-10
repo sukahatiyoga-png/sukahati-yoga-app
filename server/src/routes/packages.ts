@@ -1,6 +1,7 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { db } from "../db";
 import { toMinor } from "../domain/enums";
+import { requireAuth, requireStaff } from "../domain/auth";
 
 export const packagesRouter = Router();
 
@@ -74,7 +75,7 @@ packagesRouter.get("/:id", async (req, res) => {
   res.json(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor));
 });
 
-packagesRouter.post("/", async (req, res) => {
+packagesRouter.post("/", requireAuth, requireStaff, async (req: Request, res: Response) => {
   const b = req.body || {};
   const location = await db.location.findFirst({ where: { kind: "studio" } });
   if (!location) return res.status(500).json({ error: "No studio location seeded" });
@@ -96,12 +97,12 @@ packagesRouter.post("/", async (req, res) => {
     },
   });
   await db.auditLog.create({
-    data: { actorUserId: b.actorId || location.id, entityTable: "packages", entityId: p.id, action: "create", diff: JSON.stringify(b) },
+    data: { actorUserId: req.userId!, entityTable: "packages", entityId: p.id, action: "create", diff: JSON.stringify(b) },
   }).catch(() => {});
   res.status(201).json(serialize(p, 0, 0));
 });
 
-packagesRouter.put("/:id", async (req, res) => {
+packagesRouter.put("/:id", requireAuth, requireStaff, async (req: Request<{ id: string }>, res: Response) => {
   const b = req.body || {};
   const existing = await db.package.findUnique({ where: { id: req.params.id } });
   if (!existing) return res.status(404).json({ error: "Package not found" });

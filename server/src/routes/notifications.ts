@@ -23,27 +23,26 @@ function serialize(n: any) {
 }
 
 notificationsRouter.get("/", async (req, res) => {
-  const { userId } = req.query as Record<string, string | undefined>;
-  if (!userId) return res.status(400).json({ error: "userId required" });
+  const userId = req.userId!;
   const notifications = await db.notification.findMany({ where: { userId }, orderBy: { sentAt: "desc" } });
   res.json(notifications.map(serialize));
 });
 
 notificationsRouter.patch("/:id/read", async (req, res) => {
+  const notif = await db.notification.findUnique({ where: { id: req.params.id } });
+  if (!notif || notif.userId !== req.userId) return res.status(404).json({ error: "Notification not found" });
   await db.notification.update({ where: { id: req.params.id }, data: { readAt: new Date() } });
   res.json({ ok: true });
 });
 
 notificationsRouter.patch("/read-all", async (req, res) => {
-  const { userId } = req.body || {};
-  if (!userId) return res.status(400).json({ error: "userId required" });
+  const userId = req.userId!;
   await db.notification.updateMany({ where: { userId, readAt: null }, data: { readAt: new Date() } });
   res.json({ ok: true });
 });
 
 notificationsRouter.get("/preferences", async (req, res) => {
-  const { userId } = req.query as Record<string, string | undefined>;
-  if (!userId) return res.status(400).json({ error: "userId required" });
+  const userId = req.userId!;
   const prefs = await db.userPreferences.findUnique({ where: { userId } });
   if (!prefs) return res.status(404).json({ error: "No preferences found" });
   res.json([
@@ -54,14 +53,15 @@ notificationsRouter.get("/preferences", async (req, res) => {
   ]);
 });
 
-notificationsRouter.patch("/preferences/:userId", async (req, res) => {
+notificationsRouter.patch("/preferences", async (req, res) => {
+  const userId = req.userId!;
   const { channel } = req.body || {};
   const field = { push: "pushEnabled", email: "emailEnabled", whatsapp: "whatsappEnabled", sms: "smsEnabled" }[channel as string];
   if (!field) return res.status(400).json({ error: "Unknown channel" });
-  const current = await db.userPreferences.findUnique({ where: { userId: req.params.userId } });
+  const current = await db.userPreferences.findUnique({ where: { userId } });
   if (!current) return res.status(404).json({ error: "No preferences found" });
   const updated = await db.userPreferences.update({
-    where: { userId: req.params.userId },
+    where: { userId },
     data: { [field]: !(current as any)[field] },
   });
   res.json({ ok: true, value: (updated as any)[field] });

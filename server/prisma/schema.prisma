@@ -32,6 +32,7 @@ model User {
   fullName       String
   email          String    @unique
   phoneE164      String?
+  passwordHash   String? // set for email/password accounts; null for future OAuth-only accounts
   authProvider   String    @default("email") // email | phone | google
   role           String    @default("customer") // customer | desk | teacher | owner
   locale         String    @default("en")

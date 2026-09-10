@@ -5,7 +5,7 @@ import { money } from "../lib/format";
 import { screenPad, h2 } from "../styles/shared";
 
 export default function Profile() {
-  const { me, refreshMe, flash, goAdmin } = useApp();
+  const { me, refreshMe, flash, goAdmin, logout } = useApp();
   const [name, setName] = useState(me.name);
   const [email, setEmail] = useState(me.email);
   const [phone, setPhone] = useState(me.phone);
@@ -82,8 +82,10 @@ export default function Profile() {
         </div>
       </div>
 
-      <button className="btn btn-secondary btn-block" style={{ marginTop: 24, padding: "14px 0" }} onClick={goAdmin}>Switch to studio admin</button>
-      <button className="btn btn-ghost btn-block" style={{ marginTop: 8, padding: "13px 0", fontSize: 13.5 }}>Sign out</button>
+      {(me.role === "owner" || me.role === "desk") && (
+        <button className="btn btn-secondary btn-block" style={{ marginTop: 24, padding: "14px 0" }} onClick={goAdmin}>Switch to studio admin</button>
+      )}
+      <button className="btn btn-ghost btn-block" style={{ marginTop: 8, padding: "13px 0", fontSize: 13.5 }} onClick={logout}>Sign out</button>
     </div>
   );
 }

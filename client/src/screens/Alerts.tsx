@@ -19,8 +19,8 @@ export default function Alerts() {
   const [prefs, setPrefs] = useState<{ id: string; name: string; note: string; on: boolean }[]>([]);
 
   function reload() {
-    api.notifications(me.id).then(setAlerts);
-    api.notificationPrefs(me.id).then(setPrefs);
+    api.notifications().then(setAlerts);
+    api.notificationPrefs().then(setPrefs);
   }
   useEffect(reload, [me.id]);
 
@@ -34,7 +34,7 @@ export default function Alerts() {
   }
 
   async function togglePref(p: { id: string }) {
-    await api.toggleNotificationPref(me.id, p.id);
+    await api.toggleNotificationPref(p.id);
     reload();
   }
 
@@ -46,7 +46,7 @@ export default function Alerts() {
           <h1 style={{ ...h1 }}>Notifications</h1>
         </div>
         {unread > 0 && (
-          <button className="btn btn-ghost" style={{ flex: "none", padding: "8px 13px", fontSize: 12.5 }} onClick={() => api.markAllRead(me.id).then(reload)}>Mark read</button>
+          <button className="btn btn-ghost" style={{ flex: "none", padding: "8px 13px", fontSize: 12.5 }} onClick={() => api.markAllRead().then(reload)}>Mark read</button>
         )}
       </div>
 

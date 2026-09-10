@@ -3,6 +3,10 @@ import { db } from "../db";
 
 export const usersRouter = Router();
 
+function canAccess(req: { userId?: string; userRole?: string }, targetId: string): boolean {
+  return req.userId === targetId || req.userRole === "owner" || req.userRole === "desk";
+}
+
 async function profileStats(userId: string) {
   const attended = await db.booking.count({ where: { userId, status: "attended" } });
   const referred = await db.user.count({ where: { referredById: userId } });
@@ -24,23 +28,24 @@ async function serialize(u: any) {
 }
 
 usersRouter.get("/me", async (req, res) => {
-  const email = (req.query.email as string) || "amelia.tan@gmail.com";
-  const u = await db.user.findUnique({ where: { email }, include: { preferences: true } });
+  const u = await db.user.findUnique({ where: { id: req.userId }, include: { preferences: true } });
   if (!u) return res.status(404).json({ error: "User not found" });
   res.json(await serialize(u));
 });
 
 usersRouter.get("/:id", async (req, res) => {
+  if (!canAccess(req, req.params.id)) return res.status(403).json({ error: "Not allowed" });
   const u = await db.user.findUnique({ where: { id: req.params.id }, include: { preferences: true } });
   if (!u) return res.status(404).json({ error: "User not found" });
   res.json(await serialize(u));
 });
 
 usersRouter.patch("/:id", async (req, res) => {
+  if (!canAccess(req, req.params.id)) return res.status(403).json({ error: "Not allowed" });
   const { name, email, phone } = req.body || {};
   const u = await db.user.update({
     where: { id: req.params.id },
-    data: { fullName: name, email, phoneE164: phone },
+    data: { fullName: name, email: email ? String(email).trim().toLowerCase() : undefined, phoneE164: phone },
     include: { preferences: true },
   });
   res.json(await serialize(u));
@@ -49,6 +54,7 @@ usersRouter.patch("/:id", async (req, res) => {
 // Active multi-day pass (kind=pass) — powers the "Your pass" card on Home
 // and Bookings. Picks the most recently started pass that hasn't expired.
 usersRouter.get("/:id/pass", async (req, res) => {
+  if (!canAccess(req, req.params.id)) return res.status(403).json({ error: "Not allowed" });
   const bookings = await db.booking.findMany({
     where: { userId: req.params.id, status: { in: ["confirmed", "attended"] }, package: { kind: "pass" } },
     include: { package: true },

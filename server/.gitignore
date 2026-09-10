@@ -1,5 +1,6 @@
 node_modules
 dist
+tsconfig.tsbuildinfo
 # Keep environment variables out of version control
 .env
 # SQLite dev database

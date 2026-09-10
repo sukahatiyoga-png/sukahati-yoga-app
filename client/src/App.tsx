@@ -5,9 +5,10 @@ import PackageSheet from "./components/PackageSheet";
 import QrSheet from "./components/QrSheet";
 import PackageEditSheet from "./components/PackageEditSheet";
 import { AppContext, type AdminSection, type Tab } from "./context/AppContext";
-import { api, type Me, type Pkg } from "./lib/api";
+import { api, clearToken, getToken, type Me, type Pkg } from "./lib/api";
 import { parseRoute, pathFor } from "./lib/routes";
 
+import Auth from "./screens/Auth";
 import Home from "./screens/Home";
 import Search from "./screens/Search";
 import Packages from "./screens/Packages";
@@ -27,6 +28,8 @@ const initialRoute = parseRoute(window.location.pathname);
 
 export default function App() {
   const [me, setMe] = useState<Me | null>(null);
+  const [authed, setAuthed] = useState(!!getToken());
+  const [checkingAuth, setCheckingAuth] = useState(!!getToken());
   const [mode, setMode] = useState<"customer" | "admin">(initialRoute.mode);
   const [tab, setTab] = useState<Tab>(initialRoute.tab);
   const [asec, setAsec] = useState<AdminSection>("dash");
@@ -36,8 +39,18 @@ export default function App() {
   const [refreshTick, setRefreshTick] = useState(0);
   const toastTimer = useRef<number | undefined>(undefined);
 
+  const logout = useCallback(() => {
+    clearToken();
+    setMe(null);
+    setAuthed(false);
+    setMode("customer");
+    setTab("home");
+    history.pushState(null, "", pathFor("customer", "home"));
+  }, []);
+
   const loadMe = useCallback(() => {
-    api.me().then(setMe).catch((e) => console.error(e));
+    if (!getToken()) { setCheckingAuth(false); return; }
+    api.me().then(setMe).catch(() => { clearToken(); setAuthed(false); }).finally(() => setCheckingAuth(false));
   }, []);
   useEffect(loadMe, [loadMe]);
 
@@ -92,6 +105,16 @@ export default function App() {
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
   const closeSheet = useCallback(() => setSheet(null), []);
 
+  if (checkingAuth) {
+    return (
+      <div style={{ color: "#645c50", fontFamily: "system-ui" }}>Loading Sukahati…</div>
+    );
+  }
+
+  if (!authed) {
+    return <Auth onAuthed={() => { setAuthed(true); setCheckingAuth(true); loadMe(); }} />;
+  }
+
   if (!me) {
     return (
       <div style={{ color: "#645c50", fontFamily: "system-ui" }}>Loading Sukahati…</div>
@@ -99,7 +122,7 @@ export default function App() {
   }
 
   const ctx = {
-    me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin,
+    me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
     openPackageSheet, openQrSheet, closeSheet,
   };
 

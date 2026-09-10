@@ -1,9 +1,25 @@
 const BASE = "/api";
+const TOKEN_KEY = "sukahati_token";
+
+export function getToken(): string | null {
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
+}
+export function setToken(token: string) {
+  try { localStorage.setItem(TOKEN_KEY, token); } catch { /* ignore */ }
+}
+export function clearToken() {
+  try { localStorage.removeItem(TOKEN_KEY); } catch { /* ignore */ }
+}
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = getToken();
   const res = await fetch(BASE + path, {
     ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers || {}),
+    },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -86,6 +102,11 @@ export interface Reports {
 // ── API ────────────────────────────────────────────────────────────────
 
 export const api = {
+  signup: (data: { name: string; email: string; phone?: string; password: string }) =>
+    post<{ token: string; userId: string }>("/auth/signup", data),
+  login: (data: { email: string; password: string }) =>
+    post<{ token: string; userId: string }>("/auth/login", data),
+
   me: () => get<Me>("/users/me"),
   updateProfile: (id: string, data: { name: string; email: string; phone: string }) => patch<Me>(`/users/${id}`, data),
   activePass: (userId: string) => get<ActivePass | null>(`/users/${userId}/pass`),
@@ -99,29 +120,29 @@ export const api = {
     const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v) as [string, string][]).toString();
     return get<SessionSlot[]>(`/sessions${qs ? "?" + qs : ""}`);
   },
-  waitlist: (sessionId: string, userId: string) => post<{ ok: boolean }>(`/sessions/${sessionId}/waitlist`, { userId }),
+  waitlist: (sessionId: string) => post<{ ok: boolean }>(`/sessions/${sessionId}/waitlist`),
 
   addons: () => get<Addon[]>("/addons"),
 
   quote: (data: { packageId: string; guestCount: number; addonIds: string[]; couponCode?: string }) =>
     post<{ subtotalMinor: number; addonsTotalMinor: number; discountMinor: number; totalMinor: number; depositMinor: number; couponValid: boolean; couponMessage: string; cancelLabel: string }>("/bookings/quote", data),
-  myBookings: (userId: string) => get<{ upcoming: BookingCustomer[]; past: BookingCustomer[] }>(`/bookings?userId=${userId}`),
+  myBookings: () => get<{ upcoming: BookingCustomer[]; past: BookingCustomer[] }>("/bookings"),
   booking: (id: string) => get<BookingCustomer & { addons: { name: string; quantity: number }[] }>(`/bookings/${id}`),
   createBooking: (data: Record<string, unknown>) => post<BookingCustomer>("/bookings", data),
-  cancelBooking: (id: string, actorId: string) => patch<{ ok: boolean }>(`/bookings/${id}/cancel`, { actorId }),
-  payBalance: (id: string, method: string, actorId: string) => patch<{ ok: boolean }>(`/bookings/${id}/pay-balance`, { method, actorId }),
-  confirmBooking: (id: string, actorId: string) => patch<{ ok: boolean }>(`/bookings/${id}/confirm`, { actorId }),
-  declineBooking: (id: string, actorId: string) => patch<{ ok: boolean }>(`/bookings/${id}/decline`, { actorId }),
-  refundBooking: (id: string, actorId: string) => patch<{ ok: boolean }>(`/bookings/${id}/refund`, { actorId }),
+  cancelBooking: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/cancel`),
+  payBalance: (id: string, method: string) => patch<{ ok: boolean }>(`/bookings/${id}/pay-balance`, { method }),
+  confirmBooking: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/confirm`),
+  declineBooking: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/decline`),
+  refundBooking: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/refund`),
   remindBooking: (id: string) => post<{ ok: boolean }>(`/bookings/${id}/remind`),
   checkin: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/checkin`),
   adminBookings: (status?: string) => get<BookingAdmin[]>(`/bookings${status ? "?status=" + encodeURIComponent(status) : ""}`),
 
-  notifications: (userId: string) => get<NotificationItem[]>(`/notifications?userId=${userId}`),
+  notifications: () => get<NotificationItem[]>("/notifications"),
   markRead: (id: string) => patch<{ ok: boolean }>(`/notifications/${id}/read`),
-  markAllRead: (userId: string) => patch<{ ok: boolean }>("/notifications/read-all", { userId }),
-  notificationPrefs: (userId: string) => get<{ id: string; name: string; note: string; on: boolean }[]>(`/notifications/preferences?userId=${userId}`),
-  toggleNotificationPref: (userId: string, channel: string) => patch<{ ok: boolean; value: boolean }>(`/notifications/preferences/${userId}`, { channel }),
+  markAllRead: () => patch<{ ok: boolean }>("/notifications/read-all"),
+  notificationPrefs: () => get<{ id: string; name: string; note: string; on: boolean }[]>("/notifications/preferences"),
+  toggleNotificationPref: (channel: string) => patch<{ ok: boolean; value: boolean }>("/notifications/preferences", { channel }),
 
   admin: {
     dashboard: () => get<Dashboard>("/admin/dashboard"),

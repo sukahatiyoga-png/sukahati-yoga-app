@@ -42,7 +42,7 @@ const METHODS = ["Card", "FPX", "GrabPay", "Apple Pay"];
 interface Quote { subtotalMinor: number; addonsTotalMinor: number; discountMinor: number; totalMinor: number; depositMinor: number; couponValid: boolean; couponMessage: string; cancelLabel: string }
 
 export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft; setDraft: (fn: (d: BookDraft) => BookDraft) => void; onDone: () => void }) {
-  const { me, flash, goTab } = useApp();
+  const { flash, goTab } = useApp();
   const days = buildDays(7);
   const [slots, setSlots] = useState<SessionSlot[]>([]);
   const [packages, setPackages] = useState<Pkg[]>([]);
@@ -84,7 +84,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
     setSubmitting(true);
     try {
       const result = await api.createBooking({
-        userId: me.id, packageId: draft.packageId, sessionId: draft.sessionId, guestCount: draft.guests,
+        packageId: draft.packageId, sessionId: draft.sessionId, guestCount: draft.guests,
         level: draft.level, specialRequests: draft.notes, addonIds: draft.addonIds,
         couponCode: draft.promoOk ? draft.promo : undefined, payMode: draft.payMode, method: draft.method,
       });
@@ -165,7 +165,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
         </div>
 
         {draft.step === 1 && (
-          <Step1 days={days} draft={draft} setDraft={setDraft} slots={slots} me={me} flash={flash} />
+          <Step1 days={days} draft={draft} setDraft={setDraft} slots={slots} flash={flash} />
         )}
         {draft.step === 2 && (
           <Step2 draft={draft} setDraft={setDraft} packages={packages} addons={addons} toggleAddon={toggleAddon} />
@@ -184,9 +184,9 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
   );
 }
 
-function Step1({ days, draft, setDraft, slots, me, flash }: {
+function Step1({ days, draft, setDraft, slots, flash }: {
   days: DayOption[]; draft: BookDraft; setDraft: (fn: (d: BookDraft) => BookDraft) => void; slots: SessionSlot[];
-  me: { id: string }; flash: (m: string) => void;
+  flash: (m: string) => void;
 }) {
   return (
     <>
@@ -209,7 +209,7 @@ function Step1({ days, draft, setDraft, slots, me, flash }: {
         {slots.map((s) => (
           <div
             key={s.id}
-            onClick={() => (s.spots > 0 ? setDraft((d) => ({ ...d, sessionId: s.id })) : api.waitlist(s.id, me.id).then(() => flash("Added to the waitlist for " + s.title)))}
+            onClick={() => (s.spots > 0 ? setDraft((d) => ({ ...d, sessionId: s.id })) : api.waitlist(s.id).then(() => flash("Added to the waitlist for " + s.title)))}
             style={{ borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", gap: 13, alignItems: "center", background: draft.sessionId === s.id ? "var(--color-accent-200)" : "var(--color-neutral-100)", cursor: "pointer" }}
           >
             <div style={{ flex: "none", width: 56 }}>
@@ -223,7 +223,7 @@ function Step1({ days, draft, setDraft, slots, me, flash }: {
             {s.spots > 0 ? (
               <span className="tag tag-outline" style={{ flex: "none" }}>{s.spots} left</span>
             ) : (
-              <button className="btn btn-ghost" style={{ flex: "none", padding: "7px 12px", fontSize: 12 }} onClick={(e) => { e.stopPropagation(); api.waitlist(s.id, me.id).then(() => flash("Added to the waitlist for " + s.title)); }}>Waitlist</button>
+              <button className="btn btn-ghost" style={{ flex: "none", padding: "7px 12px", fontSize: 12 }} onClick={(e) => { e.stopPropagation(); api.waitlist(s.id).then(() => flash("Added to the waitlist for " + s.title)); }}>Waitlist</button>
             )}
           </div>
         ))}

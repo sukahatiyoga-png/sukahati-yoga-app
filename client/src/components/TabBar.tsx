@@ -22,12 +22,12 @@ const ITEMS: { id: Tab; label: string; icon: (c: string) => ReactNode }[] = [
 ];
 
 export default function TabBar({ tab }: { tab: Tab }) {
-  const { me, goTab } = useApp();
+  const { goTab } = useApp();
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
-    api.notifications(me.id).then((list) => setUnread(list.filter((n) => n.unread).length)).catch(() => {});
-  }, [me.id, tab]);
+    api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length)).catch(() => {});
+  }, [tab]);
 
   const on = "var(--color-accent-700)";
   const off = "var(--color-neutral-600)";

@@ -12,17 +12,17 @@ export default function Bookings() {
 
   function reload() {
     api.activePass(me.id).then(setPass);
-    api.myBookings(me.id).then((r) => { setUpcoming(r.upcoming); setPast(r.past); });
+    api.myBookings().then((r) => { setUpcoming(r.upcoming); setPast(r.past); });
   }
   useEffect(reload, [me.id]);
 
   async function cancel(b: BookingCustomer) {
-    await api.cancelBooking(b.id, me.id);
+    await api.cancelBooking(b.id);
     flash(`${b.title} cancelled · refund in 3 days`);
     reload();
   }
   async function pay(b: BookingCustomer) {
-    await api.payBalance(b.id, "card", me.id);
+    await api.payBalance(b.id, "card");
     flash("Balance paid · receipt emailed");
     reload();
   }

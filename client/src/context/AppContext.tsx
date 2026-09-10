@@ -19,6 +19,7 @@ export interface AppCtx {
   goBook: (preset?: Partial<BookPreset>) => void;
   goAdmin: () => void;
   exitAdmin: () => void;
+  logout: () => void;
   openPackageSheet: (id: string) => void;
   openQrSheet: (booking: { title: string; meta: string; ref: string }) => void;
   closeSheet: () => void;

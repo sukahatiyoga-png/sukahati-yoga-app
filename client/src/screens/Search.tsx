@@ -21,7 +21,7 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 }
 
 export default function Search() {
-  const { me, goBook, flash } = useApp();
+  const { goBook, flash } = useApp();
   const days = buildDays(7);
   const [query, setQuery] = useState("");
   const [dayId, setDayId] = useState(days[0].id);
@@ -132,7 +132,7 @@ export default function Search() {
               ) : (
                 <>
                   <span style={{ flex: 1, fontSize: 12, color: "var(--color-neutral-700)", fontWeight: 600 }}>Fully booked</span>
-                  <button className="btn btn-secondary" style={{ flex: "none", padding: "8px 16px", fontSize: 12.5 }} onClick={() => api.waitlist(r.id, me.id).then(() => flash("Added to the waitlist for " + r.title))}>Join waitlist</button>
+                  <button className="btn btn-secondary" style={{ flex: "none", padding: "8px 16px", fontSize: 12.5 }} onClick={() => api.waitlist(r.id).then(() => flash("Added to the waitlist for " + r.title))}>Join waitlist</button>
                 </>
               )}
             </div>

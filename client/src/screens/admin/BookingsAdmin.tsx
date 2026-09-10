@@ -6,7 +6,7 @@ import { money } from "../../lib/format";
 const FILTERS = ["All", "Pending", "Confirmed", "Unpaid"];
 
 export default function BookingsAdmin() {
-  const { me, flash } = useApp();
+  const { flash } = useApp();
   const [filter, setFilter] = useState("All");
   const [bookings, setBookings] = useState<BookingAdmin[]>([]);
 
@@ -16,17 +16,17 @@ export default function BookingsAdmin() {
   useEffect(reload, [filter]);
 
   async function confirm(b: BookingAdmin) {
-    await api.confirmBooking(b.id, me.id);
+    await api.confirmBooking(b.id);
     flash(b.name.split(" ")[0] + " confirmed · email and push sent");
     reload();
   }
   async function decline(b: BookingAdmin) {
-    await api.declineBooking(b.id, me.id);
+    await api.declineBooking(b.id);
     flash(b.name.split(" ")[0] + " declined · guest notified");
     reload();
   }
   async function refund(b: BookingAdmin) {
-    await api.refundBooking(b.id, me.id);
+    await api.refundBooking(b.id);
     flash(money(b.amountMinor) + " refunded to " + b.name.split(" ")[0]);
     reload();
   }

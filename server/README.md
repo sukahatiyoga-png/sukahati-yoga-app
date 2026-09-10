@@ -9,12 +9,20 @@ header comment in `prisma/schema.prisma` for what was added and why).
 
 ```
 npm install
-cp .env.example .env        # fill in DATABASE_URL (pooled) and DIRECT_URL (unpooled) — see below
+cp .env.example .env        # fill in DATABASE_URL, DIRECT_URL, JWT_SECRET, OWNER_EMAIL, OWNER_PASSWORD
 npx prisma db push          # sync the schema to the database
-npm run seed                # seed packages, sessions, teachers, bookings, notifications, ...
-                             # (idempotent — safe to re-run, it skips if already seeded)
+npm run seed                # seed packages, sessions, teachers, coupons, ... and the owner account
+                             # (idempotent — safe to re-run on every deploy)
 npm run dev                 # start the API on :4000
 ```
+
+### Accounts
+
+There are no seeded customer accounts — customers sign up for real from the app (`POST
+/api/auth/signup`, email + password). The seed script only ever creates one studio-staff
+account, from `OWNER_EMAIL`/`OWNER_PASSWORD`; sign in with those at `/admin` to reach the studio
+dashboard. `JWT_SECRET` signs login tokens — set it to a long random string in production (e.g.
+`openssl rand -hex 32`).
 
 ### Two connection strings, on purpose
 

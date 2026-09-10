@@ -16,6 +16,10 @@ const FULL_INCLUDE = {
   payments: true,
 } as const;
 
+function isStaff(req: { userRole?: string }): boolean {
+  return req.userRole === "owner" || req.userRole === "desk";
+}
+
 function effectiveDate(b: any): Date {
   return b.session?.startsAt ?? b.retreat?.startsOn ?? b.createdAt;
 }
@@ -87,9 +91,8 @@ bookingsRouter.post("/quote", async (req, res) => {
 });
 
 bookingsRouter.get("/", async (req, res) => {
-  const { userId, scope, status, search } = req.query as Record<string, string | undefined>;
-
-  if (userId) {
+  if (!isStaff(req)) {
+    const userId = req.userId!;
     const bookings = await db.booking.findMany({ where: { userId }, include: FULL_INCLUDE, orderBy: { createdAt: "desc" } });
     const now = new Date();
     const upcoming = bookings.filter((b) => ["pending", "confirmed"].includes(b.status) && effectiveDate(b) >= now);
@@ -99,7 +102,7 @@ bookingsRouter.get("/", async (req, res) => {
     return res.json({ upcoming: upcoming.map(serializeCustomer), past: past.map(serializeCustomer) });
   }
 
-  // Admin listing
+  const { status, search } = req.query as Record<string, string | undefined>;
   let bookings = await db.booking.findMany({ include: FULL_INCLUDE, orderBy: { createdAt: "desc" } });
   if (status && status !== "All") {
     if (status === "Unpaid") bookings = bookings.filter((b) => b.totalMinor - b.amountPaidMinor > 0);
@@ -115,6 +118,7 @@ bookingsRouter.get("/", async (req, res) => {
 bookingsRouter.get("/:id", async (req, res) => {
   const b = await db.booking.findUnique({ where: { id: req.params.id }, include: FULL_INCLUDE });
   if (!b) return res.status(404).json({ error: "Booking not found" });
+  if (b.userId !== req.userId && !isStaff(req)) return res.status(403).json({ error: "Not allowed" });
   res.json({ ...serializeCustomer(b), addons: b.addons.map((a: any) => ({ name: a.addon.name, quantity: a.quantity })) });
 });
 
@@ -124,8 +128,9 @@ bookingsRouter.get("/:id", async (req, res) => {
 // both squeeze into the last seat.
 bookingsRouter.post("/", async (req, res) => {
   const b = req.body || {};
-  const { userId, packageId, sessionId, retreatId, guestCount, level, specialRequests, addonIds, couponCode, payMode, method } = b;
-  if (!userId || !packageId) return res.status(400).json({ error: "userId and packageId are required" });
+  const userId = req.userId!;
+  const { packageId, sessionId, retreatId, guestCount, level, specialRequests, addonIds, couponCode, payMode, method } = b;
+  if (!packageId) return res.status(400).json({ error: "packageId is required" });
   const guests = Math.max(1, Number(guestCount) || 1);
 
   try {
@@ -240,9 +245,9 @@ bookingsRouter.post("/", async (req, res) => {
 });
 
 bookingsRouter.patch("/:id/cancel", async (req, res) => {
-  const { actorId } = req.body || {};
   const booking = await db.booking.findUnique({ where: { id: req.params.id }, include: { session: true, retreat: true } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
+  if (booking.userId !== req.userId && !isStaff(req)) return res.status(403).json({ error: "Not allowed" });
   if (booking.status === "cancelled") return res.json({ ok: true });
 
   await db.$transaction(async (tx) => {
@@ -264,26 +269,26 @@ bookingsRouter.patch("/:id/cancel", async (req, res) => {
     await tx.notification.create({
       data: { userId: booking.userId, bookingId: booking.id, event: "cancelled", channel: "push", title: "Booking cancelled", body: `${booking.reference} cancelled · refund in 3 days`, scheduledFor: new Date(), sentAt: new Date() },
     });
-    await tx.auditLog.create({ data: { actorUserId: actorId || booking.userId, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "cancelled" }) } });
+    await tx.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "cancelled" }) } });
   });
   await recomputeAmountPaid(booking.id);
   res.json({ ok: true });
 });
 
 bookingsRouter.patch("/:id/confirm", async (req, res) => {
-  const { actorId } = req.body || {};
+  if (!isStaff(req)) return res.status(403).json({ error: "Staff access required" });
   const booking = await db.booking.findUnique({ where: { id: req.params.id } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   await db.booking.update({ where: { id: booking.id }, data: { status: "confirmed" } });
   await db.notification.create({
     data: { userId: booking.userId, bookingId: booking.id, event: "booking_confirmed", channel: "push", title: "Booking confirmed", body: `${booking.reference} is confirmed. See you there.`, scheduledFor: new Date(), sentAt: new Date() },
   });
-  await db.auditLog.create({ data: { actorUserId: actorId || booking.userId, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "confirmed" }) } });
+  await db.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "confirmed" }) } });
   res.json({ ok: true });
 });
 
 bookingsRouter.patch("/:id/decline", async (req, res) => {
-  const { actorId } = req.body || {};
+  if (!isStaff(req)) return res.status(403).json({ error: "Staff access required" });
   const booking = await db.booking.findUnique({ where: { id: req.params.id }, include: { session: true } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   await db.$transaction(async (tx) => {
@@ -294,15 +299,16 @@ bookingsRouter.patch("/:id/decline", async (req, res) => {
     await tx.notification.create({
       data: { userId: booking.userId, bookingId: booking.id, event: "cancelled", channel: "email", title: "Request declined", body: `We could not confirm ${booking.reference}. Any payment will be refunded.`, scheduledFor: new Date(), sentAt: new Date() },
     });
-    await tx.auditLog.create({ data: { actorUserId: actorId || booking.userId, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "declined" }) } });
+    await tx.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "declined" }) } });
   });
   res.json({ ok: true });
 });
 
 bookingsRouter.patch("/:id/pay-balance", async (req, res) => {
-  const { method, actorId } = req.body || {};
+  const { method } = req.body || {};
   const booking = await db.booking.findUnique({ where: { id: req.params.id } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
+  if (booking.userId !== req.userId && !isStaff(req)) return res.status(403).json({ error: "Not allowed" });
   const balance = booking.totalMinor - booking.amountPaidMinor;
   if (balance <= 0) return res.json({ ok: true });
   await db.payment.create({
@@ -312,12 +318,12 @@ bookingsRouter.patch("/:id/pay-balance", async (req, res) => {
   await db.notification.create({
     data: { userId: booking.userId, bookingId: booking.id, event: "payment_received", channel: "email", title: "Balance paid", body: `Receipt emailed for ${booking.reference}.`, scheduledFor: new Date(), sentAt: new Date() },
   });
-  await db.auditLog.create({ data: { actorUserId: actorId || booking.userId, entityTable: "payments", entityId: booking.id, action: "update", diff: JSON.stringify({ paidBalanceMinor: balance }) } });
+  await db.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "payments", entityId: booking.id, action: "update", diff: JSON.stringify({ paidBalanceMinor: balance }) } });
   res.json({ ok: true });
 });
 
 bookingsRouter.patch("/:id/refund", async (req, res) => {
-  const { actorId } = req.body || {};
+  if (!isStaff(req)) return res.status(403).json({ error: "Staff access required" });
   const booking = await db.booking.findUnique({ where: { id: req.params.id } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   if (booking.amountPaidMinor <= 0) return res.json({ ok: true });
@@ -325,11 +331,12 @@ bookingsRouter.patch("/:id/refund", async (req, res) => {
     data: { bookingId: booking.id, kind: "refund", method: "card", amountMinor: -booking.amountPaidMinor, status: "refunded", paidAt: new Date(), currency: booking.currency },
   });
   await recomputeAmountPaid(booking.id);
-  await db.auditLog.create({ data: { actorUserId: actorId || booking.userId, entityTable: "payments", entityId: booking.id, action: "refund", diff: JSON.stringify({ refundedMinor: booking.amountPaidMinor }) } });
+  await db.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "payments", entityId: booking.id, action: "refund", diff: JSON.stringify({ refundedMinor: booking.amountPaidMinor }) } });
   res.json({ ok: true });
 });
 
 bookingsRouter.post("/:id/remind", async (req, res) => {
+  if (!isStaff(req)) return res.status(403).json({ error: "Staff access required" });
   const booking = await db.booking.findUnique({ where: { id: req.params.id } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   await db.notification.create({
@@ -339,6 +346,7 @@ bookingsRouter.post("/:id/remind", async (req, res) => {
 });
 
 bookingsRouter.patch("/:id/checkin", async (req, res) => {
+  if (!isStaff(req)) return res.status(403).json({ error: "Staff access required" });
   const booking = await db.booking.findUnique({ where: { id: req.params.id } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   await db.booking.update({ where: { id: booking.id }, data: { checkedInAt: new Date(), status: "attended" } });

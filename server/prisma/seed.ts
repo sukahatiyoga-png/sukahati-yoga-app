@@ -1,10 +1,14 @@
-// Seeds the database with data equivalent to the mock arrays in
-// project/Sukahati Yoga App.dc.html (PKGS, SLOTS, ALERTS, ADDONS, TEACHERS,
-// ROOMS, CUSTOMERS, ADMIN_BOOKINGS, COUPONS, AUTOMATIONS) so every screen in
-// the app has real rows to read from day one.
+// Seeds the database with the real studio catalog — packages, class
+// schedule, teachers, rooms, coupons, automations — equivalent to the mock
+// arrays in project/Sukahati Yoga App.dc.html, so every screen has real rows
+// to read from day one. Customer accounts are created through real signup;
+// this script only ever creates the one studio-owner account (from
+// OWNER_EMAIL/OWNER_PASSWORD) and wipes any leftover demo accounts from
+// earlier prototype runs.
 
 import { PrismaClient } from "@prisma/client";
-import { toMinor, genReference, genQrToken, genReferralCode } from "../src/domain/enums";
+import bcrypt from "bcryptjs";
+import { toMinor, genReferralCode } from "../src/domain/enums";
 
 const db = new PrismaClient();
 
@@ -21,16 +25,63 @@ function atTime(day: Date, hhmm: string) {
   return d;
 }
 
+// Emails used by earlier prototype seeding. Safe to run on every deploy —
+// once these accounts are gone this is a no-op.
+const FAKE_EMAILS = [
+  "amelia.tan@gmail.com", "owner@sukahati.studio", "priya.menon@example.com",
+  "daniel.ooi@example.com", "rafael.costa@example.com", "jonas.weber@example.com",
+  "sofia.lim@example.com", "nur.aisyah@example.com",
+];
+
+async function wipeFakePeople() {
+  const fake = await db.user.findMany({ where: { email: { in: FAKE_EMAILS } }, select: { id: true } });
+  if (fake.length === 0) return;
+  const ids = fake.map((u) => u.id);
+  await db.waitlistEntry.deleteMany({ where: { userId: { in: ids } } });
+  await db.notification.deleteMany({ where: { userId: { in: ids } } });
+  await db.auditLog.deleteMany({ where: { actorUserId: { in: ids } } });
+  await db.booking.deleteMany({ where: { userId: { in: ids } } });
+  await db.user.deleteMany({ where: { id: { in: ids } } });
+  console.log(`Removed ${ids.length} demo account(s) from earlier prototype runs.`);
+}
+
+async function ensureOwnerAccount() {
+  const email = process.env.OWNER_EMAIL?.trim().toLowerCase();
+  const password = process.env.OWNER_PASSWORD;
+  if (!email || !password) {
+    console.log("OWNER_EMAIL/OWNER_PASSWORD not set — skipping studio-owner account setup.");
+    return;
+  }
+  const passwordHash = await bcrypt.hash(password, 10);
+  const existing = await db.user.findUnique({ where: { email } });
+  if (existing) {
+    await db.user.update({ where: { email }, data: { passwordHash, role: "owner", authProvider: "email" } });
+    console.log(`Studio-owner account ${email} updated.`);
+  } else {
+    await db.user.create({
+      data: {
+        fullName: "Sukahati Studio", email, passwordHash, authProvider: "email", role: "owner",
+        referralCode: genReferralCode("Sukahati Studio"),
+      },
+    });
+    console.log(`Studio-owner account ${email} created.`);
+  }
+}
+
 async function main() {
-  // Idempotent: safe to run on every deploy. A fresh empty database has no
-  // locations; a previously-seeded one does, so skip rather than duplicate.
+  await wipeFakePeople();
+  await ensureOwnerAccount();
+
+  // Catalog seeding is idempotent: safe to run on every deploy. A fresh
+  // empty database has no locations; a previously-seeded one does, so skip
+  // rather than duplicate.
   const existing = await db.location.count();
   if (existing > 0) {
-    console.log("Already seeded — skipping.");
+    console.log("Catalog already seeded — skipping.");
     return;
   }
 
-  console.log("Seeding…");
+  console.log("Seeding catalog…");
 
   // ── Locations ──────────────────────────────────────────────────────
   const studio = await db.location.create({
@@ -50,31 +101,6 @@ async function main() {
   const studioB = await db.room.create({ data: { locationId: studio.id, name: "Studio B", matCapacity: 12, note: "candles allowed" } });
   const privateRoom = await db.room.create({ data: { locationId: studio.id, name: "Private room", matCapacity: 2, note: "1-to-1 only" } });
   const jandaBaikRooms = await db.room.create({ data: { locationId: retreatSite.id, name: "Janda Baik · 20 rooms", isAccommodation: true, beds: 20, note: "Retreat site" } });
-
-  // ── Users ──────────────────────────────────────────────────────────
-  const amelia = await db.user.create({
-    data: {
-      fullName: "Amelia Tan", email: "amelia.tan@gmail.com", phoneE164: "+6012 442 8871",
-      authProvider: "google", role: "customer", loyaltyPoints: 340, referralCode: "AMELIA25",
-      preferences: {
-        create: {
-          usualLevel: "Beginner", preferredTime: "Mornings", mealPreference: "Vegetarian",
-          pushEnabled: true, emailEnabled: true, whatsappEnabled: true, smsEnabled: false,
-        },
-      },
-    },
-  });
-  const owner = await db.user.create({
-    data: { fullName: "Sukahati Owner", email: "owner@sukahati.studio", authProvider: "email", role: "owner", referralCode: genReferralCode("Owner Admin") },
-  });
-  const [priya, daniel, rafael, jonas, sofia, nur] = await Promise.all([
-    db.user.create({ data: { fullName: "Priya Menon", email: "priya.menon@example.com", authProvider: "email", role: "customer", referralCode: genReferralCode("Priya Menon") } }),
-    db.user.create({ data: { fullName: "Daniel Ooi", email: "daniel.ooi@example.com", authProvider: "email", role: "customer", referralCode: genReferralCode("Daniel Ooi") } }),
-    db.user.create({ data: { fullName: "Rafael Costa", email: "rafael.costa@example.com", authProvider: "email", role: "customer", referralCode: genReferralCode("Rafael Costa") } }),
-    db.user.create({ data: { fullName: "Jonas Weber", email: "jonas.weber@example.com", authProvider: "email", role: "customer", referralCode: genReferralCode("Jonas Weber") } }),
-    db.user.create({ data: { fullName: "Sofia Lim", email: "sofia.lim@example.com", authProvider: "email", role: "customer", referralCode: genReferralCode("Sofia Lim") } }),
-    db.user.create({ data: { fullName: "Nur Aisyah Rahman", email: "nur.aisyah@example.com", authProvider: "email", role: "customer", referralCode: genReferralCode("Nur Aisyah Rahman") } }),
-  ]);
 
   // ── Packages ───────────────────────────────────────────────────────
   const p1 = await db.package.create({
@@ -168,7 +194,6 @@ async function main() {
 
   // ── Sessions: 14 days starting yesterday, 4 slots/day ─────────────
   const templates = [tMorning, tHatha, tSlow, tYin];
-  const sessionsByKey = new Map<string, { id: string }>();
   const base = startOfDay(today);
   base.setDate(base.getDate() - 1);
   for (let dayOffset = 0; dayOffset < 15; dayOffset++) {
@@ -177,21 +202,13 @@ async function main() {
     for (const t of templates) {
       const startsAt = atTime(day, t.startTime);
       const endsAt = new Date(startsAt.getTime() + t.durationMinutes * 60000);
-      // Same fill pattern the prototype used for "today", varied a little per day so the
-      // week doesn't look identical: Morning 4 left, Hatha 6 left, Slow Flow full, Yin 2 left.
-      const spotsPattern: Record<string, number> = {
-        [tMorning.id]: 4, [tHatha.id]: 6, [tSlow.id]: 0, [tYin.id]: 2,
-      };
-      const spotsLeft = Math.max(0, spotsPattern[t.id] - (dayOffset % 3 === 0 ? 1 : 0));
-      const seatsTaken = t.capacity - spotsLeft;
-      const s = await db.session.create({
+      await db.session.create({
         data: {
           templateId: t.id, locationId: studio.id, title: t.title, startsAt, endsAt,
           teacherId: t.defaultTeacherId, roomId: t.defaultRoomId, capacity: t.capacity,
-          seatsTaken, status: seatsTaken >= t.capacity ? "full" : "scheduled",
+          seatsTaken: 0, status: "scheduled",
         },
       });
-      sessionsByKey.set(`${dayOffset}:${t.id}`, s);
     }
   }
 
@@ -221,103 +238,7 @@ async function main() {
     await db.automationSetting.create({ data: { ...automations[i], sortOrder: i } });
   }
 
-  // ── Helper to create a paid/pending booking ───────────────────────
-  async function makeBooking(opts: {
-    user: { id: string }; pkg: { id: string; priceMinor: number; currency: string };
-    session?: { id: string } | null; retreatId?: string | null; guestCount: number;
-    level?: string; specialRequests?: string; status: string; paidMinor: number; totalMinor?: number;
-    createdDaysAgo?: number; checkedIn?: boolean;
-  }) {
-    const total = opts.totalMinor ?? opts.pkg.priceMinor * opts.guestCount;
-    const createdAt = new Date(today);
-    if (opts.createdDaysAgo) createdAt.setDate(createdAt.getDate() - opts.createdDaysAgo);
-    const booking = await db.booking.create({
-      data: {
-        reference: genReference(), userId: opts.user.id, packageId: opts.pkg.id,
-        sessionId: opts.session?.id ?? null, retreatId: opts.retreatId ?? null,
-        guestCount: opts.guestCount, level: opts.level ?? "Beginner", specialRequests: opts.specialRequests ?? "",
-        status: opts.status, subtotalMinor: total, totalMinor: total, amountPaidMinor: opts.paidMinor,
-        currency: opts.pkg.currency, qrToken: genQrToken(), createdAt,
-        checkedInAt: opts.checkedIn ? createdAt : null,
-      },
-    });
-    if (opts.paidMinor > 0) {
-      await db.payment.create({
-        data: { bookingId: booking.id, kind: "full", method: "card", amountMinor: opts.paidMinor, status: "paid", paidAt: createdAt, currency: opts.pkg.currency },
-      });
-    }
-    if (opts.session) {
-      // seatsTaken already reflects the seed pattern above; no extra increment needed here.
-    }
-    if (opts.retreatId && ["pending", "confirmed", "attended"].includes(opts.status)) {
-      await db.retreat.update({ where: { id: opts.retreatId }, data: { placesTaken: { increment: opts.guestCount } } });
-    }
-    return booking;
-  }
-
-  // Amelia — upcoming: Morning Flow today/tomorrow (dayOffset 2 = "tomorrow" from base which started yesterday)
-  const ameliaSession = sessionsByKey.get(`2:${tMorning.id}`)!;
-  await makeBooking({ user: amelia, pkg: p2, session: ameliaSession, guestCount: 1, status: "confirmed", paidMinor: p2.priceMinor, createdDaysAgo: 3 });
-  await makeBooking({ user: amelia, pkg: p6, retreatId: retreat.id, guestCount: 1, specialRequests: "vegetarian, shared room", status: "confirmed", paidMinor: p6.priceMinor - toMinor(900), totalMinor: p6.priceMinor, createdDaysAgo: 5 });
-  // Amelia — past, attended
-  const pastYin = sessionsByKey.get(`0:${tYin.id}`)!;
-  const pastMorning = sessionsByKey.get(`0:${tMorning.id}`)!;
-  await makeBooking({ user: amelia, pkg: p1, session: pastYin, guestCount: 1, status: "attended", paidMinor: p1.priceMinor, createdDaysAgo: 2, checkedIn: true });
-  await makeBooking({ user: amelia, pkg: p1, session: pastMorning, guestCount: 1, status: "attended", paidMinor: p1.priceMinor, createdDaysAgo: 3, checkedIn: true });
-
-  // Admin bookings from other guests
-  const rafaelSlot = sessionsByKey.get(`2:${tSlow.id}`)!;
-  await makeBooking({ user: rafael, pkg: p4, session: rafaelSlot, guestCount: 1, status: "pending", paidMinor: 0, totalMinor: p4.priceMinor, createdDaysAgo: 1 });
-
-  const jonasSlot = sessionsByKey.get(`4:${tHatha.id}`)!;
-  await makeBooking({ user: jonas, pkg: p5, session: jonasSlot, guestCount: 1, specialRequests: "CET timezone", status: "pending", paidMinor: p5.priceMinor, totalMinor: p5.priceMinor, createdDaysAgo: 1 });
-
-  const nurSlot = sessionsByKey.get(`3:${tYin.id}`)!;
-  await makeBooking({ user: nur, pkg: p3, session: nurSlot, guestCount: 2, status: "confirmed", paidMinor: p3.priceMinor, totalMinor: p3.priceMinor, createdDaysAgo: 2 });
-
-  await makeBooking({ user: sofia, pkg: p6, retreatId: retreat.id, guestCount: 1, status: "confirmed", paidMinor: 0, totalMinor: toMinor(900), createdDaysAgo: 4 });
-
-  // A little history for Priya and Daniel (monthly members) so Customers screen has real spend
-  const priyaSlot = sessionsByKey.get(`1:${tHatha.id}`)!;
-  await makeBooking({ user: priya, pkg: p3, session: priyaSlot, guestCount: 1, status: "attended", paidMinor: p3.priceMinor, createdDaysAgo: 20, checkedIn: true });
-  const danielSlot = sessionsByKey.get(`1:${tMorning.id}`)!;
-  await makeBooking({ user: daniel, pkg: p3, session: danielSlot, guestCount: 1, status: "attended", paidMinor: p3.priceMinor, createdDaysAgo: 18, checkedIn: true });
-
-  // Today's check-in board: a couple more bookings on today's Hatha class
-  const todayHatha = sessionsByKey.get(`1:${tHatha.id}`)!;
-  await makeBooking({ user: priya, pkg: p3, session: todayHatha, guestCount: 1, status: "confirmed", paidMinor: 0, totalMinor: 0, checkedIn: true });
-  await makeBooking({ user: daniel, pkg: p3, session: todayHatha, guestCount: 1, status: "confirmed", paidMinor: 0, totalMinor: 0 });
-  const todayYin = sessionsByKey.get(`1:${tYin.id}`)!;
-  await makeBooking({ user: amelia, pkg: p2, session: todayYin, guestCount: 1, status: "confirmed", paidMinor: 0, totalMinor: 0 });
-  await makeBooking({ user: sofia, pkg: p1, session: todayYin, guestCount: 1, status: "confirmed", paidMinor: p1.priceMinor, totalMinor: p1.priceMinor });
-
-  // Waitlist on the perpetually-full Slow Flow session today
-  const todaySlow = sessionsByKey.get(`1:${tSlow.id}`)!;
-  const waiters = [priya, daniel, rafael, jonas, sofia];
-  for (let i = 0; i < waiters.length; i++) {
-    await db.waitlistEntry.create({ data: { sessionId: todaySlow.id, userId: waiters[i].id, position: i + 1 } });
-  }
-
-  // ── Notifications for Amelia ──────────────────────────────────────
-  const notifDefs = [
-    { event: "booking_confirmed", channel: "push", title: "Booking confirmed", body: "Morning Flow, Wednesday 9 September at 7:00 AM. Dewi will see you there.", agoMin: 18, read: false },
-    { event: "payment_received", channel: "email", title: "Payment received", body: "RM 300.00 for 1 Week Class Pass. Receipt sent to amelia.tan@gmail.com.", agoMin: 20, read: false },
-    { event: "payment_due", channel: "push", title: "Your pass ends Sunday", body: "1 Week Class Pass — 3 days left. Renew any time to keep your place in the morning classes.", agoMin: 120, read: false },
-    { event: "waitlist_open", channel: "whatsapp", title: "A place opened up", body: "Slow Flow, today 5:30 PM. You were second on the waitlist — hold it within the hour.", agoMin: 180, read: true },
-    { event: "reminder_24h", channel: "sms", title: "Candlelight Yin in 24 hours", body: "Doors open at 6:45 PM. Studio B, second floor. Reply CANCEL to release your place.", agoMin: 300, read: true },
-    { event: "schedule_changed", channel: "email", title: "October retreat is open", body: "Three days in Janda Baik, 10–12 October. Early-bird price until 20 September.", agoMin: 1440, read: true },
-  ];
-  for (const n of notifDefs) {
-    const sentAt = new Date(today.getTime() - n.agoMin * 60000);
-    await db.notification.create({
-      data: {
-        userId: amelia.id, event: n.event, channel: n.channel, title: n.title, body: n.body,
-        scheduledFor: sentAt, sentAt, readAt: n.read ? sentAt : null,
-      },
-    });
-  }
-
-  void owner;
+  void marcus; void privateRoom; void jandaBaikRooms;
   console.log("Seed complete.");
 }
 
