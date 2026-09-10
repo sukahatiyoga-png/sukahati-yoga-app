@@ -100,6 +100,19 @@ export default function App() {
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
+
+  // Defense in depth: the server already rejects every admin API call from
+  // a non-staff account (that's the real security boundary), but a customer
+  // could still reach the admin shell by typing /admin in the URL bar
+  // directly — the "Switch to studio admin" button being hidden doesn't
+  // stop that. Bounce them back rather than showing an admin shell full of
+  // requests the server will refuse anyway.
+  useEffect(() => {
+    if (me && mode === "admin" && me.role !== "owner" && me.role !== "desk") {
+      exitAdmin();
+    }
+  }, [me, mode, exitAdmin]);
+
   const openPackageSheet = useCallback((id: string) => setSheet({ kind: "pkg", id }), []);
   const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string; qrToken: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
@@ -125,6 +138,10 @@ export default function App() {
     me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
     openPackageSheet, openQrSheet, closeSheet,
   };
+
+  if (mode === "admin" && me.role !== "owner" && me.role !== "desk") {
+    return null;
+  }
 
   if (mode === "admin") {
     return (
