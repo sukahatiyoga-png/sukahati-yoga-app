@@ -11,6 +11,7 @@ import Reports from "./Reports";
 import Promotions from "./Promotions";
 import Resources from "./Resources";
 import TeacherRegistrations from "./TeacherRegistrations";
+import ScanCheckin from "./ScanCheckin";
 
 function Icon({ d, d2 }: { d: string; d2?: string }) {
   return (
@@ -24,6 +25,7 @@ const NAV: { id: AdminSection; name: string; icon: ReactNode }[] = [
   { id: "dash", name: "Dashboard", icon: <Icon d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" /> },
   { id: "cal", name: "Calendar", icon: <Icon d="M3.5 5h17v16h-17z" d2="M8 3v4M16 3v4M3.5 10h17" /> },
   { id: "bookings", name: "Bookings", icon: <Icon d="M3.5 5h17v16h-17z" d2="M8 3v4M16 3v4M3.5 10h17" /> },
+  { id: "scan", name: "Scan Check-in", icon: <Icon d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3" d2="M4 12h16" /> },
   { id: "customers", name: "Customers", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" d2="M4 21a8 8 0 0 1 16 0" /> },
   { id: "packages", name: "Packages", icon: <Icon d="M12 3 3 7.5l9 4.5 9-4.5Z" d2="M3 7.5v9L12 21l9-4.5v-9" /> },
   { id: "teacherReg", name: "Teacher Registrations", icon: <Icon d="M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" d2="M2 21a7 7 0 0 1 14 0M17 8h5M19.5 5.5v5" /> },
@@ -63,6 +65,7 @@ export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
           {asec === "dash" && <Dashboard setAsec={setAsec} />}
           {asec === "cal" && <CalendarSection />}
           {asec === "bookings" && <BookingsAdmin />}
+          {asec === "scan" && <ScanCheckin />}
           {asec === "customers" && <Customers />}
           {asec === "packages" && <PackagesAdmin openPackageEditSheet={openPackageEditSheet} />}
           {asec === "teacherReg" && <TeacherRegistrations />}

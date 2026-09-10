@@ -25,27 +25,36 @@ function atTime(day: Date, hhmm: string) {
   return d;
 }
 
-// Emails used by earlier prototype seeding. Safe to run on every deploy —
-// once these accounts are gone this is a no-op.
+// Emails used by earlier prototype seeding.
 const FAKE_EMAILS = [
   "amelia.tan@gmail.com", "owner@sukahati.studio", "priya.menon@example.com",
   "daniel.ooi@example.com", "rafael.costa@example.com", "jonas.weber@example.com",
   "sofia.lim@example.com", "nur.aisyah@example.com",
 ];
+const WIPE_FLAG_ID = "wipe_fake_people_v1";
 
+// Runs exactly once, ever — guarded by SeedFlag. Without this guard, a real
+// customer who later signed up reusing one of the old demo emails would get
+// silently deleted (along with their bookings) on every subsequent deploy,
+// since this used to re-match on email every time the seed script ran.
 async function wipeFakePeople() {
+  if (await db.seedFlag.findUnique({ where: { id: WIPE_FLAG_ID } })) return;
+
   const fake = await db.user.findMany({ where: { email: { in: FAKE_EMAILS } }, select: { id: true } });
-  if (fake.length === 0) return;
-  const ids = fake.map((u) => u.id);
-  const bookings = await db.booking.findMany({ where: { userId: { in: ids } }, select: { id: true } });
-  const bookingIds = bookings.map((b) => b.id);
-  await db.payment.deleteMany({ where: { bookingId: { in: bookingIds } } });
-  await db.notification.deleteMany({ where: { OR: [{ userId: { in: ids } }, { bookingId: { in: bookingIds } }] } });
-  await db.waitlistEntry.deleteMany({ where: { userId: { in: ids } } });
-  await db.auditLog.deleteMany({ where: { actorUserId: { in: ids } } });
-  await db.booking.deleteMany({ where: { id: { in: bookingIds } } });
-  await db.user.deleteMany({ where: { id: { in: ids } } });
-  console.log(`Removed ${ids.length} demo account(s) from earlier prototype runs.`);
+  if (fake.length > 0) {
+    const ids = fake.map((u) => u.id);
+    const bookings = await db.booking.findMany({ where: { userId: { in: ids } }, select: { id: true } });
+    const bookingIds = bookings.map((b) => b.id);
+    await db.payment.deleteMany({ where: { bookingId: { in: bookingIds } } });
+    await db.notification.deleteMany({ where: { OR: [{ userId: { in: ids } }, { bookingId: { in: bookingIds } }] } });
+    await db.waitlistEntry.deleteMany({ where: { userId: { in: ids } } });
+    await db.auditLog.deleteMany({ where: { actorUserId: { in: ids } } });
+    await db.booking.deleteMany({ where: { id: { in: bookingIds } } });
+    await db.user.deleteMany({ where: { id: { in: ids } } });
+    console.log(`Removed ${ids.length} demo account(s) from earlier prototype runs.`);
+  }
+
+  await db.seedFlag.create({ data: { id: WIPE_FLAG_ID } });
 }
 
 async function ensureOwnerAccount() {

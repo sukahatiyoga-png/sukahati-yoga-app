@@ -68,6 +68,11 @@ export interface BookingCustomer {
   balanceMinor: number | null; ref: string; qrToken: string; packageName: string; createdAt: string;
 }
 
+export interface ScanResult {
+  id: string; reference: string; name: string; initials: string; title: string; meta: string;
+  status: string; checkedIn: boolean; cancelled: boolean;
+}
+
 export interface BookingAdmin {
   id: string; name: string; initials: string; meta: string; pkg: string;
   amountMinor: number; paid: boolean; unpaid: boolean; status: string;
@@ -182,6 +187,7 @@ export const api = {
   refundBooking: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/refund`),
   remindBooking: (id: string) => post<{ ok: boolean }>(`/bookings/${id}/remind`),
   checkin: (id: string) => patch<{ ok: boolean }>(`/bookings/${id}/checkin`),
+  bookingByQr: (token: string) => get<ScanResult>(`/bookings/by-qr/${encodeURIComponent(token)}`),
   adminBookings: (status?: string) => get<BookingAdmin[]>(`/bookings${status ? "?status=" + encodeURIComponent(status) : ""}`),
 
   notifications: () => get<NotificationItem[]>("/notifications"),

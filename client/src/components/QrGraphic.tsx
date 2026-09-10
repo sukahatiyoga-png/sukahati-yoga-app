@@ -1,16 +1,25 @@
-export default function QrGraphic({ size }: { size: number }) {
+import { useEffect, useRef } from "react";
+
+// Renders a real, scannable QR code encoding the booking's qrToken — the
+// admin Scan QR screen (screens/admin/ScanCheckin.tsx) decodes this same
+// string to look up and check in the booking. The qrcode library is loaded
+// on demand so customers who never open this screen don't pay for it.
+export default function QrGraphic({ value, size }: { value: string; size: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    let cancelled = false;
+    import("qrcode").then(({ default: QRCode }) => {
+      if (cancelled || !canvasRef.current) return;
+      QRCode.toCanvas(canvasRef.current, value, { width: size, margin: 1 }).catch(() => {});
+    });
+    return () => { cancelled = true; };
+  }, [value, size]);
+
   return (
-    <div style={{ width: size, height: size, borderRadius: "var(--radius-md)", background: "#fff", padding: size * 0.078, boxSizing: "border-box", position: "relative" }}>
-      <div style={{
-        width: "100%", height: "100%", borderRadius: 4,
-        backgroundImage:
-          "repeating-linear-gradient(90deg,var(--color-neutral-900) 0 9px,transparent 9px 18px)," +
-          "repeating-linear-gradient(0deg,var(--color-neutral-900) 0 9px,transparent 9px 18px)",
-        backgroundBlendMode: "difference",
-      }} />
-      <div style={{ position: "absolute", top: size * 0.078, left: size * 0.078, width: size * 0.23, height: size * 0.23, border: `${size * 0.05}px solid var(--color-neutral-900)`, background: "#fff" }} />
-      <div style={{ position: "absolute", top: size * 0.078, right: size * 0.078, width: size * 0.23, height: size * 0.23, border: `${size * 0.05}px solid var(--color-neutral-900)`, background: "#fff" }} />
-      <div style={{ position: "absolute", bottom: size * 0.078, left: size * 0.078, width: size * 0.23, height: size * 0.23, border: `${size * 0.05}px solid var(--color-neutral-900)`, background: "#fff" }} />
+    <div style={{ width: size, height: size, borderRadius: "var(--radius-md)", background: "#fff", padding: size * 0.06, boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
     </div>
   );
 }

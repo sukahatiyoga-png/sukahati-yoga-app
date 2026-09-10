@@ -50,7 +50,7 @@ export default function Bookings() {
         {upcoming.length === 0 && <div style={{ fontSize: 13.5, color: "var(--color-neutral-600)" }}>Nothing booked yet.</div>}
         {upcoming.map((b) => (
           <div key={b.id} style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 16, boxShadow: "var(--shadow-sm)" }}>
-            <div style={{ display: "flex", gap: 14, alignItems: "center", cursor: "pointer" }} onClick={() => openQrSheet({ title: b.title, meta: b.meta, ref: b.ref })}>
+            <div style={{ display: "flex", gap: 14, alignItems: "center", cursor: "pointer" }} onClick={() => openQrSheet({ title: b.title, meta: b.meta, ref: b.ref, qrToken: b.qrToken })}>
               <div style={{ flex: "none", width: 50, textAlign: "center" }}>
                 <div style={{ fontSize: 10.5, letterSpacing: "0.06em", color: "var(--color-neutral-600)" }}>{b.mon}</div>
                 <div style={{ fontFamily: "var(--font-heading)", fontSize: 21, lineHeight: 1.1 }}>{b.day}</div>
@@ -69,7 +69,7 @@ export default function Bookings() {
             ) : null}
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button className="btn btn-ghost" style={{ flex: 1, padding: "10px 0", fontSize: 13 }} onClick={() => cancel(b)}>Cancel</button>
-              <button className="btn btn-secondary" style={{ flex: 1, padding: "10px 0", fontSize: 13 }} onClick={() => openQrSheet({ title: b.title, meta: b.meta, ref: b.ref })}>Show QR</button>
+              <button className="btn btn-secondary" style={{ flex: 1, padding: "10px 0", fontSize: 13 }} onClick={() => openQrSheet({ title: b.title, meta: b.meta, ref: b.ref, qrToken: b.qrToken })}>Show QR</button>
             </div>
           </div>
         ))}

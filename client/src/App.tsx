@@ -20,7 +20,7 @@ import AdminShell from "./screens/admin/AdminShell";
 
 type SheetState =
   | { kind: "pkg"; id: string }
-  | { kind: "qr"; booking: { title: string; meta: string; ref: string } }
+  | { kind: "qr"; booking: { title: string; meta: string; ref: string; qrToken: string } }
   | { kind: "pkgEdit"; pkg: Pkg | null }
   | null;
 
@@ -101,7 +101,7 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
   const openPackageSheet = useCallback((id: string) => setSheet({ kind: "pkg", id }), []);
-  const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string }) => setSheet({ kind: "qr", booking }), []);
+  const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string; qrToken: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
   const closeSheet = useCallback(() => setSheet(null), []);
 

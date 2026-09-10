@@ -115,6 +115,19 @@ bookingsRouter.get("/", async (req, res) => {
   res.json(bookings.map(serializeAdmin));
 });
 
+// Staff-only lookup used by the admin camera scanner: decode a QR code to
+// its token client-side, then resolve it here to a bookable check-in card.
+bookingsRouter.get("/by-qr/:token", async (req, res) => {
+  if (!isStaff(req)) return res.status(403).json({ error: "Staff access required" });
+  const b = await db.booking.findUnique({ where: { qrToken: req.params.token }, include: FULL_INCLUDE });
+  if (!b) return res.status(404).json({ error: "No booking matches this QR code" });
+  res.json({
+    id: b.id, reference: b.reference, name: b.user.fullName, initials: initials(b.user.fullName),
+    title: b.session?.title || b.package.name, meta: customerMeta(b), status: b.status,
+    checkedIn: !!b.checkedInAt, cancelled: b.status === "cancelled",
+  });
+});
+
 bookingsRouter.get("/:id", async (req, res) => {
   const b = await db.booking.findUnique({ where: { id: req.params.id }, include: FULL_INCLUDE });
   if (!b) return res.status(404).json({ error: "Booking not found" });

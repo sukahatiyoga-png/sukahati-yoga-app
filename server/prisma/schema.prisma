@@ -359,6 +359,16 @@ model AuditLog {
   createdAt     DateTime @default(now())
 }
 
+// Marks one-time migration/cleanup scripts (in prisma/seed.ts) as done, so
+// they run exactly once across the app's lifetime rather than re-matching
+// real data on every deploy. See wipeFakePeople() in seed.ts for why this
+// matters: without it, a real customer who happens to reuse one of the old
+// prototype's demo emails would get silently deleted on every deploy.
+model SeedFlag {
+  id    String   @id
+  ranAt DateTime @default(now())
+}
+
 // Small settings table backing the admin "Automations" toggle list — not one
 // of the 15 core tables, added so those switches persist against real state.
 model AutomationSetting {

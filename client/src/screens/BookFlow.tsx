@@ -134,7 +134,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
             <div style={{ fontWeight: 700, fontSize: 16 }}>{b.title}</div>
             <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 4 }}>{selectedDay.label} · {selectedPkg?.name || draft.packageId} · {draft.guests} guest(s)</div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
-              <QrGraphic size={150} />
+              <QrGraphic value={b.qrToken} size={150} />
             </div>
             <div style={{ textAlign: "center", fontSize: 12, color: "var(--color-neutral-700)", marginTop: 12 }}>Show this at the door · booking {b.ref}</div>
           </div>
