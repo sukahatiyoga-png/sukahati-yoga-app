@@ -105,7 +105,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={ctx}>
-      <div style={{ position: "relative", height: "100dvh", maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden", boxShadow: "0 0 40px rgba(46,43,37,0.12)" }}>
+      <div style={{ position: "relative", height: "100dvh", width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden" }}>
         <div style={{ flex: 1, overflow: "auto" }}>
           {mode === "customer" && tab === "home" && <Home key={refreshTick} />}
           {mode === "customer" && tab === "search" && <Search />}
