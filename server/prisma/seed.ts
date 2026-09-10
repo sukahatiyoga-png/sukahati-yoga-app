@@ -37,10 +37,13 @@ async function wipeFakePeople() {
   const fake = await db.user.findMany({ where: { email: { in: FAKE_EMAILS } }, select: { id: true } });
   if (fake.length === 0) return;
   const ids = fake.map((u) => u.id);
+  const bookings = await db.booking.findMany({ where: { userId: { in: ids } }, select: { id: true } });
+  const bookingIds = bookings.map((b) => b.id);
+  await db.payment.deleteMany({ where: { bookingId: { in: bookingIds } } });
+  await db.notification.deleteMany({ where: { OR: [{ userId: { in: ids } }, { bookingId: { in: bookingIds } }] } });
   await db.waitlistEntry.deleteMany({ where: { userId: { in: ids } } });
-  await db.notification.deleteMany({ where: { userId: { in: ids } } });
   await db.auditLog.deleteMany({ where: { actorUserId: { in: ids } } });
-  await db.booking.deleteMany({ where: { userId: { in: ids } } });
+  await db.booking.deleteMany({ where: { id: { in: bookingIds } } });
   await db.user.deleteMany({ where: { id: { in: ids } } });
   console.log(`Removed ${ids.length} demo account(s) from earlier prototype runs.`);
 }
