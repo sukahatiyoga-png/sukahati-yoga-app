@@ -8,7 +8,7 @@ const VISIT_TYPES: { value: string; label: string }[] = [
   { value: "private_session", label: "Private Session" }, { value: "special_event", label: "Special Event" },
   { value: "other", label: "Other" },
 ];
-const STEP_LABELS = ["Personal", "Teaching", "Visit", "Additional Details", "Review"];
+const STEP_LABELS = ["Personal", "Teaching", "Visit", "Review"];
 const DRAFT_KEY = "sukahati_teacher_reg_draft";
 const MAX_IMAGE_MB = 3;
 const MAX_FILE_MB = 5;
@@ -201,7 +201,7 @@ export default function TeacherRegistration() {
       if (!draft.personal.email.trim() || !draft.personal.email.includes("@")) return "A valid email is required";
       if (!draft.personal.phone.trim()) return "WhatsApp / phone number is required";
     }
-    if (n === 4) {
+    if (n === 3) {
       if (!draft.additional.agreedToTerms) return "Please agree to Sukahati Yoga's teacher terms and policies";
     }
     return null;
@@ -212,7 +212,7 @@ export default function TeacherRegistration() {
     if (err) { setError(err); return; }
     setError(null);
     if (step === 1) checkDuplicate();
-    setStep((s) => Math.min(5, s + 1));
+    setStep((s) => Math.min(4, s + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   function goBack() {
@@ -273,8 +273,7 @@ export default function TeacherRegistration() {
         {step === 1 && <StepPersonal draft={draft} update={update} onBlurContact={checkDuplicate} />}
         {step === 2 && <StepTeaching draft={draft} update={update} toggleStyle={toggleStyle} />}
         {step === 3 && <StepVisit draft={draft} update={update} addSession={addSession} updateSession={updateSession} removeSession={removeSession} />}
-        {step === 4 && <StepAdditional draft={draft} update={update} />}
-        {step === 5 && <StepReview draft={draft} goToStep={setStep} />}
+        {step === 4 && <StepReview draft={draft} goToStep={setStep} />}
 
         {error && <div style={{ marginTop: 16, fontSize: 13.5, color: "var(--color-accent-700)", background: "var(--color-accent-100)", borderRadius: "var(--radius-sm)", padding: "10px 14px" }}>{error}</div>}
 
@@ -282,7 +281,7 @@ export default function TeacherRegistration() {
           {step > 1 && <button className="btn btn-secondary" style={{ padding: "13px 22px" }} onClick={goBack}>Back</button>}
           <div style={{ flex: 1 }} />
           <button className="btn btn-ghost" style={{ padding: "13px 10px", fontSize: 13 }} onClick={() => { saveDraft(draft); setHasDraft(true); setPhase("landing"); }}>Save and continue later</button>
-          {step < 5 ? (
+          {step < 4 ? (
             <button className="btn btn-primary" style={{ padding: "13px 26px" }} onClick={goNext}>Continue</button>
           ) : (
             <button className="btn btn-primary" style={{ padding: "13px 26px" }} disabled={submitting} onClick={submit}>{submitting ? "Submitting…" : "Submit Registration"}</button>
@@ -328,8 +327,7 @@ function Landing({ hasDraft, onStart, onResume }: { hasDraft: boolean; onStart: 
             { n: "01", t: "Personal", d: "Tell us who you are" },
             { n: "02", t: "Teaching", d: "Your practice and certification" },
             { n: "03", t: "Visit", d: "What you'll teach at Sukahati" },
-            { n: "04", t: "Details", d: "Anything else we should know" },
-            { n: "05", t: "Review", d: "Confirm and submit" },
+            { n: "04", t: "Review", d: "Confirm and submit" },
           ].map((s) => (
             <div key={s.n} style={cardStyle}>
               <div style={{ fontFamily: "var(--font-heading)", fontSize: 22, color: "var(--color-accent-600)" }}>{s.n}</div>
@@ -356,7 +354,7 @@ function StepPersonal({ draft, update, onBlurContact }: { draft: Draft; update: 
 
   return (
     <div>
-      <SectionTitle eyebrow="Step 01 of 05" title="Tell us about yourself" />
+      <SectionTitle eyebrow="Step 01 of 04" title="Tell us about yourself" />
       <div style={{ marginTop: 22 }}>
         <Field label="Full Name" required><input className="input" value={draft.personal.fullName} onChange={(e) => update("personal", { fullName: e.target.value })} /></Field>
         <Field label="Preferred Name"><input className="input" value={draft.personal.preferredName} onChange={(e) => update("personal", { preferredName: e.target.value })} /></Field>
@@ -394,7 +392,7 @@ function StepTeaching({ draft, update, toggleStyle }: { draft: Draft; update: <K
 
   return (
     <div>
-      <SectionTitle eyebrow="Step 02 of 05" title="Your teaching practice" />
+      <SectionTitle eyebrow="Step 02 of 04" title="Your teaching practice" />
       <div style={{ marginTop: 22 }}>
         <Field label="Yoga Styles">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -428,7 +426,7 @@ function StepVisit({ draft, update, addSession, updateSession, removeSession }: 
 }) {
   return (
     <div>
-      <SectionTitle eyebrow="Step 03 of 05" title="Tell us about your Sukahati visit" />
+      <SectionTitle eyebrow="Step 03 of 04" title="Tell us about your Sukahati visit" />
       <div style={{ marginTop: 22 }}>
         <Field label="Visit Type">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -472,29 +470,8 @@ function StepVisit({ draft, update, addSession, updateSession, removeSession }: 
           ))}
           <button type="button" className="btn btn-secondary btn-block" style={{ marginTop: 14, padding: "12px 0" }} onClick={addSession}>+ Add another session</button>
         </div>
-      </div>
-    </div>
-  );
-}
 
-// ── Step 4 ────────────────────────────────────────────────────────────────
-function StepAdditional({ draft, update }: { draft: Draft; update: <K extends keyof Draft>(s: K, p: Partial<Draft[K]>) => void }) {
-  return (
-    <div>
-      <SectionTitle eyebrow="Step 04 of 05" title="A few more details" />
-      <div style={{ marginTop: 22 }}>
-        <Field label="Short introduction for the Sukahati Yoga website">
-          <textarea className="input" style={{ borderRadius: "var(--radius-md)", minHeight: 80, padding: "12px 16px", resize: "vertical" }} value={draft.additional.websiteIntro} onChange={(e) => update("additional", { websiteIntro: e.target.value })} />
-        </Field>
-        <Field label="Social media links"><input className="input" value={draft.additional.socialLinks} onChange={(e) => update("additional", { socialLinks: e.target.value })} /></Field>
-        <Field label="Special equipment requirements"><input className="input" value={draft.additional.equipmentNeeds} onChange={(e) => update("additional", { equipmentNeeds: e.target.value })} /></Field>
-        <Field label="Travel / accommodation notes"><input className="input" value={draft.additional.travelNotes} onChange={(e) => update("additional", { travelNotes: e.target.value })} /></Field>
-        <Field label="Dietary requirements for retreat / workshop"><input className="input" value={draft.additional.dietaryNeeds} onChange={(e) => update("additional", { dietaryNeeds: e.target.value })} /></Field>
-        <Field label="Additional comments">
-          <textarea className="input" style={{ borderRadius: "var(--radius-md)", minHeight: 70, padding: "12px 16px", resize: "vertical" }} value={draft.additional.additionalComments} onChange={(e) => update("additional", { additionalComments: e.target.value })} />
-        </Field>
-
-        <label style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 22, fontSize: 13.5, cursor: "pointer" }}>
+        <label style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 26, paddingTop: 20, borderTop: "1px solid var(--color-divider)", fontSize: 13.5, cursor: "pointer" }}>
           <input type="checkbox" checked={draft.additional.agreedToTerms} onChange={(e) => update("additional", { agreedToTerms: e.target.checked })} style={{ marginTop: 2 }} />
           <span>I agree to Sukahati Yoga's teacher terms and policies.</span>
         </label>
@@ -527,7 +504,7 @@ function StepReview({ draft, goToStep }: { draft: Draft; goToStep: (n: number) =
   const [confirmed, setConfirmed] = useState(false);
   return (
     <div>
-      <SectionTitle eyebrow="Step 05 of 05" title="Review your registration" />
+      <SectionTitle eyebrow="Step 04 of 04" title="Review your registration" />
       <ReviewSection title="Personal Information" onEdit={() => goToStep(1)}>
         <ReviewRow label="Full name" value={draft.personal.fullName} />
         <ReviewRow label="Preferred name" value={draft.personal.preferredName} />
@@ -547,10 +524,8 @@ function StepReview({ draft, goToStep }: { draft: Draft; goToStep: (n: number) =
         <ReviewRow label="Title" value={draft.visit.title} />
         <ReviewRow label="Sessions" value={draft.visit.sessions.length ? String(draft.visit.sessions.length) : draft.visit.numberOfSessions} />
       </ReviewSection>
-      <ReviewSection title="Additional Information" onEdit={() => goToStep(4)}>
-        <ReviewRow label="Equipment" value={draft.additional.equipmentNeeds} />
-        <ReviewRow label="Travel notes" value={draft.additional.travelNotes} />
-        <ReviewRow label="Dietary" value={draft.additional.dietaryNeeds} />
+      <ReviewSection title="Terms" onEdit={() => goToStep(3)}>
+        <ReviewRow label="Agreed to teacher terms and policies" value={draft.additional.agreedToTerms ? "Yes" : "Not yet"} />
       </ReviewSection>
 
       <label style={{ display: "flex", gap: 10, alignItems: "flex-start", marginTop: 22, fontSize: 13.5, cursor: "pointer" }}>
