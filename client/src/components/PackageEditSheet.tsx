@@ -15,6 +15,7 @@ export default function PackageEditSheet({ pkg, onSaved }: { pkg: Pkg | null; on
   const [active, setActive] = useState(pkg?.active ?? true);
   const [recommended, setRecommended] = useState(pkg?.recommended ?? false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function save() {
     setSaving(true);
@@ -32,6 +33,21 @@ export default function PackageEditSheet({ pkg, onSaved }: { pkg: Pkg | null; on
       flash(e instanceof Error ? e.message : "Could not save package");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function remove() {
+    if (!pkg) return;
+    if (!window.confirm(`Delete "${pkg.name}"? This can't be undone.`)) return;
+    setDeleting(true);
+    try {
+      await api.deletePackage(pkg.id);
+      flash("Package deleted");
+      onSaved();
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Could not delete package");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -82,6 +98,11 @@ export default function PackageEditSheet({ pkg, onSaved }: { pkg: Pkg | null; on
       <button className="btn btn-primary btn-block" style={{ marginTop: 20, padding: "15px 0" }} onClick={save} disabled={saving || !name}>
         {isNew ? "Add to booking form" : "Save changes"}
       </button>
+      {!isNew && (
+        <button className="btn btn-ghost btn-block" style={{ marginTop: 8, padding: "13px 0", color: "var(--color-accent-700)" }} onClick={remove} disabled={deleting}>
+          {deleting ? "Deleting…" : "Delete package"}
+        </button>
+      )}
       <button className="btn btn-ghost btn-block" style={{ marginTop: 8, padding: "13px 0" }} onClick={closeSheet}>Cancel</button>
     </Sheet>
   );

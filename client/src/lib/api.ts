@@ -33,6 +33,7 @@ const get = <T>(path: string) => req<T>(path);
 const post = <T>(path: string, body?: unknown) => req<T>(path, { method: "POST", body: body ? JSON.stringify(body) : undefined });
 const patch = <T>(path: string, body?: unknown) => req<T>(path, { method: "PATCH", body: body ? JSON.stringify(body) : undefined });
 const put = <T>(path: string, body?: unknown) => req<T>(path, { method: "PUT", body: body ? JSON.stringify(body) : undefined });
+const del = <T>(path: string) => req<T>(path, { method: "DELETE" });
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -83,7 +84,7 @@ export interface NotificationItem {
   id: string; kind: string; title: string; body: string; ago: string; unread: boolean; channel: string; action: string;
 }
 
-export interface Customer { id: string; name: string; initials: string; meta: string; spendMinor: number }
+export interface Customer { id: string; name: string; initials: string; meta: string; spendMinor: number; active: boolean }
 
 export interface CustomerBookingDetail {
   id: string; reference: string; title: string; meta: string; status: string;
@@ -96,16 +97,26 @@ export interface CustomerBookingDetail {
 }
 export interface CustomerDetail {
   id: string; name: string; email: string; phone: string; memberSince: string; authProvider: string;
-  points: number; referralCode: string; adminNotes: string;
+  points: number; referralCode: string; adminNotes: string; active: boolean;
   preferences: { usualLevel: string | null; preferredTime: string | null; mealPreference: string | null } | null;
   stats: { classesAttended: number; noShows: number; spendMinor: number };
   bookings: { upcoming: CustomerBookingDetail[]; past: CustomerBookingDetail[] };
 }
-export interface Coupon { id: string; code: string; detail: string; on: boolean }
+export interface Coupon {
+  id: string; code: string; detail: string; on: boolean;
+  discountType: string; discountValue: number; minGuests: number;
+  appliesToPackageId: string | null; expiresAt: string; maxRedemptions: number; redemptionCount: number;
+}
+export interface CouponInput {
+  code: string; discountType: string; discountValue: number; minGuests?: number;
+  appliesToPackageId?: string | null; expiresAt?: string; maxRedemptions?: number; isActive?: boolean; detail?: string;
+}
 export interface Automation { id: string; name: string; note: string; on: boolean }
 export interface Teacher { id: string; name: string; initials: string; meta: string; load: string }
+export interface TeacherDetail { id: string; name: string; specialties: string[]; weeklyHourCap: number }
 export interface RoomItem { id: string; name: string; meta: string; state: string }
-export interface CalendarSession { id: string; time: string; ampm: string; title: string; assign: string; load: string; pct: string; pctRaw: number }
+export interface RoomDetail { id: string; name: string; matCapacity: number | null; isAccommodation: boolean; beds: number | null; note: string }
+export interface CalendarSession { id: string; time: string; ampm: string; title: string; assign: string; load: string; pct: string; pctRaw: number; capacity: number; status: string }
 export interface CheckinItem { id: string; name: string; initials: string; meta: string; checkedIn: boolean }
 
 export interface DashboardTodo { id: string; title: string; body: string; cta: string; kind: string; sessionId?: string }
@@ -186,6 +197,7 @@ export const api = {
   package: (id: string) => get<Pkg>(`/packages/${id}`),
   createPackage: (data: Record<string, unknown>) => post<Pkg>("/packages", data),
   updatePackage: (id: string, data: Record<string, unknown>) => put<Pkg>(`/packages/${id}`, data),
+  deletePackage: (id: string) => del<{ ok: boolean }>(`/packages/${id}`),
 
   sessions: (params: Record<string, string | undefined>) => {
     const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v) as [string, string][]).toString();
@@ -221,18 +233,33 @@ export const api = {
     raiseCapacity: (sessionId: string) => patch<{ ok: boolean; capacity: number }>(`/admin/sessions/${sessionId}/capacity`, { increaseBy: 2 }),
     calendar: (date: string) => get<CalendarSession[]>(`/admin/calendar?date=${date}`),
     addSession: (data: Record<string, unknown>) => post<{ ok: boolean; id: string }>("/admin/sessions", data),
+    updateSession: (id: string, data: { title?: string; capacity?: number }) => patch<{ ok: boolean; id: string }>(`/admin/sessions/${id}`, data),
+    cancelSession: (id: string) => patch<{ ok: boolean; guestsNotified: number }>(`/admin/sessions/${id}/cancel`),
     blockDay: (date: string) => post<{ ok: boolean; sessionsBlocked: number; guestsNotified: number }>(`/admin/days/${date}/block`),
     customers: (q?: string) => get<Customer[]>(`/admin/customers${q ? "?q=" + encodeURIComponent(q) : ""}`),
     customerDetail: (id: string) => get<CustomerDetail>(`/admin/customers/${id}`),
+    updateCustomer: (id: string, data: { name?: string; email?: string; phone?: string }) => patch<{ ok: boolean }>(`/admin/customers/${id}`, data),
+    setCustomerActive: (id: string, active: boolean) => patch<{ ok: boolean; active: boolean }>(`/admin/customers/${id}/active`, { active }),
     setCustomerNotes: (id: string, notes: string) => patch<{ ok: boolean }>(`/admin/customers/${id}/notes`, { notes }),
     reports: () => get<Reports>("/admin/reports"),
     coupons: () => get<Coupon[]>("/admin/coupons"),
+    createCoupon: (data: CouponInput) => post<Coupon>("/admin/coupons", data),
+    updateCoupon: (id: string, data: Partial<CouponInput>) => put<Coupon>(`/admin/coupons/${id}`, data),
+    deleteCoupon: (id: string) => del<{ ok: boolean }>(`/admin/coupons/${id}`),
     toggleCoupon: (id: string) => patch<{ ok: boolean; on: boolean }>(`/admin/coupons/${id}/toggle`),
     loyalty: () => get<{ pointsPerClass: number; freeClassAt: number; referralRewardMinor: number; membersOnPlan: number }>("/admin/loyalty"),
     automations: () => get<Automation[]>("/admin/automations"),
     toggleAutomation: (id: string) => patch<{ ok: boolean; on: boolean }>(`/admin/automations/${id}/toggle`),
     teachers: () => get<Teacher[]>("/admin/teachers"),
+    teacherDetail: (id: string) => get<TeacherDetail>(`/admin/teachers/${id}`),
+    createTeacher: (data: { name: string; specialties: string[]; weeklyHourCap: number }) => post<TeacherDetail>("/admin/teachers", data),
+    updateTeacher: (id: string, data: Partial<{ name: string; specialties: string[]; weeklyHourCap: number }>) => put<TeacherDetail>(`/admin/teachers/${id}`, data),
+    deleteTeacher: (id: string) => del<{ ok: boolean }>(`/admin/teachers/${id}`),
     rooms: () => get<RoomItem[]>("/admin/rooms"),
+    roomDetail: (id: string) => get<RoomDetail>(`/admin/rooms/${id}`),
+    createRoom: (data: { name: string; matCapacity?: number | null; isAccommodation?: boolean; beds?: number | null; note?: string }) => post<RoomDetail>("/admin/rooms", data),
+    updateRoom: (id: string, data: Partial<{ name: string; matCapacity: number | null; isAccommodation: boolean; beds: number | null; note: string }>) => put<RoomDetail>(`/admin/rooms/${id}`, data),
+    deleteRoom: (id: string) => del<{ ok: boolean }>(`/admin/rooms/${id}`),
     conflicts: () => get<{ notes: string[] }>("/admin/conflicts"),
     access: () => get<{ name: string; value: string }[]>("/admin/access"),
     checkins: () => get<CheckinItem[]>("/admin/checkins"),
@@ -258,6 +285,8 @@ export const api = {
     setStatus: (id: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/teacher-registrations/${id}/status`, { status }),
     setNotes: (id: string, notes: string) => patch<{ ok: boolean }>(`/admin/teacher-registrations/${id}/notes`, { notes }),
     setVisitStatus: (visitId: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/teacher-registrations/visits/${visitId}/status`, { status }),
+    deleteVisit: (visitId: string) => del<{ ok: boolean }>(`/admin/teacher-registrations/visits/${visitId}`),
+    delete: (id: string) => del<{ ok: boolean }>(`/admin/teacher-registrations/${id}`),
   },
 
   adminRetreats: {
@@ -265,5 +294,6 @@ export const api = {
     detail: (id: string) => get<RetreatItem>(`/admin/retreats/${id}`),
     create: (data: RetreatInput) => post<RetreatItem>("/admin/retreats", data),
     update: (id: string, data: Partial<RetreatInput>) => put<RetreatItem>(`/admin/retreats/${id}`, data),
+    delete: (id: string) => del<{ ok: boolean }>(`/admin/retreats/${id}`),
   },
 };

@@ -36,6 +36,12 @@ export default function BookingsAdmin() {
     await api.remindBooking(b.id);
     flash("Reminder sent to " + b.name.split(" ")[0]);
   }
+  async function cancel(b: BookingAdmin) {
+    if (!window.confirm(`Cancel ${b.name}'s booking? ${b.paid ? "Any payment will be refunded." : ""}`)) return;
+    await api.cancelBooking(b.id);
+    flash(b.name.split(" ")[0] + "'s booking cancelled");
+    reload();
+  }
 
   return (
     <>
@@ -79,7 +85,10 @@ export default function BookingsAdmin() {
                 <>
                   <button className="btn btn-ghost" style={{ flex: 1, padding: "10px 0", fontSize: 13 }} onClick={() => refund(b)}>Refund</button>
                   <button className="btn btn-secondary" style={{ flex: 1, padding: "10px 0", fontSize: 13 }} onClick={() => remind(b)}>Send reminder</button>
+                  <button className="btn btn-ghost" style={{ flex: 1, padding: "10px 0", fontSize: 13, color: "var(--color-accent-700)" }} onClick={() => cancel(b)}>Cancel</button>
                 </>
+              ) : b.status !== "cancelled" ? (
+                <button className="btn btn-ghost" style={{ flex: 1, padding: "10px 0", fontSize: 13, color: "var(--color-accent-700)" }} onClick={() => cancel(b)}>Cancel</button>
               ) : null}
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useApp } from "../../context/AppContext";
 import { api, type Customer, type CustomerBookingDetail, type CustomerDetail } from "../../lib/api";
 import { money } from "../../lib/format";
 
@@ -25,7 +26,10 @@ function CustomerList({ onSelect }: { onSelect: (id: string) => void }) {
           <div key={c.id} onClick={() => onSelect(c.id)} style={{ cursor: "pointer", background: "var(--color-neutral-100)", borderRadius: "var(--radius-md)", padding: "15px 16px", display: "flex", gap: 12, alignItems: "center" }}>
             <div style={{ flex: "none", width: 40, height: 40, borderRadius: 999, background: "var(--color-accent-2-300)", color: "var(--color-accent-2-900)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13.5 }}>{c.initials}</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 14.5 }}>{c.name}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: 14.5 }}>{c.name}</div>
+                {!c.active && <span className="tag tag-neutral">Deactivated</span>}
+              </div>
               <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 2 }}>{c.meta}</div>
             </div>
             <div style={{ flex: "none", textAlign: "right" }}>
@@ -53,19 +57,57 @@ function Row({ label, value }: { label: string; value?: string | number | null }
 }
 
 function CustomerDetailView({ id, onBack }: { id: string; onBack: () => void }) {
+  const { flash } = useApp();
   const [customer, setCustomer] = useState<CustomerDetail | null>(null);
   const [tab, setTab] = useState<Tab>("Overview");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [savingContact, setSavingContact] = useState(false);
+  const [togglingActive, setTogglingActive] = useState(false);
 
   function reload() {
-    api.admin.customerDetail(id).then((c) => { setCustomer(c); setNotes(c.adminNotes || ""); });
+    api.admin.customerDetail(id).then((c) => {
+      setCustomer(c); setNotes(c.adminNotes || "");
+      setEditName(c.name); setEditEmail(c.email); setEditPhone(c.phone);
+    });
   }
   useEffect(reload, [id]);
 
   async function saveNotes() {
     setSaving(true);
     try { await api.admin.setCustomerNotes(id, notes); } finally { setSaving(false); }
+  }
+
+  async function saveContact() {
+    setSavingContact(true);
+    try {
+      await api.admin.updateCustomer(id, { name: editName, email: editEmail, phone: editPhone });
+      flash("Contact details saved");
+      setEditingContact(false);
+      reload();
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Could not save");
+    } finally {
+      setSavingContact(false);
+    }
+  }
+
+  async function toggleActive() {
+    if (!customer) return;
+    const next = !customer.active;
+    if (!next && !window.confirm(`Deactivate ${customer.name}? They won't be able to sign in until reactivated.`)) return;
+    setTogglingActive(true);
+    try {
+      await api.admin.setCustomerActive(id, next);
+      flash(next ? "Customer reactivated" : "Customer deactivated");
+      reload();
+    } finally {
+      setTogglingActive(false);
+    }
   }
 
   if (!customer) return null;
@@ -78,7 +120,10 @@ function CustomerDetailView({ id, onBack }: { id: string; onBack: () => void }) 
       <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14 }}>
         <div style={{ flex: "none", width: 56, height: 56, borderRadius: 999, background: "var(--color-accent-2-300)", color: "var(--color-accent-2-900)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18 }}>{initials}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-heading)", fontSize: 22 }}>{customer.name}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontFamily: "var(--font-heading)", fontSize: 22 }}>{customer.name}</div>
+            {!customer.active && <span className="tag tag-neutral">Deactivated</span>}
+          </div>
           <div style={{ fontSize: 12.5, color: "var(--color-neutral-700)", marginTop: 2 }}>{customer.email}</div>
         </div>
         <div style={{ flex: "none", textAlign: "right" }}>
@@ -86,6 +131,13 @@ function CustomerDetailView({ id, onBack }: { id: string; onBack: () => void }) 
           <div style={{ fontSize: 11, color: "var(--color-neutral-600)" }}>lifetime spend</div>
         </div>
       </div>
+
+      <button
+        className="btn btn-secondary" style={{ marginTop: 12, padding: "9px 16px", fontSize: 12.5 }}
+        disabled={togglingActive} onClick={toggleActive}
+      >
+        {togglingActive ? "Please wait…" : customer.active ? "Deactivate customer" : "Reactivate customer"}
+      </button>
 
       <div style={{ display: "flex", gap: 8, marginTop: 18, overflow: "auto", paddingBottom: 4 }}>
         {TABS.map((t) => (
@@ -106,14 +158,38 @@ function CustomerDetailView({ id, onBack }: { id: string; onBack: () => void }) 
             <StatCard value={customer.points} label="Loyalty points" />
           </div>
 
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 19, margin: "22px 0 6px" }}>Contact</h2>
-          <div style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>
-            <Row label="Email" value={customer.email} />
-            <Row label="Phone" value={customer.phone} />
-            <Row label="Signed up with" value={customer.authProvider} />
-            <Row label="Member since" value={new Date(customer.memberSince).toLocaleDateString()} />
-            <Row label="Referral code" value={customer.referralCode} />
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "22px 0 6px" }}>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 19, margin: 0 }}>Contact</h2>
+            {!editingContact && <button className="btn btn-ghost" style={{ padding: "4px 8px", fontSize: 12.5 }} onClick={() => setEditingContact(true)}>Edit</button>}
           </div>
+          {editingContact ? (
+            <div style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 16 }}>
+              <div className="field">
+                <label htmlFor="c-name">Full name</label>
+                <input className="input" id="c-name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+              </div>
+              <div className="field" style={{ marginTop: 12 }}>
+                <label htmlFor="c-email">Email</label>
+                <input className="input" id="c-email" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+              </div>
+              <div className="field" style={{ marginTop: 12 }}>
+                <label htmlFor="c-phone">Phone</label>
+                <input className="input" id="c-phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                <button className="btn btn-ghost" style={{ flex: 1, padding: "9px 0" }} onClick={() => { setEditingContact(false); setEditName(customer.name); setEditEmail(customer.email); setEditPhone(customer.phone); }}>Cancel</button>
+                <button className="btn btn-primary" style={{ flex: 1, padding: "9px 0" }} disabled={savingContact || !editName} onClick={saveContact}>{savingContact ? "Saving…" : "Save"}</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>
+              <Row label="Email" value={customer.email} />
+              <Row label="Phone" value={customer.phone} />
+              <Row label="Signed up with" value={customer.authProvider} />
+              <Row label="Member since" value={new Date(customer.memberSince).toLocaleDateString()} />
+              <Row label="Referral code" value={customer.referralCode} />
+            </div>
+          )}
 
           {customer.preferences && (
             <>

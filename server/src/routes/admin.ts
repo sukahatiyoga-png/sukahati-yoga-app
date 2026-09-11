@@ -74,8 +74,51 @@ adminRouter.get("/calendar", async (req, res) => {
     return {
       id: s.id, time, ampm, title: s.title, assign: `${s.teacher.name} · ${s.room.name}`,
       load: `${s.seatsTaken}/${s.capacity}`, pct: `${pct}%`, pctRaw: pct,
+      capacity: s.capacity, status: s.status,
     };
   }));
+});
+
+adminRouter.patch("/sessions/:id", async (req, res) => {
+  const s = await db.session.findUnique({ where: { id: req.params.id } });
+  if (!s) return res.status(404).json({ error: "Session not found" });
+  const b = req.body || {};
+  const title = b.title !== undefined ? String(b.title) : s.title;
+  const capacity = b.capacity !== undefined ? Number(b.capacity) : s.capacity;
+  const teacherId = b.teacherId || s.teacherId;
+  const roomId = b.roomId || s.roomId;
+  try {
+    if (teacherId !== s.teacherId || roomId !== s.roomId) {
+      await assertNoConflict({ teacherId, roomId, startsAt: s.startsAt, endsAt: s.endsAt, excludeSessionId: s.id });
+    }
+    const updated = await db.session.update({ where: { id: s.id }, data: { title, capacity, teacherId, roomId } });
+    await db.auditLog.create({
+      data: { actorUserId: req.userId!, entityTable: "sessions", entityId: s.id, action: "update", diff: JSON.stringify({ title, capacity }) },
+    }).catch(() => {});
+    res.json({ ok: true, id: updated.id });
+  } catch (e) {
+    if (e instanceof ConflictError) return res.status(409).json({ error: e.message });
+    throw e;
+  }
+});
+
+adminRouter.patch("/sessions/:id/cancel", async (req, res) => {
+  const s = await db.session.findUnique({ where: { id: req.params.id }, include: { bookings: { where: { status: { in: ["pending", "confirmed"] } } } } });
+  if (!s) return res.status(404).json({ error: "Session not found" });
+  let notified = 0;
+  await db.$transaction(async (tx) => {
+    await tx.session.update({ where: { id: s.id }, data: { status: "cancelled" } });
+    for (const b of s.bookings) {
+      await tx.notification.create({
+        data: { userId: b.userId, bookingId: b.id, event: "schedule_changed", channel: "push", title: "Class cancelled", body: `${s.title} was cancelled by the studio. We'll be in touch to rebook.`, scheduledFor: new Date(), sentAt: new Date() },
+      });
+      notified++;
+    }
+    await tx.auditLog.create({
+      data: { actorUserId: req.userId!, entityTable: "sessions", entityId: s.id, action: "update", diff: JSON.stringify({ status: "cancelled" }) },
+    });
+  });
+  res.json({ ok: true, guestsNotified: notified });
 });
 
 adminRouter.post("/sessions", async (req, res) => {
@@ -128,7 +171,7 @@ adminRouter.post("/days/:date/block", async (req, res) => {
 adminRouter.get("/customers", async (req, res) => {
   const q = (req.query.q as string) || "";
   const users = await db.user.findMany({
-    where: { role: "customer", deletedAt: null, fullName: q ? { contains: q } : undefined },
+    where: { role: "customer", fullName: q ? { contains: q } : undefined },
     include: { preferences: true },
   });
   const out = [];
@@ -140,7 +183,8 @@ adminRouter.get("/customers", async (req, res) => {
     const bits = [`${attended} classes`];
     if (noShows) bits.push(`${noShows} no-shows`);
     if (u.preferences?.mealPreference) bits.push(u.preferences.mealPreference.toLowerCase());
-    out.push({ id: u.id, name: u.fullName, initials: initials(u.fullName), meta: bits.join(" · "), spendMinor });
+    if (u.deletedAt) bits.push("deactivated");
+    out.push({ id: u.id, name: u.fullName, initials: initials(u.fullName), meta: bits.join(" · "), spendMinor, active: !u.deletedAt });
   }
   out.sort((a, b) => b.spendMinor - a.spendMinor);
   res.json(out);
@@ -186,12 +230,44 @@ adminRouter.get("/customers/:id", async (req, res) => {
   res.json({
     id: u.id, name: u.fullName, email: u.email, phone: u.phoneE164 || "", memberSince: u.createdAt.toISOString(),
     authProvider: u.authProvider, points: u.loyaltyPoints, referralCode: u.referralCode, adminNotes: u.adminNotes,
+    active: !u.deletedAt,
     preferences: u.preferences ? {
       usualLevel: u.preferences.usualLevel, preferredTime: u.preferences.preferredTime, mealPreference: u.preferences.mealPreference,
     } : null,
     stats: { classesAttended: attended, noShows, spendMinor },
     bookings: { upcoming: upcoming.map(serializeBooking), past: past.map(serializeBooking) },
   });
+});
+
+adminRouter.patch("/customers/:id", async (req, res) => {
+  const u = await db.user.findUnique({ where: { id: req.params.id } });
+  if (!u || u.role !== "customer") return res.status(404).json({ error: "Customer not found" });
+  const b = req.body || {};
+  const data: Record<string, unknown> = {};
+  if (b.name !== undefined) data.fullName = String(b.name).trim();
+  if (b.email !== undefined) data.email = String(b.email).trim().toLowerCase();
+  if (b.phone !== undefined) data.phoneE164 = String(b.phone).trim();
+  if (Object.keys(data).length === 0) return res.status(400).json({ error: "Nothing to update" });
+  try {
+    await db.user.update({ where: { id: u.id }, data });
+  } catch {
+    return res.status(409).json({ error: "That email is already in use" });
+  }
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "customers", entityId: u.id, action: "update", diff: JSON.stringify(data) },
+  }).catch(() => {});
+  res.json({ ok: true });
+});
+
+adminRouter.patch("/customers/:id/active", async (req, res) => {
+  const u = await db.user.findUnique({ where: { id: req.params.id } });
+  if (!u || u.role !== "customer") return res.status(404).json({ error: "Customer not found" });
+  const active = !!req.body?.active;
+  await db.user.update({ where: { id: u.id }, data: { deletedAt: active ? null : new Date() } });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "customers", entityId: u.id, action: "update", diff: JSON.stringify({ active, customerName: u.fullName }) },
+  }).catch(() => {});
+  res.json({ ok: true, active });
 });
 
 adminRouter.patch("/customers/:id/notes", async (req, res) => {
@@ -276,9 +352,74 @@ adminRouter.get("/reports", async (_req, res) => {
 });
 
 // ── Promotions ─────────────────────────────────────────────────────────
+function serializeCoupon(c: any) {
+  return {
+    id: c.id, code: c.code, detail: c.detailLabel, on: c.isActive,
+    discountType: c.discountType, discountValue: c.discountValue, minGuests: c.minGuests,
+    appliesToPackageId: c.appliesToPackageId, expiresAt: c.expiresAt.toISOString(),
+    maxRedemptions: c.maxRedemptions, redemptionCount: c.redemptionCount,
+  };
+}
+
 adminRouter.get("/coupons", async (_req, res) => {
-  const coupons = await db.coupon.findMany();
-  res.json(coupons.map((c) => ({ id: c.id, code: c.code, detail: c.detailLabel, on: c.isActive })));
+  const coupons = await db.coupon.findMany({ orderBy: { code: "asc" } });
+  res.json(coupons.map(serializeCoupon));
+});
+
+adminRouter.post("/coupons", async (req, res) => {
+  const b = req.body || {};
+  if (!b.code) return res.status(400).json({ error: "Code is required" });
+  const existing = await db.coupon.findUnique({ where: { code: String(b.code).toUpperCase() } });
+  if (existing) return res.status(409).json({ error: "A coupon with that code already exists" });
+  const c = await db.coupon.create({
+    data: {
+      code: String(b.code).toUpperCase(), discountType: b.discountType === "fixed" ? "fixed" : "percent",
+      discountValue: Number(b.discountValue) || 0, minGuests: Number(b.minGuests) || 1,
+      appliesToPackageId: b.appliesToPackageId || null,
+      expiresAt: b.expiresAt ? new Date(b.expiresAt) : new Date(Date.now() + 365 * 86400000),
+      maxRedemptions: Number(b.maxRedemptions) || 1000000, isActive: b.isActive !== false,
+      detailLabel: b.detail || "",
+    },
+  });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "coupons", entityId: c.id, action: "create", diff: JSON.stringify({ code: c.code }) },
+  }).catch(() => {});
+  res.status(201).json(serializeCoupon(c));
+});
+
+adminRouter.put("/coupons/:id", async (req, res) => {
+  const existing = await db.coupon.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Coupon not found" });
+  const b = req.body || {};
+  const c = await db.coupon.update({
+    where: { id: existing.id },
+    data: {
+      code: b.code ? String(b.code).toUpperCase() : existing.code,
+      discountType: b.discountType ?? existing.discountType,
+      discountValue: b.discountValue !== undefined ? Number(b.discountValue) : existing.discountValue,
+      minGuests: b.minGuests !== undefined ? Number(b.minGuests) : existing.minGuests,
+      appliesToPackageId: b.appliesToPackageId !== undefined ? (b.appliesToPackageId || null) : existing.appliesToPackageId,
+      expiresAt: b.expiresAt ? new Date(b.expiresAt) : existing.expiresAt,
+      maxRedemptions: b.maxRedemptions !== undefined ? Number(b.maxRedemptions) : existing.maxRedemptions,
+      isActive: b.isActive !== undefined ? !!b.isActive : existing.isActive,
+      detailLabel: b.detail ?? existing.detailLabel,
+    },
+  });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "coupons", entityId: c.id, action: "update", diff: JSON.stringify({ code: c.code }) },
+  }).catch(() => {});
+  res.json(serializeCoupon(c));
+});
+
+adminRouter.delete("/coupons/:id", async (req, res) => {
+  const existing = await db.coupon.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Coupon not found" });
+  await db.booking.updateMany({ where: { couponId: existing.id }, data: { couponId: null } });
+  await db.coupon.delete({ where: { id: existing.id } });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "coupons", entityId: existing.id, action: "delete", diff: JSON.stringify({ code: existing.code }) },
+  }).catch(() => {});
+  res.json({ ok: true });
 });
 
 adminRouter.patch("/coupons/:id/toggle", async (req, res) => {
@@ -348,6 +489,115 @@ adminRouter.get("/rooms", async (_req, res) => {
     out.push({ id: r.id, name: r.name, meta, state });
   }
   res.json(out);
+});
+
+adminRouter.post("/teachers", async (req, res) => {
+  const b = req.body || {};
+  if (!b.name) return res.status(400).json({ error: "Name is required" });
+  const t = await db.teacher.create({
+    data: { name: b.name, specialties: JSON.stringify(b.specialties || []), weeklyHourCap: Number(b.weeklyHourCap) || 20 },
+  });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "teachers", entityId: t.id, action: "create", diff: JSON.stringify({ name: t.name }) },
+  }).catch(() => {});
+  res.status(201).json({ id: t.id, name: t.name, specialties: JSON.parse(t.specialties), weeklyHourCap: t.weeklyHourCap });
+});
+
+adminRouter.get("/teachers/:id", async (req, res) => {
+  const t = await db.teacher.findUnique({ where: { id: req.params.id } });
+  if (!t) return res.status(404).json({ error: "Teacher not found" });
+  res.json({ id: t.id, name: t.name, specialties: JSON.parse(t.specialties || "[]"), weeklyHourCap: t.weeklyHourCap });
+});
+
+adminRouter.put("/teachers/:id", async (req, res) => {
+  const existing = await db.teacher.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Teacher not found" });
+  const b = req.body || {};
+  const t = await db.teacher.update({
+    where: { id: existing.id },
+    data: {
+      name: b.name ?? existing.name,
+      specialties: b.specialties !== undefined ? JSON.stringify(b.specialties) : existing.specialties,
+      weeklyHourCap: b.weeklyHourCap !== undefined ? Number(b.weeklyHourCap) : existing.weeklyHourCap,
+    },
+  });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "teachers", entityId: t.id, action: "update", diff: JSON.stringify({ name: t.name }) },
+  }).catch(() => {});
+  res.json({ id: t.id, name: t.name, specialties: JSON.parse(t.specialties), weeklyHourCap: t.weeklyHourCap });
+});
+
+adminRouter.delete("/teachers/:id", async (req, res) => {
+  const existing = await db.teacher.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Teacher not found" });
+  const sessionCount = await db.session.count({ where: { teacherId: existing.id } });
+  const templateCount = await db.classTemplate.count({ where: { defaultTeacherId: existing.id } });
+  if (sessionCount > 0 || templateCount > 0) {
+    return res.status(400).json({ error: "Can't delete — this teacher is assigned to sessions or class templates" });
+  }
+  await db.teacher.delete({ where: { id: existing.id } });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "teachers", entityId: existing.id, action: "delete", diff: JSON.stringify({ name: existing.name }) },
+  }).catch(() => {});
+  res.json({ ok: true });
+});
+
+adminRouter.post("/rooms", async (req, res) => {
+  const b = req.body || {};
+  if (!b.name) return res.status(400).json({ error: "Name is required" });
+  const location = await db.location.findFirst({ where: { kind: b.isAccommodation ? "retreat" : "studio" } });
+  if (!location) return res.status(500).json({ error: "No location seeded" });
+  const r = await db.room.create({
+    data: {
+      locationId: location.id, name: b.name, matCapacity: b.matCapacity ? Number(b.matCapacity) : null,
+      isAccommodation: !!b.isAccommodation, beds: b.beds ? Number(b.beds) : null, note: b.note || "",
+    },
+  });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "rooms", entityId: r.id, action: "create", diff: JSON.stringify({ name: r.name }) },
+  }).catch(() => {});
+  res.status(201).json({ id: r.id, name: r.name, matCapacity: r.matCapacity, isAccommodation: r.isAccommodation, beds: r.beds, note: r.note });
+});
+
+adminRouter.get("/rooms/:id", async (req, res) => {
+  const r = await db.room.findUnique({ where: { id: req.params.id } });
+  if (!r) return res.status(404).json({ error: "Room not found" });
+  res.json({ id: r.id, name: r.name, matCapacity: r.matCapacity, isAccommodation: r.isAccommodation, beds: r.beds, note: r.note });
+});
+
+adminRouter.put("/rooms/:id", async (req, res) => {
+  const existing = await db.room.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Room not found" });
+  const b = req.body || {};
+  const r = await db.room.update({
+    where: { id: existing.id },
+    data: {
+      name: b.name ?? existing.name,
+      matCapacity: b.matCapacity !== undefined ? (b.matCapacity ? Number(b.matCapacity) : null) : existing.matCapacity,
+      isAccommodation: b.isAccommodation !== undefined ? !!b.isAccommodation : existing.isAccommodation,
+      beds: b.beds !== undefined ? (b.beds ? Number(b.beds) : null) : existing.beds,
+      note: b.note ?? existing.note,
+    },
+  });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "rooms", entityId: r.id, action: "update", diff: JSON.stringify({ name: r.name }) },
+  }).catch(() => {});
+  res.json({ id: r.id, name: r.name, matCapacity: r.matCapacity, isAccommodation: r.isAccommodation, beds: r.beds, note: r.note });
+});
+
+adminRouter.delete("/rooms/:id", async (req, res) => {
+  const existing = await db.room.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Room not found" });
+  const sessionCount = await db.session.count({ where: { roomId: existing.id } });
+  const templateCount = await db.classTemplate.count({ where: { defaultRoomId: existing.id } });
+  if (sessionCount > 0 || templateCount > 0) {
+    return res.status(400).json({ error: "Can't delete — this room is used by sessions or class templates" });
+  }
+  await db.room.delete({ where: { id: existing.id } });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "rooms", entityId: existing.id, action: "delete", diff: JSON.stringify({ name: existing.name }) },
+  }).catch(() => {});
+  res.json({ ok: true });
 });
 
 adminRouter.get("/conflicts", async (_req, res) => {

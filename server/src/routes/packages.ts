@@ -128,3 +128,19 @@ packagesRouter.put("/:id", requireAuth, requireStaff, async (req: Request<{ id: 
   const { sold, revenueMinor } = await soldAndRevenue(p.id);
   res.json(serialize(p, sold, revenueMinor));
 });
+
+packagesRouter.delete("/:id", requireAuth, requireStaff, async (req: Request<{ id: string }>, res: Response) => {
+  const existing = await db.package.findUnique({ where: { id: req.params.id } });
+  if (!existing) return res.status(404).json({ error: "Package not found" });
+  if (existing.kind === "retreat") return res.status(400).json({ error: "Delete this from the Retreats section instead" });
+  const bookingCount = await db.booking.count({ where: { packageId: existing.id } });
+  if (bookingCount > 0) {
+    return res.status(400).json({ error: `Can't delete — ${bookingCount} booking(s) reference this package. Hide it instead.` });
+  }
+  await db.coupon.updateMany({ where: { appliesToPackageId: existing.id }, data: { appliesToPackageId: null } });
+  await db.package.delete({ where: { id: existing.id } });
+  await db.auditLog.create({
+    data: { actorUserId: req.userId!, entityTable: "packages", entityId: existing.id, action: "delete", diff: JSON.stringify({ name: existing.name }) },
+  }).catch(() => {});
+  res.json({ ok: true });
+});

@@ -106,6 +106,17 @@ function TeacherDetail({ id, onBack }: { id: string; onBack: () => void }) {
     await api.adminTeacherReg.setVisitStatus(visitId, status);
     reload();
   }
+  async function deleteVisit(visitId: string) {
+    if (!window.confirm("Delete this visit and its sessions? This can't be undone.")) return;
+    await api.adminTeacherReg.deleteVisit(visitId);
+    reload();
+  }
+  async function deleteProfile() {
+    if (!profile) return;
+    if (!window.confirm(`Delete ${profile.fullName}'s teacher profile, including all visits and sessions? This can't be undone.`)) return;
+    await api.adminTeacherReg.delete(id);
+    onBack();
+  }
 
   if (!profile) return null;
 
@@ -128,6 +139,7 @@ function TeacherDetail({ id, onBack }: { id: string; onBack: () => void }) {
         {["pending", "approved", "active", "archived"].map((s) => (
           <button key={s} className={s === profile.status ? "btn btn-primary" : "btn btn-secondary"} style={{ padding: "7px 13px", fontSize: 12, textTransform: "capitalize" }} onClick={() => setStatus(s)}>{s}</button>
         ))}
+        <button className="btn btn-ghost" style={{ padding: "7px 13px", fontSize: 12, color: "var(--color-accent-700)" }} onClick={deleteProfile}>Delete profile</button>
       </div>
 
       <div style={{ display: "flex", gap: 8, marginTop: 18, overflow: "auto", paddingBottom: 4 }}>
@@ -142,7 +154,7 @@ function TeacherDetail({ id, onBack }: { id: string; onBack: () => void }) {
       </div>
 
       {tab === "Overview" && <OverviewTab profile={profile} />}
-      {tab === "Visits" && <VisitsTab visits={visits} onStatus={setVisitStatus} />}
+      {tab === "Visits" && <VisitsTab visits={visits} onStatus={setVisitStatus} onDelete={deleteVisit} />}
       {tab === "Sessions" && <SessionsTab visits={visits} />}
       {tab === "Documents" && <DocumentsTab profile={profile} />}
       {tab === "Notes" && (
@@ -204,7 +216,7 @@ function OverviewTab({ profile }: { profile: TeacherProfileItem }) {
   );
 }
 
-function VisitsTab({ visits, onStatus }: { visits: TeacherVisitItem[]; onStatus: (visitId: string, status: string) => void }) {
+function VisitsTab({ visits, onStatus, onDelete }: { visits: TeacherVisitItem[]; onStatus: (visitId: string, status: string) => void; onDelete: (visitId: string) => void }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
       {visits.length === 0 && <div style={{ fontSize: 13, color: "var(--color-neutral-600)" }}>No visits recorded yet.</div>}
@@ -224,6 +236,7 @@ function VisitsTab({ visits, onStatus }: { visits: TeacherVisitItem[]; onStatus:
             {["pending", "confirmed", "completed", "cancelled"].map((s) => (
               <button key={s} className={s === v.status ? "btn btn-primary" : "btn btn-secondary"} style={{ padding: "6px 11px", fontSize: 11.5, textTransform: "capitalize" }} onClick={() => onStatus(v.id, s)}>{s}</button>
             ))}
+            <button className="btn btn-ghost" style={{ padding: "6px 11px", fontSize: 11.5, color: "var(--color-accent-700)" }} onClick={() => onDelete(v.id)}>Delete</button>
           </div>
         </div>
       ))}

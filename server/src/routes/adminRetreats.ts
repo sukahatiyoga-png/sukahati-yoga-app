@@ -136,3 +136,21 @@ adminRetreatsRouter.put("/:id", async (req, res) => {
   const { sold, revenueMinor } = await soldAndRevenue(result.p.id);
   res.json(serialize(result.p, result.r, sold, revenueMinor));
 });
+
+adminRetreatsRouter.delete("/:id", async (req, res) => {
+  const existing = await db.package.findUnique({ where: { id: req.params.id } });
+  if (!existing || existing.kind !== "retreat") return res.status(404).json({ error: "Retreat not found" });
+  const bookingCount = await db.booking.count({ where: { packageId: existing.id } });
+  if (bookingCount > 0) {
+    return res.status(400).json({ error: `Can't delete — ${bookingCount} booking(s) reference this retreat. Hide it instead.` });
+  }
+  await db.$transaction(async (tx) => {
+    await tx.coupon.updateMany({ where: { appliesToPackageId: existing.id }, data: { appliesToPackageId: null } });
+    await tx.retreat.delete({ where: { packageId: existing.id } });
+    await tx.package.delete({ where: { id: existing.id } });
+    await tx.auditLog.create({
+      data: { actorUserId: req.userId!, entityTable: "retreats", entityId: existing.id, action: "delete", diff: JSON.stringify({ name: existing.name }) },
+    });
+  });
+  res.json({ ok: true });
+});

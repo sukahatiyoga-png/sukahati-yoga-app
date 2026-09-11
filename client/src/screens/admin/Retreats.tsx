@@ -57,6 +57,7 @@ function RetreatForm({ id, onDone }: { id: string | null; onDone: () => void }) 
   const isNew = !id;
   const [loaded, setLoaded] = useState(isNew);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState("");
   const [priceRaw, setPriceRaw] = useState("");
@@ -122,6 +123,21 @@ function RetreatForm({ id, onDone }: { id: string | null; onDone: () => void }) 
       flash(e instanceof Error ? e.message : "Could not save retreat");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function remove() {
+    if (!id) return;
+    if (!window.confirm(`Delete "${name}"? This can't be undone.`)) return;
+    setDeleting(true);
+    try {
+      await api.adminRetreats.delete(id);
+      flash("Retreat deleted");
+      onDone();
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Could not delete retreat");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -249,6 +265,11 @@ function RetreatForm({ id, onDone }: { id: string | null; onDone: () => void }) 
       <button className="btn btn-primary btn-block" style={{ marginTop: 20, padding: "15px 0" }} disabled={saving || !name || !startsOn || !endsOn} onClick={save}>
         {saving ? "Saving…" : isNew ? "Create retreat" : "Save changes"}
       </button>
+      {!isNew && (
+        <button className="btn btn-ghost btn-block" style={{ marginTop: 8, padding: "13px 0", color: "var(--color-accent-700)" }} onClick={remove} disabled={deleting}>
+          {deleting ? "Deleting…" : "Delete retreat"}
+        </button>
+      )}
     </div>
   );
 }

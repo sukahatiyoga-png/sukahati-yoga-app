@@ -139,3 +139,26 @@ adminTeachersRouter.patch("/visits/:visitId/status", async (req, res) => {
   await db.teacherVisit.update({ where: { id: visit.id }, data: { status } });
   res.json({ ok: true, status });
 });
+
+adminTeachersRouter.delete("/visits/:visitId", async (req, res) => {
+  const visit = await db.teacherVisit.findUnique({ where: { id: req.params.visitId } });
+  if (!visit) return res.status(404).json({ error: "Visit not found" });
+  await db.teacherSession.deleteMany({ where: { teacherVisitId: visit.id } });
+  await db.teacherVisit.delete({ where: { id: visit.id } });
+  res.json({ ok: true });
+});
+
+adminTeachersRouter.delete("/:id", async (req, res) => {
+  const profile = await db.teacherProfile.findUnique({ where: { id: req.params.id } });
+  if (!profile) return res.status(404).json({ error: "Teacher not found" });
+  await db.$transaction(async (tx) => {
+    await tx.teacherSession.deleteMany({ where: { teacherProfileId: profile.id } });
+    await tx.teacherVisit.deleteMany({ where: { teacherProfileId: profile.id } });
+    await tx.teacherNotification.deleteMany({ where: { teacherProfileId: profile.id } });
+    await tx.teacherProfile.delete({ where: { id: profile.id } });
+    await tx.auditLog.create({
+      data: { actorUserId: req.userId!, entityTable: "teacher_profiles", entityId: profile.id, action: "delete", diff: JSON.stringify({ teacherName: profile.fullName }) },
+    });
+  });
+  res.json({ ok: true });
+});
