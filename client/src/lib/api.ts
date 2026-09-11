@@ -147,6 +147,22 @@ export interface ActivityItem {
 }
 export interface TeacherRegDashboard { totalTeachers: number; pendingRegistrations: number; upcomingTeachers: number; thisMonth: number; completedVisits: number }
 
+export interface RetreatItem {
+  id: string; name: string; priceMinor: number; currency: string; unit: string;
+  desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
+  capacityLabel: string; cancellationHours: number; cancelLabel: string;
+  incl: string[]; excl: string[]; active: boolean; recommended: boolean; badge: string; sortOrder: number;
+  sold: number; revenueMinor: number;
+  startsOn: string; endsOn: string; checkInAt: string; checkOutAt: string;
+  totalPlaces: number; placesTaken: number; placesLeft: number; earlyBirdUntil: string | null;
+}
+export interface RetreatInput {
+  name: string; priceRaw: string; unit?: string; capacityLabel?: string; desc?: string; long?: string;
+  goodFor?: string; category?: string; dur?: string; rating?: string; cancellationHours?: number; cancelLabel?: string;
+  incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string;
+  startsOn: string; endsOn: string; checkInAt?: string; checkOutAt?: string; totalPlaces?: number; earlyBirdUntil?: string | null;
+}
+
 export interface Reports {
   revenueMinor: number; bookingsThisMonth: number; cancellationRate: number; retentionPct: number;
   revenueByPackage: { name: string; amountMinor: number; pct: number }[];
@@ -242,5 +258,12 @@ export const api = {
     setStatus: (id: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/teacher-registrations/${id}/status`, { status }),
     setNotes: (id: string, notes: string) => patch<{ ok: boolean }>(`/admin/teacher-registrations/${id}/notes`, { notes }),
     setVisitStatus: (visitId: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/teacher-registrations/visits/${visitId}/status`, { status }),
+  },
+
+  adminRetreats: {
+    list: () => get<RetreatItem[]>("/admin/retreats"),
+    detail: (id: string) => get<RetreatItem>(`/admin/retreats/${id}`),
+    create: (data: RetreatInput) => post<RetreatItem>("/admin/retreats", data),
+    update: (id: string, data: Partial<RetreatInput>) => put<RetreatItem>(`/admin/retreats/${id}`, data),
   },
 };

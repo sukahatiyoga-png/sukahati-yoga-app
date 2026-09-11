@@ -13,6 +13,7 @@ import Resources from "./Resources";
 import TeacherRegistrations from "./TeacherRegistrations";
 import ScanCheckin from "./ScanCheckin";
 import ActivityLog from "./ActivityLog";
+import Retreats from "./Retreats";
 
 function Icon({ d, d2 }: { d: string; d2?: string }) {
   return (
@@ -29,6 +30,7 @@ const NAV: { id: AdminSection; name: string; icon: ReactNode }[] = [
   { id: "scan", name: "Scan Check-in", icon: <Icon d="M4 8V5a1 1 0 0 1 1-1h3M20 8V5a1 1 0 0 0-1-1h-3M4 16v3a1 1 0 0 0 1 1h3M20 16v3a1 1 0 0 1-1 1h-3" d2="M4 12h16" /> },
   { id: "customers", name: "Customers", icon: <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" d2="M4 21a8 8 0 0 1 16 0" /> },
   { id: "packages", name: "Packages", icon: <Icon d="M12 3 3 7.5l9 4.5 9-4.5Z" d2="M3 7.5v9L12 21l9-4.5v-9" /> },
+  { id: "retreats", name: "Retreats", icon: <Icon d="M3 20 9 8l4 6 2-3 6 9Z" d2="M9 3v3" /> },
   { id: "teacherReg", name: "Teacher Registrations", icon: <Icon d="M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" d2="M2 21a7 7 0 0 1 14 0M17 8h5M19.5 5.5v5" /> },
   { id: "reports", name: "Reports", icon: <Icon d="M4 20V10M12 20V4M20 20v-7" /> },
   { id: "promos", name: "Promotions", icon: <Icon d="m20 12-8 8-9-9V4h7l10 10Z" d2="M7 7.01 7.01 7" /> },
@@ -70,6 +72,7 @@ export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
           {asec === "scan" && <ScanCheckin />}
           {asec === "customers" && <Customers />}
           {asec === "packages" && <PackagesAdmin openPackageEditSheet={openPackageEditSheet} />}
+          {asec === "retreats" && <Retreats />}
           {asec === "teacherReg" && <TeacherRegistrations />}
           {asec === "reports" && <Reports />}
           {asec === "promos" && <Promotions />}
