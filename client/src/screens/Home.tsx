@@ -7,9 +7,9 @@ import { screenPad, kicker, h1, h2 } from "../styles/shared";
 
 function greeting(): string {
   const h = new Date().getHours();
-  if (h < 11) return "Selamat pagi";
-  if (h < 18) return "Selamat petang";
-  return "Selamat malam";
+  if (h < 11) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 export default function Home() {
