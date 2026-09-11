@@ -106,6 +106,12 @@ adminTeachersRouter.patch("/:id/status", async (req, res) => {
       },
     });
   }
+  await db.auditLog.create({
+    data: {
+      actorUserId: req.userId!, entityTable: "teacher_profiles", entityId: profile.id, action: "update",
+      diff: JSON.stringify({ status, teacherName: profile.fullName }),
+    },
+  }).catch(() => {});
   res.json({ ok: true, status: updated.status });
 });
 
@@ -114,6 +120,12 @@ adminTeachersRouter.patch("/:id/notes", async (req, res) => {
   const profile = await db.teacherProfile.findUnique({ where: { id: req.params.id } });
   if (!profile) return res.status(404).json({ error: "Teacher not found" });
   await db.teacherProfile.update({ where: { id: profile.id }, data: { adminNotes: String(notes || "") } });
+  await db.auditLog.create({
+    data: {
+      actorUserId: req.userId!, entityTable: "teacher_profiles", entityId: profile.id, action: "update",
+      diff: JSON.stringify({ notesUpdated: true, teacherName: profile.fullName }),
+    },
+  }).catch(() => {});
   res.json({ ok: true });
 });
 

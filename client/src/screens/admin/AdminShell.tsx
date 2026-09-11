@@ -12,6 +12,7 @@ import Promotions from "./Promotions";
 import Resources from "./Resources";
 import TeacherRegistrations from "./TeacherRegistrations";
 import ScanCheckin from "./ScanCheckin";
+import ActivityLog from "./ActivityLog";
 
 function Icon({ d, d2 }: { d: string; d2?: string }) {
   return (
@@ -32,6 +33,7 @@ const NAV: { id: AdminSection; name: string; icon: ReactNode }[] = [
   { id: "reports", name: "Reports", icon: <Icon d="M4 20V10M12 20V4M20 20v-7" /> },
   { id: "promos", name: "Promotions", icon: <Icon d="m20 12-8 8-9-9V4h7l10 10Z" d2="M7 7.01 7.01 7" /> },
   { id: "resources", name: "Resources", icon: <Icon d="M14.7 6.3a4 4 0 0 1-5.3 5.3L4 17v3h3l5.4-5.4a4 4 0 0 1 5.3-5.3l-3 3-2-2 3-3Z" /> },
+  { id: "activity", name: "Activity Log", icon: <Icon d="M4 12h16" d2="M4 6h10M4 18h6M17 6a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM7 18a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z" /> },
 ];
 
 export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
@@ -72,6 +74,7 @@ export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
           {asec === "reports" && <Reports />}
           {asec === "promos" && <Promotions />}
           {asec === "resources" && <Resources />}
+          {asec === "activity" && <ActivityLog />}
         </div>
       </main>
     </div>

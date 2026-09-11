@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db } from "../db";
 import { startOfDay, endOfDay, initials, timeParts } from "../domain/format";
 import { assertNoConflict, findConflicts, ConflictError } from "../domain/scheduling";
+import { formatMoney } from "../domain/enums";
 
 export const adminRouter = Router();
 
@@ -197,6 +198,12 @@ adminRouter.patch("/customers/:id/notes", async (req, res) => {
   const u = await db.user.findUnique({ where: { id: req.params.id } });
   if (!u || u.role !== "customer") return res.status(404).json({ error: "Customer not found" });
   await db.user.update({ where: { id: u.id }, data: { adminNotes: String(req.body?.notes || "") } });
+  await db.auditLog.create({
+    data: {
+      actorUserId: req.userId!, entityTable: "customers", entityId: u.id, action: "update",
+      diff: JSON.stringify({ notesUpdated: true, customerName: u.fullName }),
+    },
+  }).catch(() => {});
   res.json({ ok: true });
 });
 
@@ -278,6 +285,12 @@ adminRouter.patch("/coupons/:id/toggle", async (req, res) => {
   const c = await db.coupon.findUnique({ where: { id: req.params.id } });
   if (!c) return res.status(404).json({ error: "Coupon not found" });
   const updated = await db.coupon.update({ where: { id: c.id }, data: { isActive: !c.isActive } });
+  await db.auditLog.create({
+    data: {
+      actorUserId: req.userId!, entityTable: "coupons", entityId: c.id, action: "update",
+      diff: JSON.stringify({ code: c.code, isActive: updated.isActive }),
+    },
+  }).catch(() => {});
   res.json({ ok: true, on: updated.isActive });
 });
 
@@ -366,4 +379,65 @@ adminRouter.get("/checkins", async (_req, res) => {
       checkedIn: !!b.checkedInAt,
     };
   }));
+});
+
+// ── Activity log ───────────────────────────────────────────────────────
+// A human-readable feed over the AuditLog table, which every write route
+// above already appends to — this is the first place that actually surfaces
+// it. Cursor-paginated on the autoincrementing id (newest first).
+
+const ACTION_VERB: Record<string, string> = { create: "created", update: "updated", delete: "deleted", refund: "refunded" };
+const ENTITY_LABEL: Record<string, string> = {
+  bookings: "a booking", payments: "a payment", packages: "a package",
+  teacher_profiles: "a teacher registration", customers: "a customer", coupons: "a coupon",
+};
+
+function summarizeActivity(l: { entityTable: string; action: string; diff: string; actorName: string }): string {
+  let diff: any = {};
+  try { diff = JSON.parse(l.diff || "{}"); } catch { /* ignore malformed diff */ }
+  const who = l.actorName;
+
+  switch (l.entityTable) {
+    case "bookings":
+      if (l.action === "create") return `${who} created a booking${diff.total ? ` for ${formatMoney(diff.total)}` : ""}`;
+      if (diff.status) return `${who} marked a booking ${diff.status}`;
+      return `${who} updated a booking`;
+    case "payments":
+      if (l.action === "refund") return `${who} refunded ${formatMoney(diff.refundedMinor || 0)}`;
+      if (diff.paidBalanceMinor) return `${who} recorded a payment of ${formatMoney(diff.paidBalanceMinor)}`;
+      return `${who} updated a payment`;
+    case "packages":
+      return `${who} ${l.action === "create" ? "created" : "edited"} the package "${diff.name || "Untitled"}"`;
+    case "teacher_profiles":
+      if (diff.status) return `${who} set ${diff.teacherName || "a teacher"}'s registration to ${diff.status}`;
+      if (diff.notesUpdated) return `${who} updated notes for ${diff.teacherName || "a teacher"}`;
+      return `${who} updated a teacher registration`;
+    case "customers":
+      return `${who} updated notes for ${diff.customerName || "a customer"}`;
+    case "coupons":
+      return `${who} ${diff.isActive ? "activated" : "deactivated"} coupon ${diff.code || ""}`;
+    default:
+      return `${who} ${ACTION_VERB[l.action] || l.action} ${ENTITY_LABEL[l.entityTable] || l.entityTable}`;
+  }
+}
+
+adminRouter.get("/activity", async (req, res) => {
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 40));
+  const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+
+  const logs = await db.auditLog.findMany({
+    where: cursor ? { id: { lt: cursor } } : undefined,
+    include: { actor: true },
+    orderBy: { id: "desc" },
+    take: limit,
+  });
+
+  const items = logs.map((l) => ({
+    id: l.id, actorName: l.actor.fullName, actorRole: l.actor.role,
+    entityTable: l.entityTable, entityId: l.entityId, action: l.action,
+    summary: summarizeActivity({ entityTable: l.entityTable, action: l.action, diff: l.diff, actorName: l.actor.fullName }),
+    createdAt: l.createdAt.toISOString(),
+  }));
+
+  res.json({ items, nextCursor: logs.length === limit ? String(logs[logs.length - 1].id) : null });
 });

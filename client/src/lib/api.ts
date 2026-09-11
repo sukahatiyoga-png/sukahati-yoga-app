@@ -141,6 +141,10 @@ export interface TeacherRegistrationSubmitPayload {
   additional: { websiteIntro?: string; socialLinks?: string; equipmentNeeds?: string; travelNotes?: string; dietaryNeeds?: string; additionalComments?: string; agreedToTerms: boolean };
 }
 export interface TeacherRegRow { id: string; teacherCode: string; name: string; initials: string; style: string; nextVisit: string; status: string }
+export interface ActivityItem {
+  id: number; actorName: string; actorRole: string; entityTable: string; entityId: string;
+  action: string; summary: string; createdAt: string;
+}
 export interface TeacherRegDashboard { totalTeachers: number; pendingRegistrations: number; upcomingTeachers: number; thisMonth: number; completedVisits: number }
 
 export interface Reports {
@@ -216,6 +220,7 @@ export const api = {
     conflicts: () => get<{ notes: string[] }>("/admin/conflicts"),
     access: () => get<{ name: string; value: string }[]>("/admin/access"),
     checkins: () => get<CheckinItem[]>("/admin/checkins"),
+    activity: (cursor?: string) => get<{ items: ActivityItem[]; nextCursor: string | null }>(`/admin/activity${cursor ? "?cursor=" + encodeURIComponent(cursor) : ""}`),
   },
 
   teacherRegistration: {

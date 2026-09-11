@@ -9,6 +9,7 @@ import { api, clearToken, getToken, type Me, type Pkg } from "./lib/api";
 import { parseRoute, pathFor } from "./lib/routes";
 
 import Auth from "./screens/Auth";
+import AdminLogin from "./screens/AdminLogin";
 import Home from "./screens/Home";
 import Search from "./screens/Search";
 import Packages from "./screens/Packages";
@@ -101,18 +102,6 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // Defense in depth: the server already rejects every admin API call from
-  // a non-staff account (that's the real security boundary), but a customer
-  // could still reach the admin shell by typing /admin in the URL bar
-  // directly — the "Switch to studio admin" button being hidden doesn't
-  // stop that. Bounce them back rather than showing an admin shell full of
-  // requests the server will refuse anyway.
-  useEffect(() => {
-    if (me && mode === "admin" && me.role !== "owner" && me.role !== "desk") {
-      exitAdmin();
-    }
-  }, [me, mode, exitAdmin]);
-
   const openPackageSheet = useCallback((id: string) => setSheet({ kind: "pkg", id }), []);
   const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string; qrToken: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
@@ -121,6 +110,53 @@ export default function App() {
   if (checkingAuth) {
     return (
       <div style={{ color: "#645c50", fontFamily: "system-ui" }}>Loading Sukahati…</div>
+    );
+  }
+
+  // Admin has its own sign-in, entirely separate from the customer app —
+  // visiting /admin never touches the customer Auth screen.
+  if (mode === "admin") {
+    if (!authed) {
+      return <AdminLogin onAuthed={() => { setAuthed(true); setCheckingAuth(true); loadMe(); }} />;
+    }
+    if (!me) {
+      return (
+        <div style={{ color: "#645c50", fontFamily: "system-ui" }}>Loading Sukahati…</div>
+      );
+    }
+    if (me.role !== "owner" && me.role !== "desk") {
+      return (
+        <div style={{ minHeight: "100vh", width: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--color-neutral-900)", padding: 20, boxSizing: "border-box" }}>
+          <div style={{ width: "100%", maxWidth: 380, background: "var(--color-bg)", borderRadius: "var(--radius-lg)", padding: "36px 30px", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+            <div style={{ fontFamily: "var(--font-heading)", fontSize: 24 }}>No admin access</div>
+            <div style={{ fontSize: 13.5, color: "var(--color-neutral-700)", marginTop: 10, lineHeight: 1.5 }}>
+              {me.name} isn't set up as studio staff. Sign in with a staff account, or head back to the app.
+            </div>
+            <button className="btn btn-secondary btn-block" style={{ marginTop: 20, padding: "12px 0" }} onClick={() => { clearToken(); setMe(null); setAuthed(false); }}>Sign in with a different account</button>
+            <a href="/" style={{ display: "block", textAlign: "center", marginTop: 14, fontSize: 12.5, color: "var(--color-neutral-600)" }}>← Back to Sukahati Yoga</a>
+          </div>
+        </div>
+      );
+    }
+
+    const ctx = {
+      me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
+      openPackageSheet, openQrSheet, closeSheet,
+    };
+    return (
+      <AppContext.Provider value={ctx}>
+        <div style={{ position: "relative", height: "100dvh", width: "100%", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden" }}>
+          <AdminShell key={refreshTick} asec={asec} setAsec={setAsec} openPackageEditSheet={openPackageEditSheet} />
+
+          <Toast message={toast} />
+
+          {sheet?.kind === "pkg" && <PackageSheet id={sheet.id} onBook={(packageId) => goBook({ packageId })} />}
+          {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
+          {sheet?.kind === "pkgEdit" && (
+            <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />
+          )}
+        </div>
+      </AppContext.Provider>
     );
   }
 
@@ -138,28 +174,6 @@ export default function App() {
     me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
     openPackageSheet, openQrSheet, closeSheet,
   };
-
-  if (mode === "admin" && me.role !== "owner" && me.role !== "desk") {
-    return null;
-  }
-
-  if (mode === "admin") {
-    return (
-      <AppContext.Provider value={ctx}>
-        <div style={{ position: "relative", height: "100dvh", width: "100%", background: "var(--color-bg)", color: "var(--color-text)", fontFamily: "var(--font-body)", overflow: "hidden" }}>
-          <AdminShell key={refreshTick} asec={asec} setAsec={setAsec} openPackageEditSheet={openPackageEditSheet} />
-
-          <Toast message={toast} />
-
-          {sheet?.kind === "pkg" && <PackageSheet id={sheet.id} onBook={(packageId) => goBook({ packageId })} />}
-          {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
-          {sheet?.kind === "pkgEdit" && (
-            <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />
-          )}
-        </div>
-      </AppContext.Provider>
-    );
-  }
 
   return (
     <AppContext.Provider value={ctx}>

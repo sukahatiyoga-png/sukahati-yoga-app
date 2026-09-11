@@ -119,6 +119,12 @@ packagesRouter.put("/:id", requireAuth, requireStaff, async (req: Request<{ id: 
       badge: b.badge ?? existing.badge,
     },
   });
+  await db.auditLog.create({
+    data: {
+      actorUserId: req.userId!, entityTable: "packages", entityId: p.id, action: "update",
+      diff: JSON.stringify({ name: p.name, priceMinor: p.priceMinor, isVisible: p.isVisible, isRecommended: p.isRecommended }),
+    },
+  }).catch(() => {});
   const { sold, revenueMinor } = await soldAndRevenue(p.id);
   res.json(serialize(p, sold, revenueMinor));
 });
