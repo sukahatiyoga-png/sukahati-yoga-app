@@ -80,9 +80,23 @@ async function ensureOwnerAccount() {
   }
 }
 
+// Guaranteed fallback, independent of OWNER_EMAIL/OWNER_PASSWORD actually
+// being saved in Render's environment settings (which has been unreliable
+// in practice): if an account with this email exists — whether created via
+// the env-var path above, or because the studio signed up for it directly
+// as a customer through the app before OWNER_EMAIL was configured — force
+// its role to "owner" on every deploy. Doesn't touch the password, so
+// whatever the studio already signs in with keeps working.
+const KNOWN_OWNER_EMAIL = "sukahatiyoga@gmail.com";
+async function ensureKnownOwnerRole() {
+  const updated = await db.user.updateMany({ where: { email: KNOWN_OWNER_EMAIL }, data: { role: "owner" } });
+  if (updated.count > 0) console.log(`Confirmed ${KNOWN_OWNER_EMAIL} has owner role.`);
+}
+
 async function main() {
   await wipeFakePeople();
   await ensureOwnerAccount();
+  await ensureKnownOwnerRole();
 
   // Catalog seeding is idempotent: safe to run on every deploy. A fresh
   // empty database has no locations; a previously-seeded one does, so skip
