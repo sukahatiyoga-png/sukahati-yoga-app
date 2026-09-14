@@ -51,6 +51,7 @@ export interface Pkg {
   desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
   valid: string; cancel: string; incl: string[]; excl: string[]; sortOrder: number;
   retreat: { id: string; startsOn: string; endsOn: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
+  event: { id: string; startsAt: string; endsAt: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
 }
 
 export interface ActivePass { packageName: string; daysLeft: number; pct: number; endLabel: string; startedAt: string }
@@ -174,6 +175,22 @@ export interface RetreatInput {
   startsOn: string; endsOn: string; checkInAt?: string; checkOutAt?: string; totalPlaces?: number; earlyBirdUntil?: string | null;
 }
 
+export interface EventItem {
+  id: string; name: string; priceMinor: number; currency: string; unit: string;
+  desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
+  capacityLabel: string; cancellationHours: number; cancelLabel: string;
+  incl: string[]; excl: string[]; active: boolean; recommended: boolean; badge: string; sortOrder: number;
+  sold: number; revenueMinor: number;
+  startsAt: string; endsAt: string;
+  totalPlaces: number; placesTaken: number; placesLeft: number; earlyBirdUntil: string | null;
+}
+export interface EventInput {
+  name: string; priceRaw: string; unit?: string; capacityLabel?: string; desc?: string; long?: string;
+  goodFor?: string; category?: string; dur?: string; rating?: string; cancellationHours?: number; cancelLabel?: string;
+  incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string;
+  startsAt: string; endsAt: string; totalPlaces?: number; earlyBirdUntil?: string | null;
+}
+
 export interface Reports {
   revenueMinor: number; bookingsThisMonth: number; cancellationRate: number; retentionPct: number;
   revenueByPackage: { name: string; amountMinor: number; pct: number }[];
@@ -295,5 +312,13 @@ export const api = {
     create: (data: RetreatInput) => post<RetreatItem>("/admin/retreats", data),
     update: (id: string, data: Partial<RetreatInput>) => put<RetreatItem>(`/admin/retreats/${id}`, data),
     delete: (id: string) => del<{ ok: boolean }>(`/admin/retreats/${id}`),
+  },
+
+  adminEvents: {
+    list: () => get<EventItem[]>("/admin/events"),
+    detail: (id: string) => get<EventItem>(`/admin/events/${id}`),
+    create: (data: EventInput) => post<EventItem>("/admin/events", data),
+    update: (id: string, data: Partial<EventInput>) => put<EventItem>(`/admin/events/${id}`, data),
+    delete: (id: string) => del<{ ok: boolean }>(`/admin/events/${id}`),
   },
 };

@@ -10,7 +10,7 @@ export default function PackagesAdmin({ openPackageEditSheet }: { openPackageEdi
 
   // Retreats have their own admin section (dates, capacity, early-bird
   // pricing) since they don't fit the single-class package shape.
-  function reload() { api.packages(true).then((list) => setPackages(list.filter((p) => p.kind !== "retreat").sort((a, b) => a.sortOrder - b.sortOrder))); }
+  function reload() { api.packages(true).then((list) => setPackages(list.filter((p) => p.kind !== "retreat" && p.kind !== "event").sort((a, b) => a.sortOrder - b.sortOrder))); }
   useEffect(reload, []);
 
   async function toggleActive(p: Pkg) {

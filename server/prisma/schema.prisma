@@ -82,6 +82,7 @@ model Location {
   classTemplates ClassTemplate[]
   sessions       Session[]
   retreats       Retreat[]
+  events         Event[]
   rooms          Room[]
 }
 
@@ -92,7 +93,7 @@ model Package {
   locationId           String
   location             Location @relation(fields: [locationId], references: [id])
   name                 String
-  kind                 String // single | pass | private | online | retreat
+  kind                 String // single | pass | private | online | retreat | event
   priceMinor           Int
   currency             String  @default("MYR")
   billingUnit          String // e.g. "per class", "7 days unlimited"
@@ -122,6 +123,7 @@ model Package {
   images   PackageImage[]
   bookings Booking[]
   retreat  Retreat?
+  event    Event?
   coupons  Coupon[]
 }
 
@@ -201,6 +203,24 @@ model Retreat {
   bookings Booking[]
 }
 
+// A one-off bookable happening (workshop, pop-up, special class) — distinct
+// from a Retreat (multi-day, off-site) and from a Session (a recurring
+// weekly class slot). Single occurrence, own capacity and price.
+model Event {
+  id             String    @id @default(cuid())
+  packageId      String    @unique
+  package        Package   @relation(fields: [packageId], references: [id])
+  locationId     String
+  location       Location  @relation(fields: [locationId], references: [id])
+  startsAt       DateTime
+  endsAt         DateTime
+  totalPlaces    Int
+  placesTaken    Int       @default(0)
+  earlyBirdUntil DateTime?
+
+  bookings Booking[]
+}
+
 model Booking {
   id               String    @id @default(cuid())
   reference        String    @unique
@@ -212,6 +232,8 @@ model Booking {
   session          Session?  @relation(fields: [sessionId], references: [id])
   retreatId        String?
   retreat          Retreat?  @relation(fields: [retreatId], references: [id])
+  eventId          String?
+  event            Event?    @relation(fields: [eventId], references: [id])
   guestCount       Int       @default(1)
   level            String?
   specialRequests  String    @default("")

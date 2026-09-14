@@ -13,6 +13,7 @@ import { authRouter } from "./routes/auth";
 import { teacherRegistrationRouter } from "./routes/teacherRegistration";
 import { adminTeachersRouter } from "./routes/adminTeachers";
 import { adminRetreatsRouter } from "./routes/adminRetreats";
+import { adminEventsRouter } from "./routes/adminEvents";
 import { requireAuth, requireStaff } from "./domain/auth";
 
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/users", requireAuth, usersRouter);
 app.use("/api/admin", requireAuth, requireStaff, adminRouter);
 app.use("/api/admin/teacher-registrations", requireAuth, requireStaff, adminTeachersRouter);
 app.use("/api/admin/retreats", requireAuth, requireStaff, adminRetreatsRouter);
+app.use("/api/admin/events", requireAuth, requireStaff, adminEventsRouter);
 app.use("/api/teacher-registration", teacherRegistrationRouter); // public — no customer account required
 app.use("/api/addons", addonsRouter);
 

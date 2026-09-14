@@ -16,7 +16,8 @@ export default function Home() {
   const { me, goTab, goBook, openPackageSheet, flash } = useApp();
   const [nextBooking, setNextBooking] = useState<BookingCustomer | null>(null);
   const [pass, setPass] = useState<ActivePass | null>(null);
-  const [retreat, setRetreat] = useState<Pkg | null>(null);
+  const [retreats, setRetreats] = useState<Pkg[]>([]);
+  const [events, setEvents] = useState<Pkg[]>([]);
   const [today, setToday] = useState<SessionSlot[]>([]);
   const [unread, setUnread] = useState(0);
 
@@ -24,7 +25,10 @@ export default function Home() {
     const todayIso = isoDate(new Date());
     api.myBookings().then((b) => setNextBooking(b.upcoming[0] || null));
     api.activePass(me.id).then(setPass);
-    api.packages().then((list) => setRetreat(list.find((p) => p.kind === "retreat") || null));
+    api.packages().then((list) => {
+      setRetreats(list.filter((p) => p.kind === "retreat" && p.retreat));
+      setEvents(list.filter((p) => p.kind === "event" && p.event));
+    });
     api.sessions({ date: todayIso }).then(setToday);
     api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length));
   }, [me.id]);
@@ -105,18 +109,52 @@ export default function Home() {
         </>
       )}
 
-      {retreat && retreat.retreat && (
-        <div style={{ marginTop: 16, background: "var(--color-accent-2-200)", borderRadius: "var(--radius-lg)", padding: 18, cursor: "pointer" }} onClick={() => openPackageSheet(retreat.id)}>
-          {retreat.retreat.earlyBirdSaveMinor > 0 && (
-            <span className="tag tag-accent" style={{ marginBottom: 10 }}>Early bird · save {money(retreat.retreat.earlyBirdSaveMinor)}</span>
-          )}
-          <div style={{ fontFamily: "var(--font-heading)", fontSize: 20, lineHeight: 1.18 }}>{retreat.name}</div>
-          <div style={{ fontSize: 13, color: "var(--color-accent-2-900)", marginTop: 7, lineHeight: 1.45 }}>{retreat.desc}</div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 12 }}>
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: 22 }}>{money(retreat.priceMinor)}</span>
-            <span style={{ fontSize: 12.5, color: "var(--color-accent-2-900)" }}>per person · {retreat.retreat.placesLeft} places left</span>
+      {retreats.length > 0 && (
+        <>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
+            <h2 style={h2}>Retreats</h2>
           </div>
-        </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {retreats.map((retreat) => retreat.retreat && (
+              <div key={retreat.id} style={{ background: "var(--color-accent-2-200)", borderRadius: "var(--radius-lg)", padding: 18, cursor: "pointer" }} onClick={() => openPackageSheet(retreat.id)}>
+                {retreat.retreat.earlyBirdSaveMinor > 0 && (
+                  <span className="tag tag-accent" style={{ marginBottom: 10 }}>Early bird · save {money(retreat.retreat.earlyBirdSaveMinor)}</span>
+                )}
+                <div style={{ fontFamily: "var(--font-heading)", fontSize: 20, lineHeight: 1.18 }}>{retreat.name}</div>
+                <div style={{ fontSize: 13, color: "var(--color-accent-2-900)", marginTop: 7, lineHeight: 1.45 }}>{retreat.desc}</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 12 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: 22 }}>{money(retreat.priceMinor)}</span>
+                  <span style={{ fontSize: 12.5, color: "var(--color-accent-2-900)" }}>per person · {retreat.retreat.placesLeft} places left</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {events.length > 0 && (
+        <>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
+            <h2 style={h2}>Upcoming events</h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {events.map((ev) => ev.event && (
+              <div key={ev.id} style={{ background: "var(--color-accent-200)", borderRadius: "var(--radius-lg)", padding: 18, cursor: "pointer" }} onClick={() => openPackageSheet(ev.id)}>
+                {ev.event.earlyBirdSaveMinor > 0 && (
+                  <span className="tag tag-accent" style={{ marginBottom: 10 }}>Early bird · save {money(ev.event.earlyBirdSaveMinor)}</span>
+                )}
+                <div style={{ fontFamily: "var(--font-heading)", fontSize: 20, lineHeight: 1.18 }}>{ev.name}</div>
+                <div style={{ fontSize: 13, color: "var(--color-accent-800)", marginTop: 7, lineHeight: 1.45 }}>{ev.desc}</div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 12 }}>
+                  <span style={{ fontFamily: "var(--font-heading)", fontSize: 22 }}>{money(ev.priceMinor)}</span>
+                  <span style={{ fontSize: 12.5, color: "var(--color-accent-800)" }}>
+                    {new Date(ev.event.startsAt).toLocaleDateString("en-MY", { month: "short", day: "numeric" })} · {ev.event.placesLeft} places left
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>

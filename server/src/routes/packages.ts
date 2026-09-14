@@ -5,7 +5,7 @@ import { requireAuth, requireStaff } from "../domain/auth";
 
 export const packagesRouter = Router();
 
-function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, earlyBirdSaveMinor?: number) {
+function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, earlyBirdSaveMinor?: number, event?: any, eventEarlyBirdSaveMinor?: number) {
   return {
     id: p.id, name: p.name, kind: p.kind, priceMinor: p.priceMinor, currency: p.currency,
     unit: p.billingUnit, capacity: p.capacityLabel, sold, revenueMinor,
@@ -22,6 +22,13 @@ function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, ea
       earlyBirdUntil: retreat.earlyBirdUntil ? retreat.earlyBirdUntil.toISOString() : null,
       earlyBirdSaveMinor: earlyBirdSaveMinor || 0,
     } : null,
+    event: event ? {
+      id: event.id,
+      startsAt: event.startsAt.toISOString(), endsAt: event.endsAt.toISOString(),
+      totalPlaces: event.totalPlaces, placesLeft: Math.max(0, event.totalPlaces - event.placesTaken),
+      earlyBirdUntil: event.earlyBirdUntil ? event.earlyBirdUntil.toISOString() : null,
+      earlyBirdSaveMinor: eventEarlyBirdSaveMinor || 0,
+    } : null,
   };
 }
 
@@ -34,6 +41,17 @@ async function retreatFor(p: any) {
     if (coupon) earlyBirdSaveMinor = Math.round((p.priceMinor * coupon.discountValue) / 100);
   }
   return { retreat, earlyBirdSaveMinor };
+}
+
+async function eventFor(p: any) {
+  if (p.kind !== "event") return { event: null, earlyBirdSaveMinor: 0 };
+  const event = await db.event.findUnique({ where: { packageId: p.id } });
+  let earlyBirdSaveMinor = 0;
+  if (event && event.earlyBirdUntil && event.earlyBirdUntil >= new Date()) {
+    const coupon = await db.coupon.findFirst({ where: { appliesToPackageId: p.id, isActive: true, discountType: "percent" } });
+    if (coupon) earlyBirdSaveMinor = Math.round((p.priceMinor * coupon.discountValue) / 100);
+  }
+  return { event, earlyBirdSaveMinor };
 }
 
 async function soldAndRevenue(packageId: string) {
@@ -63,7 +81,8 @@ packagesRouter.get("/", async (req, res) => {
   for (const p of packages) {
     const { sold, revenueMinor } = await soldAndRevenue(p.id);
     const { retreat, earlyBirdSaveMinor } = await retreatFor(p);
-    out.push(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor));
+    const { event, earlyBirdSaveMinor: eventEarlyBirdSaveMinor } = await eventFor(p);
+    out.push(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor));
   }
   res.json(out);
 });
@@ -73,7 +92,8 @@ packagesRouter.get("/:id", async (req, res) => {
   if (!p) return res.status(404).json({ error: "Package not found" });
   const { sold, revenueMinor } = await soldAndRevenue(p.id);
   const { retreat, earlyBirdSaveMinor } = await retreatFor(p);
-  res.json(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor));
+  const { event, earlyBirdSaveMinor: eventEarlyBirdSaveMinor } = await eventFor(p);
+  res.json(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor));
 });
 
 packagesRouter.post("/", requireAuth, requireStaff, async (req: Request, res: Response) => {
@@ -134,6 +154,7 @@ packagesRouter.delete("/:id", requireAuth, requireStaff, async (req: Request<{ i
   const existing = await db.package.findUnique({ where: { id: req.params.id } });
   if (!existing) return res.status(404).json({ error: "Package not found" });
   if (existing.kind === "retreat") return res.status(400).json({ error: "Delete this from the Retreats section instead" });
+  if (existing.kind === "event") return res.status(400).json({ error: "Delete this from the Events section instead" });
   const bookingCount = await db.booking.count({ where: { packageId: existing.id } });
   if (bookingCount > 0) {
     return res.status(400).json({ error: `Can't delete — ${bookingCount} booking(s) reference this package. Hide it instead.` });

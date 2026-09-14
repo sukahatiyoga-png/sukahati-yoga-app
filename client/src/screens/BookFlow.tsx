@@ -12,6 +12,7 @@ export interface BookDraft {
   sessionId: string | null;
   packageId: string | null;
   retreatId: string | null;
+  eventId: string | null;
   level: string;
   guests: number;
   addonIds: string[];
@@ -31,6 +32,7 @@ export function initialDraft(preset?: { sessionId?: string; packageId?: string; 
     sessionId: preset?.sessionId || null,
     packageId: preset?.packageId || null,
     retreatId: null,
+    eventId: null,
     level: "Beginner", guests: 1, addonIds: [], notes: "",
     promo: "", promoOk: false, promoMsg: "",
     payMode: "full", method: "Card",
@@ -49,6 +51,16 @@ function retreatDateLabel(pkg: Pkg | null): string {
   return `${start} – ${end}`;
 }
 
+function eventDateLabel(pkg: Pkg | null): string {
+  if (!pkg?.event) return "—";
+  const start = new Date(pkg.event.startsAt);
+  const end = new Date(pkg.event.endsAt);
+  const dateLabel = start.toLocaleDateString("en-MY", { month: "short", day: "numeric" });
+  const startTime = start.toLocaleTimeString("en-MY", { hour: "numeric", minute: "2-digit" });
+  const endTime = end.toLocaleTimeString("en-MY", { hour: "numeric", minute: "2-digit" });
+  return `${dateLabel} · ${startTime} – ${endTime}`;
+}
+
 interface Quote { subtotalMinor: number; addonsTotalMinor: number; discountMinor: number; totalMinor: number; depositMinor: number; couponValid: boolean; couponMessage: string; cancelLabel: string }
 
 export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft; setDraft: (fn: (d: BookDraft) => BookDraft) => void; onDone: () => void }) {
@@ -63,13 +75,15 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
   useEffect(() => { api.sessions({ date: draft.dayId }).then(setSlots); }, [draft.dayId]);
   useEffect(() => { api.packages().then((list) => setPackages(list.sort((a, b) => a.sortOrder - b.sortOrder))); api.addons().then(setAddons); }, []);
 
-  // Retreats have their own fixed dates, not a bookable class session — skip
-  // the "pick a date/time slot" step entirely when the preset package is a retreat.
+  // Retreats and events have their own fixed dates, not a bookable class
+  // session — skip the "pick a date/time slot" step entirely for them.
   useEffect(() => {
     if (draft.step !== 1 || !draft.packageId || !packages.length) return;
     const pkg = packages.find((p) => p.id === draft.packageId);
     if (pkg?.retreat) {
-      setDraft((d) => ({ ...d, step: 2, sessionId: null, retreatId: pkg.retreat!.id }));
+      setDraft((d) => ({ ...d, step: 2, sessionId: null, retreatId: pkg.retreat!.id, eventId: null }));
+    } else if (pkg?.event) {
+      setDraft((d) => ({ ...d, step: 2, sessionId: null, eventId: pkg.event!.id, retreatId: null }));
     }
   }, [draft.step, draft.packageId, packages]);
 
@@ -85,8 +99,8 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
 
   function back() {
     if (draft.step === 1) return goTab("home");
-    // A retreat has no date/session step to go back to — back out to home instead.
-    if (draft.step === 2 && draft.retreatId) return goTab("home");
+    // A retreat/event has no date/session step to go back to — back out to home instead.
+    if (draft.step === 2 && (draft.retreatId || draft.eventId)) return goTab("home");
     setDraft((d) => ({ ...d, step: (d.step === 3 ? 2 : 1) as 1 | 2 }));
   }
 
@@ -106,7 +120,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
     setSubmitting(true);
     try {
       const result = await api.createBooking({
-        packageId: draft.packageId, sessionId: draft.sessionId, retreatId: draft.retreatId, guestCount: draft.guests,
+        packageId: draft.packageId, sessionId: draft.sessionId, retreatId: draft.retreatId, eventId: draft.eventId, guestCount: draft.guests,
         level: draft.level, specialRequests: draft.notes, addonIds: draft.addonIds,
         couponCode: draft.promoOk ? draft.promo : undefined, payMode: draft.payMode, method: draft.method,
       });
@@ -155,7 +169,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
           <div style={{ width: "100%", marginTop: 22, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 20, textAlign: "left" }}>
             <div style={{ fontWeight: 700, fontSize: 16 }}>{b.title}</div>
             <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 4 }}>
-              {draft.retreatId ? retreatDateLabel(selectedPkg) : selectedDay.label} · {selectedPkg?.name || draft.packageId} · {draft.guests} guest(s)
+              {draft.retreatId ? retreatDateLabel(selectedPkg) : draft.eventId ? eventDateLabel(selectedPkg) : selectedDay.label} · {selectedPkg?.name || draft.packageId} · {draft.guests} guest(s)
             </div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
               <QrGraphic value={b.qrToken} size={150} />
@@ -266,7 +280,7 @@ function Step2({ draft, setDraft, packages, addons, toggleAddon }: {
         {packages.map((p) => (
           <button
             key={p.id}
-            onClick={() => setDraft((d) => ({ ...d, packageId: p.id, retreatId: p.retreat?.id ?? null, sessionId: p.retreat ? null : d.sessionId }))}
+            onClick={() => setDraft((d) => ({ ...d, packageId: p.id, retreatId: p.retreat?.id ?? null, eventId: p.event?.id ?? null, sessionId: (p.retreat || p.event) ? null : d.sessionId }))}
             style={{ border: 0, textAlign: "left", cursor: "pointer", fontFamily: "var(--font-body)", borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", gap: 12, alignItems: "center", background: draft.packageId === p.id ? "var(--color-accent-200)" : "var(--color-neutral-100)" }}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -342,6 +356,10 @@ function Step3({ draft, setDraft, quote, selectedDay, selectedSlot, selectedPkg,
       <div style={{ marginTop: 22, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>
         {(draft.retreatId ? [
           ["Retreat dates", retreatDateLabel(selectedPkg)],
+          ["Package", selectedPkg?.name || "—"],
+          ["Guests · level", `${draft.guests} · ${draft.level}`],
+        ] : draft.eventId ? [
+          ["Event date", eventDateLabel(selectedPkg)],
           ["Package", selectedPkg?.name || "—"],
           ["Guests · level", `${draft.guests} · ${draft.level}`],
         ] : [

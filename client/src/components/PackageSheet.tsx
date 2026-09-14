@@ -42,6 +42,13 @@ export default function PackageSheet({ id, onBook }: { id: string; onBook: (pack
           {pkg.retreat.earlyBirdSaveMinor > 0 && ` · early bird saves ${money(pkg.retreat.earlyBirdSaveMinor)}`}
         </div>
       )}
+      {pkg.event && (
+        <div style={{ marginTop: 14, fontSize: 12.5, color: "var(--color-accent-700)", fontWeight: 600 }}>
+          {new Date(pkg.event.startsAt).toLocaleString("en-MY", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+          {" · "}{pkg.event.placesLeft} places left
+          {pkg.event.earlyBirdSaveMinor > 0 && ` · early bird saves ${money(pkg.event.earlyBirdSaveMinor)}`}
+        </div>
+      )}
 
       <div style={{ marginTop: 16, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>Included</div>
       <div style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--color-neutral-800)", marginTop: 7 }}>{pkg.incl.join(" · ")}</div>

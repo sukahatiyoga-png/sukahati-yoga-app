@@ -12,6 +12,7 @@ const FULL_INCLUDE = {
   package: true,
   session: { include: { teacher: true, room: true } },
   retreat: true,
+  event: true,
   coupon: true,
   addons: { include: { addon: true } },
   payments: true,
@@ -22,7 +23,7 @@ function isStaff(req: { userRole?: string }): boolean {
 }
 
 function effectiveDate(b: any): Date {
-  return b.session?.startsAt ?? b.retreat?.startsOn ?? b.createdAt;
+  return b.session?.startsAt ?? b.retreat?.startsOn ?? b.event?.startsAt ?? b.createdAt;
 }
 
 function customerMeta(b: any): string {
@@ -32,6 +33,10 @@ function customerMeta(b: any): string {
   }
   if (b.retreat) {
     return `Check-in ${b.retreat.checkInAt} · shared room${b.specialRequests ? " · " + b.specialRequests : ""}`;
+  }
+  if (b.event) {
+    const { time, ampm } = timeParts(b.event.startsAt);
+    return `${new Date(b.event.startsAt).toDateString()} · ${time} ${ampm}`;
   }
   return b.package.name;
 }
@@ -54,7 +59,9 @@ function serializeAdmin(b: any) {
     ? `${new Date(b.session.startsAt).toDateString()} · ${timeParts(b.session.startsAt).time} ${timeParts(b.session.startsAt).ampm} · ${b.guestCount} guest${b.guestCount > 1 ? "s" : ""}`
     : b.retreat
       ? `${b.retreat.startsOn.toDateString().slice(4, 10)}–${b.retreat.endsOn.getDate()} · retreat · shared room`
-      : `${b.guestCount} guest(s)`;
+      : b.event
+        ? `${new Date(b.event.startsAt).toDateString()} · event · ${b.guestCount} guest${b.guestCount > 1 ? "s" : ""}`
+        : `${b.guestCount} guest(s)`;
   return {
     id: b.id, name: b.user.fullName, initials: initials(b.user.fullName), meta,
     pkg: b.package.name, amountMinor: b.amountPaidMinor > 0 ? b.amountPaidMinor : b.totalMinor,
@@ -143,7 +150,7 @@ bookingsRouter.get("/:id", async (req, res) => {
 bookingsRouter.post("/", async (req, res) => {
   const b = req.body || {};
   const userId = req.userId!;
-  const { packageId, sessionId, retreatId, guestCount, level, specialRequests, addonIds, couponCode, payMode, method } = b;
+  const { packageId, sessionId, retreatId, eventId, guestCount, level, specialRequests, addonIds, couponCode, payMode, method } = b;
   if (!packageId) return res.status(400).json({ error: "packageId is required" });
   const guests = Math.max(1, Number(guestCount) || 1);
 
@@ -173,6 +180,15 @@ bookingsRouter.post("/", async (req, res) => {
         }
       }
 
+      let event = null;
+      if (eventId) {
+        event = await tx.event.findUnique({ where: { id: eventId } });
+        if (!event) throw new Error("Event not found");
+        if (event.placesTaken + guests > event.totalPlaces) {
+          throw new Error("This event is fully booked — join the waitlist instead");
+        }
+      }
+
       const addons = addonIds?.length ? await tx.addon.findMany({ where: { id: { in: addonIds } } }) : [];
       const coupon = couponCode
         ? await tx.coupon.findFirst({ where: { code: String(couponCode).toUpperCase(), isActive: true } })
@@ -190,7 +206,7 @@ bookingsRouter.post("/", async (req, res) => {
 
       const booking = await tx.booking.create({
         data: {
-          reference: genReference(), userId, packageId, sessionId: session?.id ?? null, retreatId: retreat?.id ?? null,
+          reference: genReference(), userId, packageId, sessionId: session?.id ?? null, retreatId: retreat?.id ?? null, eventId: event?.id ?? null,
           guestCount: guests, level: level || "Beginner", specialRequests: specialRequests || "",
           status, subtotalMinor: subtotal, discountMinor: discount, totalMinor: total,
           currency: pkg.currency, qrToken: genQrToken(), couponId: coupon?.id ?? null,
@@ -219,6 +235,9 @@ bookingsRouter.post("/", async (req, res) => {
       }
       if (retreat) {
         await tx.retreat.update({ where: { id: retreat.id }, data: { placesTaken: retreat.placesTaken + guests } });
+      }
+      if (event) {
+        await tx.event.update({ where: { id: event.id }, data: { placesTaken: event.placesTaken + guests } });
       }
       if (coupon) {
         await tx.coupon.update({ where: { id: coupon.id }, data: { redemptionCount: coupon.redemptionCount + 1 } });
@@ -279,7 +298,7 @@ bookingsRouter.post("/", async (req, res) => {
 });
 
 bookingsRouter.patch("/:id/cancel", async (req, res) => {
-  const booking = await db.booking.findUnique({ where: { id: req.params.id }, include: { session: true, retreat: true } });
+  const booking = await db.booking.findUnique({ where: { id: req.params.id }, include: { session: true, retreat: true, event: true } });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   if (booking.userId !== req.userId && !isStaff(req)) return res.status(403).json({ error: "Not allowed" });
   if (booking.status === "cancelled") return res.json({ ok: true });
@@ -294,6 +313,9 @@ bookingsRouter.patch("/:id/cancel", async (req, res) => {
     }
     if (booking.retreat) {
       await tx.retreat.update({ where: { id: booking.retreat.id }, data: { placesTaken: Math.max(0, booking.retreat.placesTaken - booking.guestCount) } });
+    }
+    if (booking.event) {
+      await tx.event.update({ where: { id: booking.event.id }, data: { placesTaken: Math.max(0, booking.event.placesTaken - booking.guestCount) } });
     }
     if (booking.amountPaidMinor > 0) {
       await tx.payment.create({
