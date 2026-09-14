@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MIN_HOLD_MS = 650;
 const FADE_MS = 420;
@@ -7,6 +7,9 @@ export default function Splash({ ready, onDone }: { ready: boolean; onDone: () =
   const [visible, setVisible] = useState(false);
   const [minHoldPassed, setMinHoldPassed] = useState(false);
   const [fadingOut, setFadingOut] = useState(false);
+  const fired = useRef(false);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -15,11 +18,12 @@ export default function Splash({ ready, onDone }: { ready: boolean; onDone: () =
   }, []);
 
   useEffect(() => {
-    if (!ready || !minHoldPassed || fadingOut) return;
+    if (!ready || !minHoldPassed || fired.current) return;
+    fired.current = true;
     setFadingOut(true);
-    const t = setTimeout(onDone, FADE_MS);
+    const t = setTimeout(() => onDoneRef.current(), FADE_MS);
     return () => clearTimeout(t);
-  }, [ready, minHoldPassed, fadingOut, onDone]);
+  }, [ready, minHoldPassed]);
 
   return (
     <div
