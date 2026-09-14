@@ -110,13 +110,7 @@ export default function App() {
   const closeSheet = useCallback(() => setSheet(null), []);
 
   if (showSplash) {
-    return <Splash onDone={() => setShowSplash(false)} />;
-  }
-
-  if (checkingAuth) {
-    return (
-      <div style={{ color: "#645c50", fontFamily: "system-ui" }}>Loading Sukahati…</div>
-    );
+    return <Splash ready={!checkingAuth} onDone={() => setShowSplash(false)} />;
   }
 
   // Admin has its own sign-in, entirely separate from the customer app —
