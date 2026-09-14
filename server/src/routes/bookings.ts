@@ -3,6 +3,7 @@ import { db } from "../db";
 import { genReference, genQrToken, formatMoney } from "../domain/enums";
 import { computeDiscount, recomputeAmountPaid } from "../domain/pricing";
 import { dayParts, timeParts, initials } from "../domain/format";
+import { notifyOwner } from "../domain/mailer";
 
 export const bookingsRouter = Router();
 
@@ -252,6 +253,26 @@ bookingsRouter.post("/", async (req, res) => {
 
     const full = await db.booking.findUnique({ where: { id: result.id }, include: FULL_INCLUDE });
     res.status(201).json(serializeCustomer(full));
+
+    if (full) {
+      const paidLabel = full.amountPaidMinor > 0 ? formatMoney(full.amountPaidMinor) : "Not yet paid — due at the studio";
+      notifyOwner(
+        `New booking: ${full.user.fullName} — ${full.reference}`,
+        `<h2 style="margin:0 0 12px">New booking</h2>
+         <p><b>${full.user.fullName}</b> booked <b>${full.session?.title || full.package.name}</b>.</p>
+         <table cellpadding="6" style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
+           <tr><td><b>Reference</b></td><td>${full.reference}</td></tr>
+           <tr><td><b>When</b></td><td>${customerMeta(full)}</td></tr>
+           <tr><td><b>Guests</b></td><td>${full.guestCount}</td></tr>
+           <tr><td><b>Status</b></td><td>${full.status}</td></tr>
+           <tr><td><b>Total</b></td><td>${formatMoney(full.totalMinor)}</td></tr>
+           <tr><td><b>Paid</b></td><td>${paidLabel}</td></tr>
+           <tr><td><b>Customer email</b></td><td>${full.user.email}</td></tr>
+           <tr><td><b>Customer phone</b></td><td>${full.user.phoneE164 || "—"}</td></tr>
+           ${full.specialRequests ? `<tr><td><b>Notes</b></td><td>${full.specialRequests}</td></tr>` : ""}
+         </table>`
+      );
+    }
   } catch (e: any) {
     res.status(409).json({ error: e.message || "Could not create booking" });
   }
