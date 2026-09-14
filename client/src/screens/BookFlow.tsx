@@ -11,6 +11,7 @@ export interface BookDraft {
   dayId: string;
   sessionId: string | null;
   packageId: string | null;
+  retreatId: string | null;
   level: string;
   guests: number;
   addonIds: string[];
@@ -29,6 +30,7 @@ export function initialDraft(preset?: { sessionId?: string; packageId?: string; 
     dayId: preset?.dayId || buildDays(1)[0].id,
     sessionId: preset?.sessionId || null,
     packageId: preset?.packageId || null,
+    retreatId: null,
     level: "Beginner", guests: 1, addonIds: [], notes: "",
     promo: "", promoOk: false, promoMsg: "",
     payMode: "full", method: "Card",
@@ -38,6 +40,14 @@ export function initialDraft(preset?: { sessionId?: string; packageId?: string; 
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 const METHODS = ["Card", "FPX", "GrabPay", "Apple Pay"];
+
+function retreatDateLabel(pkg: Pkg | null): string {
+  if (!pkg?.retreat) return "—";
+  const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  const start = new Date(pkg.retreat.startsOn).toLocaleDateString("en-MY", opts);
+  const end = new Date(pkg.retreat.endsOn).toLocaleDateString("en-MY", opts);
+  return `${start} – ${end}`;
+}
 
 interface Quote { subtotalMinor: number; addonsTotalMinor: number; discountMinor: number; totalMinor: number; depositMinor: number; couponValid: boolean; couponMessage: string; cancelLabel: string }
 
@@ -53,6 +63,16 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
   useEffect(() => { api.sessions({ date: draft.dayId }).then(setSlots); }, [draft.dayId]);
   useEffect(() => { api.packages().then((list) => setPackages(list.sort((a, b) => a.sortOrder - b.sortOrder))); api.addons().then(setAddons); }, []);
 
+  // Retreats have their own fixed dates, not a bookable class session — skip
+  // the "pick a date/time slot" step entirely when the preset package is a retreat.
+  useEffect(() => {
+    if (draft.step !== 1 || !draft.packageId || !packages.length) return;
+    const pkg = packages.find((p) => p.id === draft.packageId);
+    if (pkg?.retreat) {
+      setDraft((d) => ({ ...d, step: 2, sessionId: null, retreatId: pkg.retreat!.id }));
+    }
+  }, [draft.step, draft.packageId, packages]);
+
   useEffect(() => {
     if (draft.step !== 3 || !draft.packageId) return;
     api.quote({ packageId: draft.packageId, guestCount: draft.guests, addonIds: draft.addonIds, couponCode: draft.promoOk ? draft.promo : undefined })
@@ -65,6 +85,8 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
 
   function back() {
     if (draft.step === 1) return goTab("home");
+    // A retreat has no date/session step to go back to — back out to home instead.
+    if (draft.step === 2 && draft.retreatId) return goTab("home");
     setDraft((d) => ({ ...d, step: (d.step === 3 ? 2 : 1) as 1 | 2 }));
   }
 
@@ -84,7 +106,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
     setSubmitting(true);
     try {
       const result = await api.createBooking({
-        packageId: draft.packageId, sessionId: draft.sessionId, guestCount: draft.guests,
+        packageId: draft.packageId, sessionId: draft.sessionId, retreatId: draft.retreatId, guestCount: draft.guests,
         level: draft.level, specialRequests: draft.notes, addonIds: draft.addonIds,
         couponCode: draft.promoOk ? draft.promo : undefined, payMode: draft.payMode, method: draft.method,
       });
@@ -132,7 +154,9 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
 
           <div style={{ width: "100%", marginTop: 22, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 20, textAlign: "left" }}>
             <div style={{ fontWeight: 700, fontSize: 16 }}>{b.title}</div>
-            <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 4 }}>{selectedDay.label} · {selectedPkg?.name || draft.packageId} · {draft.guests} guest(s)</div>
+            <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 4 }}>
+              {draft.retreatId ? retreatDateLabel(selectedPkg) : selectedDay.label} · {selectedPkg?.name || draft.packageId} · {draft.guests} guest(s)
+            </div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
               <QrGraphic value={b.qrToken} size={150} />
             </div>
@@ -242,7 +266,7 @@ function Step2({ draft, setDraft, packages, addons, toggleAddon }: {
         {packages.map((p) => (
           <button
             key={p.id}
-            onClick={() => setDraft((d) => ({ ...d, packageId: p.id }))}
+            onClick={() => setDraft((d) => ({ ...d, packageId: p.id, retreatId: p.retreat?.id ?? null, sessionId: p.retreat ? null : d.sessionId }))}
             style={{ border: 0, textAlign: "left", cursor: "pointer", fontFamily: "var(--font-body)", borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", gap: 12, alignItems: "center", background: draft.packageId === p.id ? "var(--color-accent-200)" : "var(--color-neutral-100)" }}
           >
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -316,12 +340,16 @@ function Step3({ draft, setDraft, quote, selectedDay, selectedSlot, selectedPkg,
   return (
     <>
       <div style={{ marginTop: 22, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>
-        {[
+        {(draft.retreatId ? [
+          ["Retreat dates", retreatDateLabel(selectedPkg)],
+          ["Package", selectedPkg?.name || "—"],
+          ["Guests · level", `${draft.guests} · ${draft.level}`],
+        ] : [
           ["Date", selectedDay.label],
           ["Class", selectedSlot ? `${selectedSlot.title} · ${selectedSlot.time} ${selectedSlot.ampm}` : "—"],
           ["Package", selectedPkg?.name || "—"],
           ["Guests · level", `${draft.guests} · ${draft.level}`],
-        ].map(([label, value], i, arr) => (
+        ]).map(([label, value], i, arr) => (
           <div key={label} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "12px 0", borderBottom: i < arr.length - 1 ? "1px solid var(--color-divider)" : "none", fontSize: 13.5 }}>
             <span style={{ color: "var(--color-neutral-700)" }}>{label}</span>
             <span style={{ fontWeight: 600, textAlign: "right" }}>{value}</span>

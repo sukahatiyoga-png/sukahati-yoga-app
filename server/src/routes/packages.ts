@@ -16,6 +16,7 @@ function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, ea
     incl: JSON.parse(p.inclusions || "[]"), excl: JSON.parse(p.exclusions || "[]"),
     sortOrder: p.sortOrder,
     retreat: retreat ? {
+      id: retreat.id,
       startsOn: retreat.startsOn.toISOString(), endsOn: retreat.endsOn.toISOString(),
       totalPlaces: retreat.totalPlaces, placesLeft: Math.max(0, retreat.totalPlaces - retreat.placesTaken),
       earlyBirdUntil: retreat.earlyBirdUntil ? retreat.earlyBirdUntil.toISOString() : null,

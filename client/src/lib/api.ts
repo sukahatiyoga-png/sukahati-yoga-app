@@ -50,7 +50,7 @@ export interface Pkg {
   active: boolean; recommended: boolean; badge: string;
   desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
   valid: string; cancel: string; incl: string[]; excl: string[]; sortOrder: number;
-  retreat: { startsOn: string; endsOn: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
+  retreat: { id: string; startsOn: string; endsOn: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
 }
 
 export interface ActivePass { packageName: string; daysLeft: number; pct: number; endLabel: string; startedAt: string }
