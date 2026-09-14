@@ -4,6 +4,7 @@ import TabBar from "./components/TabBar";
 import PackageSheet from "./components/PackageSheet";
 import QrSheet from "./components/QrSheet";
 import PackageEditSheet from "./components/PackageEditSheet";
+import Splash from "./components/Splash";
 import { AppContext, type AdminSection, type Tab } from "./context/AppContext";
 import { api, clearToken, getToken, type Me, type Pkg } from "./lib/api";
 import { parseRoute, pathFor } from "./lib/routes";
@@ -28,6 +29,7 @@ type SheetState =
 const initialRoute = parseRoute(window.location.pathname);
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [me, setMe] = useState<Me | null>(null);
   const [authed, setAuthed] = useState(!!getToken());
   const [checkingAuth, setCheckingAuth] = useState(!!getToken());
@@ -106,6 +108,10 @@ export default function App() {
   const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string; qrToken: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
   const closeSheet = useCallback(() => setSheet(null), []);
+
+  if (showSplash) {
+    return <Splash onDone={() => setShowSplash(false)} />;
+  }
 
   if (checkingAuth) {
     return (
