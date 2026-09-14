@@ -73,7 +73,11 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => { api.sessions({ date: draft.dayId }).then(setSlots); }, [draft.dayId]);
-  useEffect(() => { api.packages().then((list) => setPackages(list.sort((a, b) => a.sortOrder - b.sortOrder))); api.addons().then(setAddons); }, []);
+  useEffect(() => {
+    api.packages().then((list) => setPackages(list.sort((a, b) => a.sortOrder - b.sortOrder)))
+      .catch(() => flash("Couldn't load packages — check your connection and try again"));
+    api.addons().then(setAddons).catch(() => {});
+  }, [flash]);
 
   // Retreats and events have their own fixed dates, not a bookable class
   // session — skip the "pick a date/time slot" step entirely for them.
