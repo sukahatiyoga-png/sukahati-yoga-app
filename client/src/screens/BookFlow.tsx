@@ -210,7 +210,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
           <Step1 days={days} draft={draft} setDraft={setDraft} slots={slots} flash={flash} />
         )}
         {draft.step === 2 && (
-          <Step2 draft={draft} setDraft={setDraft} packages={packages} addons={addons} toggleAddon={toggleAddon} />
+          <Step2 draft={draft} setDraft={setDraft} packages={packages.filter((p) => !p.retreat && !p.event)} addons={addons} toggleAddon={toggleAddon} />
         )}
         {draft.step === 3 && (
           <Step3 draft={draft} setDraft={setDraft} quote={quote} selectedDay={selectedDay} selectedSlot={selectedSlot} selectedPkg={selectedPkg} applyPromo={applyPromo} />
