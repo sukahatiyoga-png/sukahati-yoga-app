@@ -3,7 +3,7 @@ import { db } from "../db";
 import { genReference, genQrToken, formatMoney } from "../domain/enums";
 import { computeDiscount, recomputeAmountPaid } from "../domain/pricing";
 import { dayParts, timeParts, initials } from "../domain/format";
-import { notifyOwner } from "../domain/mailer";
+import { notifyOwner, notifyCustomer } from "../domain/mailer";
 
 export const bookingsRouter = Router();
 
@@ -291,6 +291,22 @@ bookingsRouter.post("/", async (req, res) => {
            ${full.specialRequests ? `<tr><td><b>Notes</b></td><td>${full.specialRequests}</td></tr>` : ""}
          </table>`
       );
+
+      const title = full.session?.title || full.package.name;
+      notifyCustomer(
+        full.userId,
+        full.status === "pending" ? `Request received — ${title}` : `Booking confirmed — ${title}`,
+        `<p>${full.status === "pending"
+          ? `We've received your request for <b>${title}</b> and will confirm shortly.`
+          : `Your booking for <b>${title}</b> is confirmed. See you there!`}</p>
+         <table cellpadding="6" style="border-collapse:collapse;font-size:14px">
+           <tr><td><b>Reference</b></td><td>${full.reference}</td></tr>
+           <tr><td><b>When</b></td><td>${customerMeta(full)}</td></tr>
+           <tr><td><b>Guests</b></td><td>${full.guestCount}</td></tr>
+           <tr><td><b>Total</b></td><td>${formatMoney(full.totalMinor)}</td></tr>
+           <tr><td><b>Paid</b></td><td>${paidLabel}</td></tr>
+         </table>`
+      );
     }
   } catch (e: any) {
     res.status(409).json({ error: e.message || "Could not create booking" });
@@ -328,6 +344,10 @@ bookingsRouter.patch("/:id/cancel", async (req, res) => {
     await tx.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "cancelled" }) } });
   });
   await recomputeAmountPaid(booking.id);
+  notifyCustomer(
+    booking.userId, `Booking cancelled — ${booking.reference}`,
+    `<p>Your booking <b>${booking.reference}</b> has been cancelled.${booking.amountPaidMinor > 0 ? " Any payment will be refunded within 3 business days." : ""}</p>`
+  );
   res.json({ ok: true });
 });
 
@@ -340,6 +360,7 @@ bookingsRouter.patch("/:id/confirm", async (req, res) => {
     data: { userId: booking.userId, bookingId: booking.id, event: "booking_confirmed", channel: "push", title: "Booking confirmed", body: `${booking.reference} is confirmed. See you there.`, scheduledFor: new Date(), sentAt: new Date() },
   });
   await db.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "confirmed" }) } });
+  notifyCustomer(booking.userId, `Booking confirmed — ${booking.reference}`, `<p>Your booking <b>${booking.reference}</b> is confirmed. See you there!</p>`);
   res.json({ ok: true });
 });
 
@@ -357,6 +378,10 @@ bookingsRouter.patch("/:id/decline", async (req, res) => {
     });
     await tx.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "bookings", entityId: booking.id, action: "update", diff: JSON.stringify({ status: "declined" }) } });
   });
+  notifyCustomer(
+    booking.userId, `Request declined — ${booking.reference}`,
+    `<p>We're sorry, we couldn't confirm your request <b>${booking.reference}</b>. Any payment will be refunded within 3 business days.</p>`
+  );
   res.json({ ok: true });
 });
 
@@ -375,6 +400,10 @@ bookingsRouter.patch("/:id/pay-balance", async (req, res) => {
     data: { userId: booking.userId, bookingId: booking.id, event: "payment_received", channel: "email", title: "Balance paid", body: `Receipt emailed for ${booking.reference}.`, scheduledFor: new Date(), sentAt: new Date() },
   });
   await db.auditLog.create({ data: { actorUserId: req.userId!, entityTable: "payments", entityId: booking.id, action: "update", diff: JSON.stringify({ paidBalanceMinor: balance }) } });
+  notifyCustomer(
+    booking.userId, `Payment received — ${booking.reference}`,
+    `<p>We've received your payment of <b>${formatMoney(balance)}</b> for <b>${booking.reference}</b>. You're all settled.</p>`
+  );
   res.json({ ok: true });
 });
 

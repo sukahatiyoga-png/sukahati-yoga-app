@@ -3,6 +3,7 @@ import { db } from "../db";
 import { startOfDay, endOfDay, initials, timeParts } from "../domain/format";
 import { assertNoConflict, findConflicts, ConflictError } from "../domain/scheduling";
 import { formatMoney } from "../domain/enums";
+import { notifyCustomer } from "../domain/mailer";
 
 export const adminRouter = Router();
 
@@ -118,6 +119,9 @@ adminRouter.patch("/sessions/:id/cancel", async (req, res) => {
       data: { actorUserId: req.userId!, entityTable: "sessions", entityId: s.id, action: "update", diff: JSON.stringify({ status: "cancelled" }) },
     });
   });
+  for (const b of s.bookings) {
+    notifyCustomer(b.userId, `Class cancelled — ${s.title}`, `<p><b>${s.title}</b> was cancelled by the studio. We'll be in touch to help you rebook.</p>`);
+  }
   res.json({ ok: true, guestsNotified: notified });
 });
 
@@ -164,6 +168,11 @@ adminRouter.post("/days/:date/block", async (req, res) => {
       }
     }
   });
+  for (const s of sessions) {
+    for (const b of s.bookings) {
+      notifyCustomer(b.userId, `Class moved — ${s.title}`, `<p><b>${s.title}</b> on ${day.toDateString()} was blocked by the studio. We'll be in touch to help you rebook.</p>`);
+    }
+  }
   res.json({ ok: true, sessionsBlocked: sessions.length, guestsNotified: notified });
 });
 
