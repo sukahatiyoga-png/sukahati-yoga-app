@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../context/AppContext";
-import { api, type ActivePass, type BookingCustomer, type Pkg, type PublicTeacher, type SessionSlot, type StudioPhoto } from "../lib/api";
+import { api, type ActivePass, type BookingCustomer, type Pkg, type PublicTeacher, type SessionSlot, type StudioPhoto, type StudioProfileData } from "../lib/api";
 import { money } from "../lib/format";
-import { isoDate } from "../lib/dates";
+import { isoDate, buildDays } from "../lib/dates";
 import { screenPad, kicker, h2 } from "../styles/shared";
 import Countdown from "../components/Countdown";
 import Reveal3D from "../components/Reveal3D";
@@ -35,7 +35,7 @@ interface ExploreCard {
 }
 
 export default function Home() {
-  const { me, goTab, goBook, openPackageSheet, openRetreatDetail } = useApp();
+  const { me, goTab, goBook, openPackageSheet, openRetreatDetail, flash } = useApp();
   const [nextBooking, setNextBooking] = useState<BookingCustomer | null>(null);
   const [pass, setPass] = useState<ActivePass | null>(null);
   const [packages, setPackages] = useState<Pkg[]>([]);
@@ -43,7 +43,11 @@ export default function Home() {
   const [unread, setUnread] = useState(0);
   const [teachers, setTeachers] = useState<PublicTeacher[]>([]);
   const [studioPhotos, setStudioPhotos] = useState<StudioPhoto[]>([]);
+  const [studioProfile, setStudioProfile] = useState<StudioProfileData | null>(null);
   const [pill, setPill] = useState<Pill>("All");
+  const calDays = useMemo(() => buildDays(7), []);
+  const [calDayId, setCalDayId] = useState(calDays[0].id);
+  const [calSessions, setCalSessions] = useState<SessionSlot[]>([]);
 
   useEffect(() => {
     const todayIso = isoDate(new Date());
@@ -54,7 +58,10 @@ export default function Home() {
     api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length));
     api.teachers().then(setTeachers).catch(() => {});
     api.studioPhotos().then(setStudioPhotos).catch(() => {});
+    api.studioProfile().then(setStudioProfile).catch(() => {});
   }, [me.id]);
+
+  useEffect(() => { api.sessions({ date: calDayId }).then(setCalSessions); }, [calDayId]);
 
   const retreats = useMemo(() => packages.filter((p) => p.kind === "retreat" && p.retreat), [packages]);
   const events = useMemo(() => packages.filter((p) => p.kind === "event" && p.event), [packages]);
@@ -93,6 +100,8 @@ export default function Home() {
     : pill === "Events" ? eventCards
     : pill === "Packages" ? packageCards
     : [...retreatCards, ...eventCards, ...packageCards.slice(0, 4), ...classCards.slice(0, 4)];
+
+  const distinctStyles = useMemo(() => new Set(teachers.flatMap((t) => t.specialties)).size, [teachers]);
 
   const featured: ExploreCard | null =
     [...retreatCards, ...eventCards, ...packageCards].find((c) => c.badge) ||
@@ -233,6 +242,93 @@ export default function Home() {
         ))}
       </div>
 
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
+        <h2 style={h2}>Class calendar</h2>
+      </div>
+      <div style={{ display: "flex", gap: 8, overflow: "auto", paddingBottom: 4 }}>
+        {calDays.map((d) => (
+          <button
+            key={d.id} onClick={() => setCalDayId(d.id)}
+            style={{ flex: "none", width: 52, border: 0, borderRadius: 16, padding: "10px 0", cursor: "pointer", fontFamily: "var(--font-body)", textAlign: "center", background: calDayId === d.id ? "var(--color-neutral-900)" : "var(--color-neutral-100)", color: calDayId === d.id ? "#fff" : "var(--color-text)" }}
+          >
+            <div style={{ fontSize: 10, letterSpacing: "0.06em", opacity: 0.78 }}>{d.dow}</div>
+            <div style={{ fontFamily: "var(--font-heading)", fontSize: 17, lineHeight: 1.2, marginTop: 3 }}>{d.num}</div>
+          </button>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 12 }}>
+        {calSessions.length === 0 && <div style={{ fontSize: 13, color: "var(--color-neutral-600)" }}>No classes scheduled this day.</div>}
+        {calSessions.map((s) => (
+          <div key={s.id} style={{ display: "flex", gap: 12, alignItems: "center", background: "var(--color-neutral-100)", borderRadius: "var(--radius-md)", padding: "12px 14px" }}>
+            <div style={{ flex: "none", width: 50 }}>
+              <div style={{ fontWeight: 700, fontSize: 13.5 }}>{s.time}</div>
+              <div style={{ fontSize: 10.5, color: "var(--color-neutral-600)" }}>{s.ampm}</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0, borderLeft: "2px solid var(--color-accent-300)", paddingLeft: 12 }}>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>{s.title}</div>
+              <div style={{ fontSize: 11.5, color: "var(--color-neutral-700)", marginTop: 1 }}>{s.teacher}</div>
+            </div>
+            {s.spots > 0 ? (
+              <button className="btn btn-secondary" style={{ flex: "none", padding: "7px 12px", fontSize: 11.5 }} onClick={() => goBook({ sessionId: s.id })}>Book</button>
+            ) : (
+              <button className="btn btn-ghost" style={{ flex: "none", padding: "7px 12px", fontSize: 11.5 }} onClick={() => api.waitlist(s.id).then(() => flash("Added to the waitlist for " + s.title))}>Waitlist</button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {studioProfile && (
+        <Reveal3D delayMs={0} style={{ marginTop: 26 }}>
+          <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+            <div style={{
+              height: 170, position: "relative", display: "flex", alignItems: "flex-end",
+              background: studioProfile.imageUrl ? `url(${studioProfile.imageUrl})` : "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-2-600))",
+              backgroundSize: "cover", backgroundPosition: "center",
+            }}>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.62) 100%)" }} />
+              <div style={{ position: "relative", padding: 16, color: "#fff" }}>
+                <div style={{ fontFamily: "var(--font-heading)", fontSize: 20 }}>{studioProfile.aboutTitle}</div>
+              </div>
+            </div>
+            <div style={{ background: "var(--color-neutral-100)", padding: 16 }}>
+              <div style={{ fontSize: 13.5, color: "var(--color-neutral-800)", lineHeight: 1.6 }}>{studioProfile.aboutBody}</div>
+              <div style={{ display: "flex", marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--color-divider)" }}>
+                <Stat value={String(teachers.length)} label="Teachers" />
+                <Stat value={String(distinctStyles)} label="Styles" />
+                <Stat value={String(plainPackages.length)} label="Packages" />
+              </div>
+            </div>
+          </div>
+        </Reveal3D>
+      )}
+
+      {plainPackages.length > 0 && (
+        <>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
+            <h2 style={h2}>Our services</h2>
+          </div>
+          <div style={{ display: "flex", gap: 12, overflow: "auto", paddingBottom: 6 }}>
+            {plainPackages.map((p, i) => (
+              <Reveal3D key={p.id} delayMs={i * 70} style={{ flex: "none", width: 190 }}>
+                <div onClick={() => openPackageSheet(p.id)} style={{ cursor: "pointer", borderRadius: "var(--radius-lg)", overflow: "hidden", background: "var(--color-neutral-100)", boxShadow: "var(--shadow-sm)" }}>
+                  <div style={{
+                    height: 110, position: "relative", display: "flex", alignItems: "flex-end",
+                    background: p.imageUrl ? `url(${p.imageUrl})` : gradientFor(p.id), backgroundSize: "cover", backgroundPosition: "center",
+                  }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%)" }} />
+                    <div style={{ position: "relative", padding: "10px 12px", color: "#fff", fontFamily: "var(--font-heading)", fontSize: 15.5, lineHeight: 1.2 }}>{p.name}</div>
+                  </div>
+                  <div style={{ padding: "10px 12px" }}>
+                    <div style={{ fontFamily: "var(--font-heading)", fontSize: 15 }}>{money(p.priceMinor)}</div>
+                    <div style={{ fontSize: 11, color: "var(--color-neutral-600)", marginTop: 2 }}>{p.unit}</div>
+                  </div>
+                </div>
+              </Reveal3D>
+            ))}
+          </div>
+        </>
+      )}
+
       {teachers.length > 0 && (
         <>
           <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
@@ -242,24 +338,29 @@ export default function Home() {
             {teachers.map((t, i) => {
               const tInitials = t.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
               return (
-                <Reveal3D key={t.id} delayMs={i * 70} style={{ flex: "none", width: 210 }}>
-                  <div style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 16, height: "100%", boxSizing: "border-box" }}>
-                    {t.photoUrl ? (
-                      <img src={t.photoUrl} alt={t.name} style={{ width: 64, height: 64, borderRadius: 999, objectFit: "cover", display: "block" }} />
-                    ) : (
-                      <div style={{ width: 64, height: 64, borderRadius: 999, background: "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-2-500))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-heading)", fontSize: 22 }}>
-                        {tInitials}
-                      </div>
-                    )}
-                    <div style={{ fontFamily: "var(--font-heading)", fontSize: 17, marginTop: 12 }}>{t.name}</div>
-                    {t.specialties.length > 0 && (
-                      <div style={{ fontSize: 11.5, color: "var(--color-accent-700)", fontWeight: 600, marginTop: 3 }}>{t.specialties.join(" · ")}</div>
-                    )}
-                    {t.bio && (
-                      <div style={{ fontSize: 12.5, color: "var(--color-neutral-700)", marginTop: 8, lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                        {t.bio}
-                      </div>
-                    )}
+                <Reveal3D key={t.id} delayMs={i * 70} style={{ flex: "none", width: 200 }}>
+                  <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", background: "var(--color-neutral-100)", boxShadow: "var(--shadow-sm)" }}>
+                    <div style={{
+                      height: 130, position: "relative", display: "flex", alignItems: "flex-end",
+                      background: t.photoUrl ? `url(${t.photoUrl})` : "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-2-500))",
+                      backgroundSize: "cover", backgroundPosition: "center",
+                    }}>
+                      {!t.photoUrl && (
+                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "var(--font-heading)", fontSize: 30 }}>{tInitials}</div>
+                      )}
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)" }} />
+                      <div style={{ position: "relative", padding: "10px 12px", color: "#fff", fontFamily: "var(--font-heading)", fontSize: 16 }}>{t.name}</div>
+                    </div>
+                    <div style={{ padding: "10px 12px" }}>
+                      {t.specialties.length > 0 && (
+                        <div style={{ fontSize: 11, color: "var(--color-accent-700)", fontWeight: 700, letterSpacing: "0.02em" }}>{t.specialties.join(" · ")}</div>
+                      )}
+                      {t.bio && (
+                        <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 6, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                          {t.bio}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </Reveal3D>
               );
@@ -288,6 +389,15 @@ export default function Home() {
           </Reveal3D>
         ))}
       </div>
+    </div>
+  );
+}
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <div style={{ flex: 1, textAlign: "center" }}>
+      <div style={{ fontFamily: "var(--font-heading)", fontSize: 19 }}>{value}</div>
+      <div style={{ fontSize: 11, color: "var(--color-neutral-600)", marginTop: 2 }}>{label}</div>
     </div>
   );
 }

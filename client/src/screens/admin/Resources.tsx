@@ -29,6 +29,8 @@ export default function Resources() {
 
   return (
     <>
+      <StudioProfileEditor />
+
       <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 20, margin: "22px 0 12px" }}>Teachers</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {teachers.map((t) => (
@@ -77,6 +79,73 @@ export default function Resources() {
       </div>
       <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 12, lineHeight: 1.5 }}>Every change to a booking, price or refund is written to the audit log with the staff account that made it.</div>
     </>
+  );
+}
+
+function StudioProfileEditor() {
+  const { flash } = useApp();
+  const [loaded, setLoaded] = useState(false);
+  const [aboutTitle, setAboutTitle] = useState("");
+  const [aboutBody, setAboutBody] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.studioProfile().then((p) => {
+      setAboutTitle(p.aboutTitle); setAboutBody(p.aboutBody); setImageUrl(p.imageUrl); setLoaded(true);
+    });
+  }, []);
+
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) { flash(`Please choose a photo under ${MAX_IMAGE_MB}MB`); return; }
+    setPhotoBusy(true);
+    try { setImageUrl(await fileToDataUrl(file)); } finally { setPhotoBusy(false); }
+  }
+
+  async function save() {
+    setSaving(true);
+    try {
+      await api.updateStudioProfile({ aboutTitle, aboutBody, imageUrl });
+      flash("Studio profile saved");
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Could not save");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!loaded) return null;
+
+  return (
+    <div style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 18, marginTop: 4 }}>
+      <div style={{ fontFamily: "var(--font-heading)", fontSize: 19 }}>Studio profile</div>
+      <div style={{ fontSize: 12.5, color: "var(--color-neutral-700)", marginTop: 3 }}>Shown in the "About Sukahati Yoga" section on the customer home page.</div>
+      <div className="field" style={{ marginTop: 14 }}>
+        <label htmlFor="sp-title">Title</label>
+        <input className="input" id="sp-title" value={aboutTitle} onChange={(e) => setAboutTitle(e.target.value)} />
+      </div>
+      <div className="field" style={{ marginTop: 12 }}>
+        <label htmlFor="sp-body">About text</label>
+        <textarea className="input" id="sp-body" style={{ borderRadius: "var(--radius-md)", minHeight: 80, padding: "12px 16px", resize: "vertical" }} value={aboutBody} onChange={(e) => setAboutBody(e.target.value)} />
+      </div>
+      <div className="field" style={{ marginTop: 12 }}>
+        <label htmlFor="sp-photo">{photoBusy ? "Uploading…" : imageUrl ? "Photo attached — choose a file to replace" : `Photo — JPG or PNG, up to ${MAX_IMAGE_MB}MB`}</label>
+        <input className="input" id="sp-photo" type="file" accept="image/*" disabled={photoBusy} onChange={onPhoto} style={{ borderRadius: "var(--radius-sm)", padding: "10px 14px" }} />
+      </div>
+      {imageUrl && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+          <img src={imageUrl} alt="" style={{ width: 90, height: 60, borderRadius: "var(--radius-sm)", objectFit: "cover" }} />
+          <button className="btn btn-ghost" style={{ padding: "6px 10px", fontSize: 12.5, color: "var(--color-accent-700)" }} onClick={() => setImageUrl("")}>Remove photo</button>
+        </div>
+      )}
+      <button className="btn btn-primary" style={{ marginTop: 16, padding: "11px 20px", fontSize: 13.5 }} disabled={saving} onClick={save}>
+        {saving ? "Saving…" : "Save profile"}
+      </button>
+    </div>
   );
 }
 

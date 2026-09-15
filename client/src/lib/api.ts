@@ -117,6 +117,7 @@ export interface Teacher { id: string; name: string; initials: string; meta: str
 export interface TeacherDetail { id: string; name: string; specialties: string[]; weeklyHourCap: number; photoUrl: string; bio: string }
 export interface PublicTeacher { id: string; name: string; specialties: string[]; photoUrl: string; bio: string }
 export interface StudioPhoto { id: string; imageUrl: string; caption: string; sortOrder: number }
+export interface StudioProfileData { aboutTitle: string; aboutBody: string; imageUrl: string }
 export interface RoomItem { id: string; name: string; meta: string; state: string }
 export interface RoomDetail { id: string; name: string; matCapacity: number | null; isAccommodation: boolean; beds: number | null; note: string }
 export interface CalendarSession { id: string; time: string; ampm: string; title: string; assign: string; load: string; pct: string; pctRaw: number; capacity: number; status: string; startsAt: string; endsAt: string; teacherId: string; roomId: string }
@@ -331,4 +332,6 @@ export const api = {
     create: (data: { imageUrl: string; caption?: string }) => post<StudioPhoto>("/studio-photos", data),
     delete: (id: string) => del<{ ok: boolean }>(`/studio-photos/${id}`),
   },
+  studioProfile: () => get<StudioProfileData>("/studio-profile"),
+  updateStudioProfile: (data: StudioProfileData) => put<StudioProfileData>("/studio-profile", data),
 };

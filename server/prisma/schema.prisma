@@ -382,6 +382,15 @@ model Notification {
   providerMessageId String    @default("")
 }
 
+// Singleton row backing the "About Sukahati Yoga" section on the customer
+// home page — admin-editable rather than hardcoded marketing copy.
+model StudioProfile {
+  id         String @id @default("default")
+  aboutTitle String @default("About Sukahati Yoga")
+  aboutBody  String @default("A calm, welcoming space to practice yoga in the heart of Kuala Lumpur.")
+  imageUrl   String @default("")
+}
+
 model AuditLog {
   id            Int      @id @default(autoincrement())
   actorUserId   String
