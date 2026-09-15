@@ -58,15 +58,17 @@ async function soldAndRevenue(packageId: string) {
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
-  const bookings = await db.booking.findMany({
-    where: { packageId, status: { in: ["confirmed", "attended"] } },
-    select: { guestCount: true },
-  });
+  const [bookings, payments] = await Promise.all([
+    db.booking.findMany({
+      where: { packageId, status: { in: ["confirmed", "attended"] } },
+      select: { guestCount: true },
+    }),
+    db.payment.findMany({
+      where: { status: "paid", createdAt: { gte: monthStart }, booking: { packageId } },
+      select: { amountMinor: true },
+    }),
+  ]);
   const sold = bookings.reduce((n, b) => n + b.guestCount, 0);
-  const payments = await db.payment.findMany({
-    where: { status: "paid", createdAt: { gte: monthStart }, booking: { packageId } },
-    select: { amountMinor: true },
-  });
   const revenueMinor = payments.reduce((n, p) => n + p.amountMinor, 0);
   return { sold, revenueMinor };
 }
@@ -77,13 +79,16 @@ packagesRouter.get("/", async (req, res) => {
     where: includeHidden ? undefined : { isVisible: true },
     orderBy: { sortOrder: "asc" },
   });
-  const out = [];
-  for (const p of packages) {
-    const { sold, revenueMinor } = await soldAndRevenue(p.id);
-    const { retreat, earlyBirdSaveMinor } = await retreatFor(p);
-    const { event, earlyBirdSaveMinor: eventEarlyBirdSaveMinor } = await eventFor(p);
-    out.push(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor));
-  }
+  // Fetch every package's stats concurrently instead of one at a time —
+  // sequential awaits here were the main cause of this endpoint being slow.
+  const out = await Promise.all(packages.map(async (p) => {
+    const [{ sold, revenueMinor }, { retreat, earlyBirdSaveMinor }, { event, earlyBirdSaveMinor: eventEarlyBirdSaveMinor }] = await Promise.all([
+      soldAndRevenue(p.id),
+      retreatFor(p),
+      eventFor(p),
+    ]);
+    return serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor);
+  }));
   res.json(out);
 });
 

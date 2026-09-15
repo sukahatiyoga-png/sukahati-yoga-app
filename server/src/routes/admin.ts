@@ -183,8 +183,7 @@ adminRouter.get("/customers", async (req, res) => {
     where: { role: "customer", fullName: q ? { contains: q } : undefined },
     include: { preferences: true },
   });
-  const out = [];
-  for (const u of users) {
+  const out = await Promise.all(users.map(async (u) => {
     const bookings = await db.booking.findMany({ where: { userId: u.id } });
     const attended = bookings.filter((b) => b.status === "attended").length;
     const noShows = bookings.filter((b) => b.status === "no_show").length;
@@ -193,8 +192,8 @@ adminRouter.get("/customers", async (req, res) => {
     if (noShows) bits.push(`${noShows} no-shows`);
     if (u.preferences?.mealPreference) bits.push(u.preferences.mealPreference.toLowerCase());
     if (u.deletedAt) bits.push("deactivated");
-    out.push({ id: u.id, name: u.fullName, initials: initials(u.fullName), meta: bits.join(" · "), spendMinor, active: !u.deletedAt });
-  }
+    return { id: u.id, name: u.fullName, initials: initials(u.fullName), meta: bits.join(" · "), spendMinor, active: !u.deletedAt };
+  }));
   out.sort((a, b) => b.spendMinor - a.spendMinor);
   res.json(out);
 });
@@ -312,12 +311,12 @@ adminRouter.get("/reports", async (_req, res) => {
   const retentionPct = byUser.size ? Math.round((repeaters / byUser.size) * 100) : 0;
 
   const packages = await db.package.findMany();
-  const revenueByPackage = [];
-  for (const p of packages) {
+  const revenueByPackageRaw = await Promise.all(packages.map(async (p) => {
     const pays = await db.payment.findMany({ where: { status: "paid", booking: { packageId: p.id } } });
     const total = pays.reduce((n, x) => n + x.amountMinor, 0);
-    if (total > 0) revenueByPackage.push({ name: p.name, amountMinor: total });
-  }
+    return { name: p.name, amountMinor: total };
+  }));
+  const revenueByPackage = revenueByPackageRaw.filter((r) => r.amountMinor > 0);
   revenueByPackage.sort((a, b) => b.amountMinor - a.amountMinor);
   const top = revenueByPackage.slice(0, 5);
   const maxAmt = Math.max(1, ...top.map((r) => r.amountMinor));
@@ -469,19 +468,17 @@ adminRouter.get("/teachers", async (_req, res) => {
   const weekStart = startOfDay(new Date());
   weekStart.setDate(weekStart.getDate() - weekStart.getDay());
   const weekEnd = new Date(weekStart.getTime() + 7 * 86400000);
-  const out = [];
-  for (const t of teachers) {
+  const out = await Promise.all(teachers.map(async (t) => {
     const count = await db.session.count({ where: { teacherId: t.id, startsAt: { gte: weekStart, lt: weekEnd }, status: { not: "cancelled" } } });
-    out.push({ id: t.id, name: t.name, initials: initials(t.name), meta: `${JSON.parse(t.specialties).join(", ")}`, load: `${count} classes` });
-  }
+    return { id: t.id, name: t.name, initials: initials(t.name), meta: `${JSON.parse(t.specialties).join(", ")}`, load: `${count} classes` };
+  }));
   res.json(out);
 });
 
 adminRouter.get("/rooms", async (_req, res) => {
   const rooms = await db.room.findMany();
   const now = new Date();
-  const out = [];
-  for (const r of rooms) {
+  const out = await Promise.all(rooms.map(async (r) => {
     let state = "Free";
     let meta = r.matCapacity ? `${r.matCapacity} mats · ${r.note}` : r.note;
     if (r.isAccommodation) {
@@ -495,8 +492,8 @@ adminRouter.get("/rooms", async (_req, res) => {
       if (current) state = "In use";
       else if (next) { const { time, ampm } = timeParts(next.startsAt); state = `Booked ${time} ${ampm}`; }
     }
-    out.push({ id: r.id, name: r.name, meta, state });
-  }
+    return { id: r.id, name: r.name, meta, state };
+  }));
   res.json(out);
 });
 

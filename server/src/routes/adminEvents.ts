@@ -23,22 +23,22 @@ async function soldAndRevenue(packageId: string) {
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
-  const bookings = await db.booking.findMany({ where: { packageId, status: { in: ["confirmed", "attended"] } }, select: { guestCount: true } });
+  const [bookings, payments] = await Promise.all([
+    db.booking.findMany({ where: { packageId, status: { in: ["confirmed", "attended"] } }, select: { guestCount: true } }),
+    db.payment.findMany({ where: { status: "paid", createdAt: { gte: monthStart }, booking: { packageId } }, select: { amountMinor: true } }),
+  ]);
   const sold = bookings.reduce((n, b) => n + b.guestCount, 0);
-  const payments = await db.payment.findMany({ where: { status: "paid", createdAt: { gte: monthStart }, booking: { packageId } }, select: { amountMinor: true } });
   const revenueMinor = payments.reduce((n, p) => n + p.amountMinor, 0);
   return { sold, revenueMinor };
 }
 
 adminEventsRouter.get("/", async (_req, res) => {
   const packages = await db.package.findMany({ where: { kind: "event" }, orderBy: { sortOrder: "asc" } });
-  const out = [];
-  for (const p of packages) {
-    const ev = await db.event.findUnique({ where: { packageId: p.id } });
-    if (!ev) continue;
-    const { sold, revenueMinor } = await soldAndRevenue(p.id);
-    out.push(serialize(p, ev, sold, revenueMinor));
-  }
+  const rows = await Promise.all(packages.map(async (p) => {
+    const [ev, stats] = await Promise.all([db.event.findUnique({ where: { packageId: p.id } }), soldAndRevenue(p.id)]);
+    return ev ? serialize(p, ev, stats.sold, stats.revenueMinor) : null;
+  }));
+  const out = rows.filter((r) => r !== null);
   res.json(out);
 });
 
