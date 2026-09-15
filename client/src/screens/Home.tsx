@@ -4,6 +4,7 @@ import { api, type ActivePass, type BookingCustomer, type Pkg, type SessionSlot 
 import { money } from "../lib/format";
 import { isoDate } from "../lib/dates";
 import { screenPad, kicker, h1, h2 } from "../styles/shared";
+import Countdown from "../components/Countdown";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -150,6 +151,9 @@ export default function Home() {
                   <span style={{ fontSize: 12.5, color: "var(--color-accent-800)" }}>
                     {new Date(ev.event.startsAt).toLocaleDateString("en-MY", { month: "short", day: "numeric" })} · {ev.event.placesLeft} places left
                   </span>
+                </div>
+                <div style={{ marginTop: 10, fontSize: 12.5, color: "var(--color-accent-900)" }}>
+                  <Countdown startsAt={ev.event.startsAt} />
                 </div>
               </div>
             ))}

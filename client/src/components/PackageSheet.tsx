@@ -3,6 +3,7 @@ import Sheet from "./Sheet";
 import { useApp } from "../context/AppContext";
 import { api, type Pkg } from "../lib/api";
 import { money } from "../lib/format";
+import Countdown from "./Countdown";
 
 export default function PackageSheet({ id, onBook }: { id: string; onBook: (packageId: string) => void }) {
   const { closeSheet } = useApp();
@@ -43,11 +44,16 @@ export default function PackageSheet({ id, onBook }: { id: string; onBook: (pack
         </div>
       )}
       {pkg.event && (
-        <div style={{ marginTop: 14, fontSize: 12.5, color: "var(--color-accent-700)", fontWeight: 600 }}>
-          {new Date(pkg.event.startsAt).toLocaleString("en-MY", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
-          {" · "}{pkg.event.placesLeft} places left
-          {pkg.event.earlyBirdSaveMinor > 0 && ` · early bird saves ${money(pkg.event.earlyBirdSaveMinor)}`}
-        </div>
+        <>
+          <div style={{ marginTop: 14, fontSize: 12.5, color: "var(--color-accent-700)", fontWeight: 600 }}>
+            {new Date(pkg.event.startsAt).toLocaleString("en-MY", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+            {" · "}{pkg.event.placesLeft} places left
+            {pkg.event.earlyBirdSaveMinor > 0 && ` · early bird saves ${money(pkg.event.earlyBirdSaveMinor)}`}
+          </div>
+          <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--color-accent-800)" }}>
+            <Countdown startsAt={pkg.event.startsAt} />
+          </div>
+        </>
       )}
 
       <div style={{ marginTop: 16, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>Included</div>
