@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../context/AppContext";
-import { api, type ActivePass, type BookingCustomer, type Pkg, type PublicTeacher, type SessionSlot, type StudioPhoto, type StudioProfileData } from "../lib/api";
+import { api, type ActivePass, type BookingCustomer, type Pkg, type SessionSlot } from "../lib/api";
 import { money } from "../lib/format";
 import { isoDate, buildDays } from "../lib/dates";
 import { screenPad, kicker, h2 } from "../styles/shared";
@@ -41,9 +41,6 @@ export default function Home() {
   const [packages, setPackages] = useState<Pkg[]>([]);
   const [today, setToday] = useState<SessionSlot[]>([]);
   const [unread, setUnread] = useState(0);
-  const [teachers, setTeachers] = useState<PublicTeacher[]>([]);
-  const [studioPhotos, setStudioPhotos] = useState<StudioPhoto[]>([]);
-  const [studioProfile, setStudioProfile] = useState<StudioProfileData | null>(null);
   const [pill, setPill] = useState<Pill>("All");
   const calDays = useMemo(() => buildDays(7), []);
   const [calDayId, setCalDayId] = useState(calDays[0].id);
@@ -56,9 +53,6 @@ export default function Home() {
     api.packages().then(setPackages);
     api.sessions({ date: todayIso }).then(setToday);
     api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length));
-    api.teachers().then(setTeachers).catch(() => {});
-    api.studioPhotos().then(setStudioPhotos).catch(() => {});
-    api.studioProfile().then(setStudioProfile).catch(() => {});
   }, [me.id]);
 
   useEffect(() => { api.sessions({ date: calDayId }).then(setCalSessions); }, [calDayId]);
@@ -100,8 +94,6 @@ export default function Home() {
     : pill === "Events" ? eventCards
     : pill === "Packages" ? packageCards
     : [...retreatCards, ...eventCards, ...packageCards.slice(0, 4), ...classCards.slice(0, 4)];
-
-  const distinctStyles = useMemo(() => new Set(teachers.flatMap((t) => t.specialties)).size, [teachers]);
 
   const featured: ExploreCard | null =
     [...retreatCards, ...eventCards, ...packageCards].find((c) => c.badge) ||
@@ -277,140 +269,6 @@ export default function Home() {
         ))}
       </div>
 
-      {studioProfile && (
-        <Reveal3D delayMs={0} style={{ marginTop: 26 }}>
-          <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
-            <div style={{
-              height: 170, position: "relative", display: "flex", alignItems: "flex-end",
-              background: studioProfile.imageUrl ? `url(${studioProfile.imageUrl})` : "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-2-600))",
-              backgroundSize: "cover", backgroundPosition: "center",
-            }}>
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.62) 100%)" }} />
-              <div style={{ position: "relative", padding: 16, color: "#fff" }}>
-                <div style={{ fontFamily: "var(--font-heading)", fontSize: 20 }}>{studioProfile.aboutTitle}</div>
-              </div>
-            </div>
-            <div style={{ background: "var(--color-neutral-100)", padding: 16 }}>
-              <div style={{ fontSize: 13.5, color: "var(--color-neutral-800)", lineHeight: 1.6 }}>{studioProfile.aboutBody}</div>
-              <div style={{ display: "flex", marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--color-divider)" }}>
-                <Stat value={String(teachers.length)} label="Teachers" />
-                <Stat value={String(distinctStyles)} label="Styles" />
-                <Stat value={String(plainPackages.length)} label="Packages" />
-              </div>
-            </div>
-          </div>
-        </Reveal3D>
-      )}
-
-      {plainPackages.length > 0 && (
-        <>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
-            <h2 style={h2}>Our services</h2>
-          </div>
-          <div style={{ display: "flex", gap: 12, overflow: "auto", paddingBottom: 6 }}>
-            {plainPackages.map((p, i) => (
-              <Reveal3D key={p.id} delayMs={i * 70} style={{ flex: "none", width: 190 }}>
-                <div onClick={() => openPackageSheet(p.id)} style={{ cursor: "pointer", borderRadius: "var(--radius-lg)", overflow: "hidden", background: "var(--color-neutral-100)", boxShadow: "var(--shadow-sm)" }}>
-                  <div style={{
-                    height: 110, position: "relative", display: "flex", alignItems: "flex-end",
-                    background: p.imageUrl ? `url(${p.imageUrl})` : gradientFor(p.id), backgroundSize: "cover", backgroundPosition: "center",
-                  }}>
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%)" }} />
-                    <div style={{ position: "relative", padding: "10px 12px", color: "#fff", fontFamily: "var(--font-heading)", fontSize: 15.5, lineHeight: 1.2 }}>{p.name}</div>
-                  </div>
-                  <div style={{ padding: "10px 12px" }}>
-                    <div style={{ fontFamily: "var(--font-heading)", fontSize: 15 }}>{money(p.priceMinor)}</div>
-                    <div style={{ fontSize: 11, color: "var(--color-neutral-600)", marginTop: 2 }}>{p.unit}</div>
-                  </div>
-                </div>
-              </Reveal3D>
-            ))}
-          </div>
-        </>
-      )}
-
-      {teachers.length > 0 && (
-        <>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
-            <h2 style={h2}>Meet your teachers</h2>
-          </div>
-          <div style={{ display: "flex", gap: 12, overflow: "auto", paddingBottom: 6 }}>
-            {teachers.map((t, i) => {
-              const tInitials = t.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-              return (
-                <Reveal3D key={t.id} delayMs={i * 70} style={{ flex: "none", width: 200 }}>
-                  <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", background: "var(--color-neutral-100)", boxShadow: "var(--shadow-sm)" }}>
-                    <div style={{
-                      height: 130, position: "relative", display: "flex", alignItems: "flex-end",
-                      background: t.photoUrl ? `url(${t.photoUrl})` : "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-2-500))",
-                      backgroundSize: "cover", backgroundPosition: "center",
-                    }}>
-                      {!t.photoUrl && (
-                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontFamily: "var(--font-heading)", fontSize: 30 }}>{tInitials}</div>
-                      )}
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)" }} />
-                      <div style={{ position: "relative", padding: "10px 12px", color: "#fff", fontFamily: "var(--font-heading)", fontSize: 16 }}>{t.name}</div>
-                    </div>
-                    <div style={{ padding: "10px 12px" }}>
-                      {t.specialties.length > 0 && (
-                        <div style={{ fontSize: 11, color: "var(--color-accent-700)", fontWeight: 700, letterSpacing: "0.02em" }}>{t.specialties.join(" · ")}</div>
-                      )}
-                      {t.bio && (
-                        <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 6, lineHeight: 1.45, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                          {t.bio}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Reveal3D>
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
-        <h2 style={h2}>Our studio</h2>
-      </div>
-      <div style={{ display: "flex", gap: 12, overflow: "auto", paddingBottom: 6 }}>
-        {(studioPhotos.length > 0 ? studioPhotos : STUDIO_PLACEHOLDERS).map((p, i) => (
-          <Reveal3D key={"id" in p ? p.id : p.label} delayMs={i * 70} style={{ flex: "none", width: 170 }}>
-            {"imageUrl" in p ? (
-              <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
-                <img src={p.imageUrl} alt={p.caption || "Studio"} style={{ width: 170, height: 130, objectFit: "cover", display: "block" }} />
-                {p.caption && <div style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, background: "var(--color-neutral-100)" }}>{p.caption}</div>}
-              </div>
-            ) : (
-              <div style={{ width: 170, height: 130, borderRadius: "var(--radius-lg)", background: p.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, color: "#fff" }}>
-                {p.icon}
-                <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: "0.02em" }}>{p.label}</span>
-              </div>
-            )}
-          </Reveal3D>
-        ))}
-      </div>
     </div>
   );
 }
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div style={{ flex: 1, textAlign: "center" }}>
-      <div style={{ fontFamily: "var(--font-heading)", fontSize: 19 }}>{value}</div>
-      <div style={{ fontSize: 11, color: "var(--color-neutral-600)", marginTop: 2 }}>{label}</div>
-    </div>
-  );
-}
-
-function GalleryIcon({ d }: { d: string }) {
-  return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity={0.9}><path d={d} /></svg>
-  );
-}
-
-const STUDIO_PLACEHOLDERS = [
-  { label: "Studio A", gradient: "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-600))", icon: <GalleryIcon d="M4 20 12 4l8 16Z" /> },
-  { label: "Reception", gradient: "linear-gradient(135deg, var(--color-accent-2-400), var(--color-accent-2-600))", icon: <GalleryIcon d="M3 10 12 4l9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" /> },
-  { label: "Garden deck", gradient: "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-2-500))", icon: <GalleryIcon d="M12 3a5 5 0 0 1 5 5c0 3-5 9-5 9s-5-6-5-9a5 5 0 0 1 5-5Z" /> },
-  { label: "Practice room", gradient: "linear-gradient(135deg, var(--color-accent-2-500), var(--color-accent-600))", icon: <GalleryIcon d="M12 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM6 20c0-3 3-5 6-5s6 2 6 5" /> },
-];
