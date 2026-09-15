@@ -114,7 +114,9 @@ export interface CouponInput {
 }
 export interface Automation { id: string; name: string; note: string; on: boolean }
 export interface Teacher { id: string; name: string; initials: string; meta: string; load: string }
-export interface TeacherDetail { id: string; name: string; specialties: string[]; weeklyHourCap: number }
+export interface TeacherDetail { id: string; name: string; specialties: string[]; weeklyHourCap: number; photoUrl: string; bio: string }
+export interface PublicTeacher { id: string; name: string; specialties: string[]; photoUrl: string; bio: string }
+export interface StudioPhoto { id: string; imageUrl: string; caption: string; sortOrder: number }
 export interface RoomItem { id: string; name: string; meta: string; state: string }
 export interface RoomDetail { id: string; name: string; matCapacity: number | null; isAccommodation: boolean; beds: number | null; note: string }
 export interface CalendarSession { id: string; time: string; ampm: string; title: string; assign: string; load: string; pct: string; pctRaw: number; capacity: number; status: string; startsAt: string; endsAt: string; teacherId: string; roomId: string }
@@ -270,8 +272,8 @@ export const api = {
     toggleAutomation: (id: string) => patch<{ ok: boolean; on: boolean }>(`/admin/automations/${id}/toggle`),
     teachers: () => get<Teacher[]>("/admin/teachers"),
     teacherDetail: (id: string) => get<TeacherDetail>(`/admin/teachers/${id}`),
-    createTeacher: (data: { name: string; specialties: string[]; weeklyHourCap: number }) => post<TeacherDetail>("/admin/teachers", data),
-    updateTeacher: (id: string, data: Partial<{ name: string; specialties: string[]; weeklyHourCap: number }>) => put<TeacherDetail>(`/admin/teachers/${id}`, data),
+    createTeacher: (data: { name: string; specialties: string[]; weeklyHourCap: number; photoUrl?: string; bio?: string }) => post<TeacherDetail>("/admin/teachers", data),
+    updateTeacher: (id: string, data: Partial<{ name: string; specialties: string[]; weeklyHourCap: number; photoUrl: string; bio: string }>) => put<TeacherDetail>(`/admin/teachers/${id}`, data),
     deleteTeacher: (id: string) => del<{ ok: boolean }>(`/admin/teachers/${id}`),
     rooms: () => get<RoomItem[]>("/admin/rooms"),
     roomDetail: (id: string) => get<RoomDetail>(`/admin/rooms/${id}`),
@@ -321,5 +323,12 @@ export const api = {
     create: (data: EventInput) => post<EventItem>("/admin/events", data),
     update: (id: string, data: Partial<EventInput>) => put<EventItem>(`/admin/events/${id}`, data),
     delete: (id: string) => del<{ ok: boolean }>(`/admin/events/${id}`),
+  },
+
+  teachers: () => get<PublicTeacher[]>("/teachers"),
+  studioPhotos: () => get<StudioPhoto[]>("/studio-photos"),
+  adminStudioPhotos: {
+    create: (data: { imageUrl: string; caption?: string }) => post<StudioPhoto>("/studio-photos", data),
+    delete: (id: string) => del<{ ok: boolean }>(`/studio-photos/${id}`),
   },
 };

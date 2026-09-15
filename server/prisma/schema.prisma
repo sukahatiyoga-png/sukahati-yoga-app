@@ -334,9 +334,21 @@ model Teacher {
   name           String
   specialties    String // JSON string[]
   weeklyHourCap  Int     @default(20)
+  photoUrl       String  @default("") // data URL, uploaded from admin
+  bio            String  @default("")
 
   classTemplates ClassTemplate[]
   sessions       Session[]
+}
+
+// Studio gallery photos shown on the customer home page — uploaded and
+// managed from admin, independent of any teacher or booking record.
+model StudioPhoto {
+  id        String   @id @default(cuid())
+  imageUrl  String // data URL, uploaded from admin
+  caption   String   @default("")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 }
 
 model Room {

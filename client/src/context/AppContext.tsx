@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import type { Me } from "../lib/api";
 
 export type Tab = "home" | "search" | "packages" | "book" | "bookings" | "alerts" | "profile";
-export type AdminSection = "dash" | "cal" | "bookings" | "customers" | "packages" | "retreats" | "events" | "reports" | "promos" | "resources" | "teacherReg" | "scan" | "activity";
+export type AdminSection = "dash" | "cal" | "bookings" | "customers" | "packages" | "retreats" | "events" | "reports" | "promos" | "resources" | "teacherReg" | "scan" | "activity" | "gallery";
 
 export interface BookPreset {
   sessionId?: string;

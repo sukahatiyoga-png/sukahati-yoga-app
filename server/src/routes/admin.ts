@@ -527,22 +527,29 @@ adminRouter.get("/rooms", async (_req, res) => {
   res.json(out);
 });
 
+function serializeTeacher(t: { id: string; name: string; specialties: string; weeklyHourCap: number; photoUrl: string; bio: string }) {
+  return { id: t.id, name: t.name, specialties: JSON.parse(t.specialties || "[]"), weeklyHourCap: t.weeklyHourCap, photoUrl: t.photoUrl, bio: t.bio };
+}
+
 adminRouter.post("/teachers", async (req, res) => {
   const b = req.body || {};
   if (!b.name) return res.status(400).json({ error: "Name is required" });
   const t = await db.teacher.create({
-    data: { name: b.name, specialties: JSON.stringify(b.specialties || []), weeklyHourCap: Number(b.weeklyHourCap) || 20 },
+    data: {
+      name: b.name, specialties: JSON.stringify(b.specialties || []), weeklyHourCap: Number(b.weeklyHourCap) || 20,
+      photoUrl: b.photoUrl || "", bio: b.bio || "",
+    },
   });
   await db.auditLog.create({
     data: { actorUserId: req.userId!, entityTable: "teachers", entityId: t.id, action: "create", diff: JSON.stringify({ name: t.name }) },
   }).catch(() => {});
-  res.status(201).json({ id: t.id, name: t.name, specialties: JSON.parse(t.specialties), weeklyHourCap: t.weeklyHourCap });
+  res.status(201).json(serializeTeacher(t));
 });
 
 adminRouter.get("/teachers/:id", async (req, res) => {
   const t = await db.teacher.findUnique({ where: { id: req.params.id } });
   if (!t) return res.status(404).json({ error: "Teacher not found" });
-  res.json({ id: t.id, name: t.name, specialties: JSON.parse(t.specialties || "[]"), weeklyHourCap: t.weeklyHourCap });
+  res.json(serializeTeacher(t));
 });
 
 adminRouter.put("/teachers/:id", async (req, res) => {
@@ -555,12 +562,14 @@ adminRouter.put("/teachers/:id", async (req, res) => {
       name: b.name ?? existing.name,
       specialties: b.specialties !== undefined ? JSON.stringify(b.specialties) : existing.specialties,
       weeklyHourCap: b.weeklyHourCap !== undefined ? Number(b.weeklyHourCap) : existing.weeklyHourCap,
+      photoUrl: b.photoUrl !== undefined ? b.photoUrl : existing.photoUrl,
+      bio: b.bio !== undefined ? b.bio : existing.bio,
     },
   });
   await db.auditLog.create({
     data: { actorUserId: req.userId!, entityTable: "teachers", entityId: t.id, action: "update", diff: JSON.stringify({ name: t.name }) },
   }).catch(() => {});
-  res.json({ id: t.id, name: t.name, specialties: JSON.parse(t.specialties), weeklyHourCap: t.weeklyHourCap });
+  res.json(serializeTeacher(t));
 });
 
 adminRouter.delete("/teachers/:id", async (req, res) => {

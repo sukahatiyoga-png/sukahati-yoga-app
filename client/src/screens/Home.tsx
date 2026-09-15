@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
-import { api, type ActivePass, type BookingCustomer, type Pkg, type SessionSlot } from "../lib/api";
+import { api, type ActivePass, type BookingCustomer, type Pkg, type PublicTeacher, type SessionSlot, type StudioPhoto } from "../lib/api";
 import { money } from "../lib/format";
 import { isoDate } from "../lib/dates";
 import { screenPad, kicker, h1, h2 } from "../styles/shared";
 import Countdown from "../components/Countdown";
+import Reveal3D from "../components/Reveal3D";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -21,6 +22,8 @@ export default function Home() {
   const [events, setEvents] = useState<Pkg[]>([]);
   const [today, setToday] = useState<SessionSlot[]>([]);
   const [unread, setUnread] = useState(0);
+  const [teachers, setTeachers] = useState<PublicTeacher[]>([]);
+  const [studioPhotos, setStudioPhotos] = useState<StudioPhoto[]>([]);
 
   useEffect(() => {
     const todayIso = isoDate(new Date());
@@ -32,6 +35,8 @@ export default function Home() {
     });
     api.sessions({ date: todayIso }).then(setToday);
     api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length));
+    api.teachers().then(setTeachers).catch(() => {});
+    api.studioPhotos().then(setStudioPhotos).catch(() => {});
   }, [me.id]);
 
   const initials = me.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
@@ -184,6 +189,75 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      {teachers.length > 0 && (
+        <>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
+            <h2 style={h2}>Meet your teachers</h2>
+          </div>
+          <div style={{ display: "flex", gap: 12, overflow: "auto", paddingBottom: 6 }}>
+            {teachers.map((t, i) => {
+              const initials = t.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+              return (
+                <Reveal3D key={t.id} delayMs={i * 70} style={{ flex: "none", width: 210 }}>
+                  <div style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 16, height: "100%", boxSizing: "border-box" }}>
+                    {t.photoUrl ? (
+                      <img src={t.photoUrl} alt={t.name} style={{ width: 64, height: 64, borderRadius: 999, objectFit: "cover", display: "block" }} />
+                    ) : (
+                      <div style={{ width: 64, height: 64, borderRadius: 999, background: "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-2-500))", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-heading)", fontSize: 22 }}>
+                        {initials}
+                      </div>
+                    )}
+                    <div style={{ fontFamily: "var(--font-heading)", fontSize: 17, marginTop: 12 }}>{t.name}</div>
+                    {t.specialties.length > 0 && (
+                      <div style={{ fontSize: 11.5, color: "var(--color-accent-700)", fontWeight: 600, marginTop: 3 }}>{t.specialties.join(" · ")}</div>
+                    )}
+                    {t.bio && (
+                      <div style={{ fontSize: 12.5, color: "var(--color-neutral-700)", marginTop: 8, lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {t.bio}
+                      </div>
+                    )}
+                  </div>
+                </Reveal3D>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
+        <h2 style={h2}>Our studio</h2>
+      </div>
+      <div style={{ display: "flex", gap: 12, overflow: "auto", paddingBottom: 6 }}>
+        {(studioPhotos.length > 0 ? studioPhotos : STUDIO_PLACEHOLDERS).map((p, i) => (
+          <Reveal3D key={"id" in p ? p.id : p.label} delayMs={i * 70} style={{ flex: "none", width: 170 }}>
+            {"imageUrl" in p ? (
+              <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+                <img src={p.imageUrl} alt={p.caption || "Studio"} style={{ width: 170, height: 130, objectFit: "cover", display: "block" }} />
+                {p.caption && <div style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, background: "var(--color-neutral-100)" }}>{p.caption}</div>}
+              </div>
+            ) : (
+              <div style={{ width: 170, height: 130, borderRadius: "var(--radius-lg)", background: p.gradient, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, color: "#fff" }}>
+                {p.icon}
+                <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: "0.02em" }}>{p.label}</span>
+              </div>
+            )}
+          </Reveal3D>
+        ))}
+      </div>
     </div>
   );
 }
+
+function GalleryIcon({ d }: { d: string }) {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity={0.9}><path d={d} /></svg>
+  );
+}
+
+const STUDIO_PLACEHOLDERS = [
+  { label: "Studio A", gradient: "linear-gradient(135deg, var(--color-accent-400), var(--color-accent-600))", icon: <GalleryIcon d="M4 20 12 4l8 16Z" /> },
+  { label: "Reception", gradient: "linear-gradient(135deg, var(--color-accent-2-400), var(--color-accent-2-600))", icon: <GalleryIcon d="M3 10 12 4l9 6v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" /> },
+  { label: "Garden deck", gradient: "linear-gradient(135deg, var(--color-accent-500), var(--color-accent-2-500))", icon: <GalleryIcon d="M12 3a5 5 0 0 1 5 5c0 3-5 9-5 9s-5-6-5-9a5 5 0 0 1 5-5Z" /> },
+  { label: "Practice room", gradient: "linear-gradient(135deg, var(--color-accent-2-500), var(--color-accent-600))", icon: <GalleryIcon d="M12 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM6 20c0-3 3-5 6-5s6 2 6 5" /> },
+];

@@ -14,6 +14,8 @@ import { teacherRegistrationRouter } from "./routes/teacherRegistration";
 import { adminTeachersRouter } from "./routes/adminTeachers";
 import { adminRetreatsRouter } from "./routes/adminRetreats";
 import { adminEventsRouter } from "./routes/adminEvents";
+import { teachersRouter } from "./routes/teachers";
+import { studioPhotosRouter } from "./routes/studioPhotos";
 import { requireAuth, requireStaff } from "./domain/auth";
 
 const app = express();
@@ -38,6 +40,8 @@ app.use("/api/admin/retreats", requireAuth, requireStaff, adminRetreatsRouter);
 app.use("/api/admin/events", requireAuth, requireStaff, adminEventsRouter);
 app.use("/api/teacher-registration", teacherRegistrationRouter); // public — no customer account required
 app.use("/api/addons", addonsRouter);
+app.use("/api/teachers", teachersRouter); // public roster — name/photo/bio for the home page
+app.use("/api/studio-photos", studioPhotosRouter); // browsing is public; write routes protect themselves inline
 
 // Serve the built client (client/dist) when it's present alongside this
 // server on disk, so a single process/port can host the whole app in

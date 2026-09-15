@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { api, type RoomDetail, type RoomItem, type Teacher, type TeacherDetail } from "../../lib/api";
+import { fileToDataUrl, MAX_IMAGE_MB } from "../../lib/upload";
 
 type EditTarget = { kind: "teacher" | "room"; id: string | "new" };
 
@@ -86,20 +87,33 @@ function TeacherForm({ id, onDone }: { id: string | null; onDone: () => void }) 
   const [name, setName] = useState("");
   const [specialties, setSpecialties] = useState("");
   const [weeklyHourCap, setWeeklyHourCap] = useState("20");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [bio, setBio] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     api.admin.teacherDetail(id).then((t: TeacherDetail) => {
-      setName(t.name); setSpecialties(t.specialties.join(", ")); setWeeklyHourCap(String(t.weeklyHourCap)); setLoaded(true);
+      setName(t.name); setSpecialties(t.specialties.join(", ")); setWeeklyHourCap(String(t.weeklyHourCap));
+      setPhotoUrl(t.photoUrl); setBio(t.bio); setLoaded(true);
     });
   }, [id]);
+
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) { flash(`Please choose a photo under ${MAX_IMAGE_MB}MB`); return; }
+    setPhotoBusy(true);
+    try { setPhotoUrl(await fileToDataUrl(file)); } finally { setPhotoBusy(false); }
+  }
 
   async function save() {
     setSaving(true);
     try {
-      const body = { name, specialties: specialties.split(",").map((s) => s.trim()).filter(Boolean), weeklyHourCap: Number(weeklyHourCap) || 20 };
+      const body = { name, specialties: specialties.split(",").map((s) => s.trim()).filter(Boolean), weeklyHourCap: Number(weeklyHourCap) || 20, photoUrl, bio };
       if (isNew) { await api.admin.createTeacher(body); flash("Teacher added"); }
       else { await api.admin.updateTeacher(id!, body); flash("Teacher saved"); }
       onDone();
@@ -144,6 +158,20 @@ function TeacherForm({ id, onDone }: { id: string | null; onDone: () => void }) 
         <label htmlFor="t-cap">Weekly hour cap</label>
         <input className="input" id="t-cap" type="number" min={0} value={weeklyHourCap} onChange={(e) => setWeeklyHourCap(e.target.value)} />
       </div>
+      <div className="field" style={{ marginTop: 14 }}>
+        <label htmlFor="t-bio">Bio — shown to customers</label>
+        <textarea className="input" id="t-bio" style={{ borderRadius: "var(--radius-md)", minHeight: 80, padding: "12px 16px", resize: "vertical" }} value={bio} onChange={(e) => setBio(e.target.value)} />
+      </div>
+      <div className="field" style={{ marginTop: 14 }}>
+        <label htmlFor="t-photo">{photoBusy ? "Uploading…" : photoUrl ? "Photo attached — choose a file to replace" : `Photo — JPG or PNG, up to ${MAX_IMAGE_MB}MB`}</label>
+        <input className="input" id="t-photo" type="file" accept="image/*" disabled={photoBusy} onChange={onPhoto} style={{ borderRadius: "var(--radius-sm)", padding: "10px 14px" }} />
+      </div>
+      {photoUrl && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+          <img src={photoUrl} alt="" style={{ width: 56, height: 56, borderRadius: 999, objectFit: "cover" }} />
+          <button className="btn btn-ghost" style={{ padding: "6px 10px", fontSize: 12.5, color: "var(--color-accent-700)" }} onClick={() => setPhotoUrl("")}>Remove photo</button>
+        </div>
+      )}
 
       <button className="btn btn-primary btn-block" style={{ marginTop: 20, padding: "15px 0" }} disabled={saving || !name} onClick={save}>
         {saving ? "Saving…" : isNew ? "Add teacher" : "Save changes"}
