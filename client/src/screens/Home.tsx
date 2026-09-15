@@ -26,6 +26,9 @@ function gradientFor(seed: string): string {
   return PLACEHOLDER_GRADIENTS[h % PLACEHOLDER_GRADIENTS.length];
 }
 
+type Pill = "All" | "Classes" | "Retreats" | "Events" | "Packages";
+const PILLS: Pill[] = ["All", "Classes", "Retreats", "Events", "Packages"];
+
 interface ExploreCard {
   key: string; kindLabel: string; title: string; meta: string; priceMinor: number;
   imageUrl: string; badge?: string; countdownAt?: string; onClick: () => void;
@@ -41,6 +44,7 @@ export default function Home() {
   const [teachers, setTeachers] = useState<PublicTeacher[]>([]);
   const [studioPhotos, setStudioPhotos] = useState<StudioPhoto[]>([]);
   const [studioProfile, setStudioProfile] = useState<StudioProfileData | null>(null);
+  const [pill, setPill] = useState<Pill>("All");
   const calDays = useMemo(() => buildDays(7), []);
   const [calDayId, setCalDayId] = useState(calDays[0].id);
   const [calSessions, setCalSessions] = useState<SessionSlot[]>([]);
@@ -90,7 +94,12 @@ export default function Home() {
     onClick: () => openPackageSheet(p.id),
   }));
 
-  const exploreCards: ExploreCard[] = [...retreatCards, ...eventCards, ...packageCards, ...classCards];
+  const railCards: ExploreCard[] =
+    pill === "Classes" ? classCards
+    : pill === "Retreats" ? retreatCards
+    : pill === "Events" ? eventCards
+    : pill === "Packages" ? packageCards
+    : [...retreatCards, ...eventCards, ...packageCards.slice(0, 4), ...classCards.slice(0, 4)];
 
   const distinctStyles = useMemo(() => new Set(teachers.flatMap((t) => t.specialties)).size, [teachers]);
 
@@ -199,6 +208,40 @@ export default function Home() {
         </Reveal3D>
       )}
 
+      <div style={{ display: "flex", gap: 8, marginTop: 22, overflow: "auto", paddingBottom: 4 }}>
+        {PILLS.map((p) => (
+          <button
+            key={p} onClick={() => setPill(p)}
+            style={{ flex: "none", border: 0, cursor: "pointer", borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 600, fontFamily: "var(--font-body)", background: pill === p ? "var(--color-neutral-900)" : "var(--color-neutral-100)", color: pill === p ? "#fff" : "var(--color-text)" }}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
+        {railCards.length === 0 && <div style={{ fontSize: 13, color: "var(--color-neutral-600)" }}>Nothing here right now.</div>}
+        {railCards.map((c, i) => (
+          <Reveal3D key={c.key} delayMs={Math.min(i, 4) * 60}>
+            <div onClick={c.onClick} style={{ cursor: "pointer", display: "flex", gap: 12, alignItems: "center", background: "var(--color-neutral-100)", borderRadius: "var(--radius-md)", padding: 12 }}>
+              <div style={{
+                flex: "none", width: 64, height: 64, borderRadius: "var(--radius-sm)", overflow: "hidden",
+                background: c.imageUrl ? `url(${c.imageUrl})` : gradientFor(c.key), backgroundSize: "cover", backgroundPosition: "center",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {!c.imageUrl && <span style={{ color: "#fff", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>{c.kindLabel}</span>}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: 14.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.title}</div>
+                <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 2 }}>{c.meta}</div>
+                {c.countdownAt && <div style={{ fontSize: 11.5, color: "var(--color-accent-700)", marginTop: 3 }}><Countdown startsAt={c.countdownAt} /></div>}
+              </div>
+              <div style={{ flex: "none", fontFamily: "var(--font-heading)", fontSize: 16 }}>{money(c.priceMinor)}</div>
+            </div>
+          </Reveal3D>
+        ))}
+      </div>
+
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
         <h2 style={h2}>Class calendar</h2>
       </div>
@@ -231,50 +274,6 @@ export default function Home() {
               <button className="btn btn-ghost" style={{ flex: "none", padding: "7px 12px", fontSize: 11.5 }} onClick={() => api.waitlist(s.id).then(() => flash("Added to the waitlist for " + s.title))}>Waitlist</button>
             )}
           </div>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "26px 0 12px" }}>
-        <h2 style={h2}>Explore</h2>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        {exploreCards.length === 0 && <div style={{ fontSize: 13, color: "var(--color-neutral-600)" }}>Nothing here right now.</div>}
-        {exploreCards.map((c, i) => (
-          <Reveal3D key={c.key} delayMs={Math.min(i, 5) * 60}>
-            <div onClick={c.onClick} style={{ cursor: "pointer", borderRadius: "var(--radius-lg)", overflow: "visible" }}>
-              <div style={{
-                height: 172, borderRadius: "var(--radius-lg)", position: "relative", overflow: "hidden",
-                background: c.imageUrl ? `url(${c.imageUrl})` : gradientFor(c.key), backgroundSize: "cover", backgroundPosition: "center",
-              }}>
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.4) 100%)" }} />
-                <span style={{ position: "absolute", top: 12, left: 12, background: "rgba(255,255,255,0.92)", color: "var(--color-neutral-800)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 999 }}>
-                  {c.kindLabel}
-                </span>
-                {c.badge && (
-                  <span style={{ position: "absolute", top: 12, right: 12, background: "var(--color-accent-600)", color: "#fff", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.03em", padding: "5px 11px", borderRadius: 999 }}>
-                    {c.badge}
-                  </span>
-                )}
-                <div style={{ position: "absolute", left: 14, right: 14, bottom: 14, color: "#fff" }}>
-                  <div style={{ fontFamily: "var(--font-heading)", fontSize: 20, lineHeight: 1.2 }}>{c.title}</div>
-                  {c.countdownAt && <div style={{ fontSize: 11.5, marginTop: 4, opacity: 0.95 }}><Countdown startsAt={c.countdownAt} /></div>}
-                </div>
-              </div>
-              <div style={{
-                margin: "-22px 12px 0", position: "relative", background: "var(--color-neutral-100)", borderRadius: "var(--radius-md)",
-                boxShadow: "var(--shadow-md)", padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-              }}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 12.5, color: "var(--color-neutral-700)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.meta}</div>
-                  <div style={{ fontFamily: "var(--font-heading)", fontSize: 18, marginTop: 3 }}>{money(c.priceMinor)}</div>
-                </div>
-                <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-neutral-900)", color: "#fff", fontSize: 12, fontWeight: 700, padding: "9px 14px", borderRadius: 999 }}>
-                  View
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 6 6-6 6" /></svg>
-                </span>
-              </div>
-            </div>
-          </Reveal3D>
         ))}
       </div>
 
