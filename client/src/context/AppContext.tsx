@@ -21,6 +21,7 @@ export interface AppCtx {
   exitAdmin: () => void;
   logout: () => void;
   openPackageSheet: (id: string) => void;
+  openRetreatDetail: (id: string) => void;
   openQrSheet: (booking: { title: string; meta: string; ref: string; qrToken: string }) => void;
   closeSheet: () => void;
 }

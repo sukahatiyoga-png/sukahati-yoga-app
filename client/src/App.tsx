@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Toast from "./components/Toast";
 import TabBar from "./components/TabBar";
 import PackageSheet from "./components/PackageSheet";
+import RetreatDetail from "./screens/RetreatDetail";
 import QrSheet from "./components/QrSheet";
 import PackageEditSheet from "./components/PackageEditSheet";
 import Splash from "./components/Splash";
@@ -22,6 +23,7 @@ import AdminShell from "./screens/admin/AdminShell";
 
 type SheetState =
   | { kind: "pkg"; id: string }
+  | { kind: "retreatDetail"; id: string }
   | { kind: "qr"; booking: { title: string; meta: string; ref: string; qrToken: string } }
   | { kind: "pkgEdit"; pkg: Pkg | null }
   | null;
@@ -105,6 +107,7 @@ export default function App() {
   }, []);
 
   const openPackageSheet = useCallback((id: string) => setSheet({ kind: "pkg", id }), []);
+  const openRetreatDetail = useCallback((id: string) => setSheet({ kind: "retreatDetail", id }), []);
   const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string; qrToken: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
   const closeSheet = useCallback(() => setSheet(null), []);
@@ -141,7 +144,7 @@ export default function App() {
 
     const ctx = {
       me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
-      openPackageSheet, openQrSheet, closeSheet,
+      openPackageSheet, openRetreatDetail, openQrSheet, closeSheet,
     };
     return (
       <AppContext.Provider value={ctx}>
@@ -172,7 +175,7 @@ export default function App() {
 
   const ctx = {
     me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
-    openPackageSheet, openQrSheet, closeSheet,
+    openPackageSheet, openRetreatDetail, openQrSheet, closeSheet,
   };
 
   return (
@@ -193,6 +196,7 @@ export default function App() {
         <Toast message={toast} />
 
         {sheet?.kind === "pkg" && <PackageSheet id={sheet.id} onBook={(packageId) => goBook({ packageId })} />}
+        {sheet?.kind === "retreatDetail" && <RetreatDetail id={sheet.id} onBook={(packageId) => goBook({ packageId })} onClose={closeSheet} />}
         {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
         {sheet?.kind === "pkgEdit" && (
           <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />

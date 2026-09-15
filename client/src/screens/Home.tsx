@@ -35,7 +35,7 @@ interface ExploreCard {
 }
 
 export default function Home() {
-  const { me, goTab, goBook, openPackageSheet } = useApp();
+  const { me, goTab, goBook, openPackageSheet, openRetreatDetail } = useApp();
   const [nextBooking, setNextBooking] = useState<BookingCustomer | null>(null);
   const [pass, setPass] = useState<ActivePass | null>(null);
   const [packages, setPackages] = useState<Pkg[]>([]);
@@ -71,7 +71,7 @@ export default function Home() {
     meta: r.retreat ? `${new Date(r.retreat.startsOn).toLocaleDateString("en-MY", { month: "short", day: "numeric" })} · ${r.retreat.placesLeft} left` : "",
     priceMinor: r.priceMinor, imageUrl: r.imageUrl,
     badge: r.retreat && r.retreat.earlyBirdSaveMinor > 0 ? "Early bird" : undefined,
-    onClick: () => openPackageSheet(r.id),
+    onClick: () => openRetreatDetail(r.id),
   }));
   const eventCards: ExploreCard[] = events.map((e) => ({
     key: "event-" + e.id, kindLabel: "Event", title: e.name,

@@ -18,6 +18,7 @@ function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, ea
     retreat: retreat ? {
       id: retreat.id,
       startsOn: retreat.startsOn.toISOString(), endsOn: retreat.endsOn.toISOString(),
+      checkInAt: retreat.checkInAt, checkOutAt: retreat.checkOutAt,
       totalPlaces: retreat.totalPlaces, placesLeft: Math.max(0, retreat.totalPlaces - retreat.placesTaken),
       earlyBirdUntil: retreat.earlyBirdUntil ? retreat.earlyBirdUntil.toISOString() : null,
       earlyBirdSaveMinor: earlyBirdSaveMinor || 0,

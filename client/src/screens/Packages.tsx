@@ -5,7 +5,7 @@ import { money } from "../lib/format";
 import { screenPad, kicker, h1 } from "../styles/shared";
 
 export default function Packages() {
-  const { openPackageSheet } = useApp();
+  const { openPackageSheet, openRetreatDetail } = useApp();
   const [packages, setPackages] = useState<Pkg[]>([]);
 
   useEffect(() => { api.packages().then((list) => setPackages(list.sort((a, b) => a.sortOrder - b.sortOrder))); }, []);
@@ -18,7 +18,7 @@ export default function Packages() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 22 }}>
         {packages.map((p) => (
-          <div key={p.id} style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 20, boxShadow: "var(--shadow-sm)", cursor: "pointer" }} onClick={() => openPackageSheet(p.id)}>
+          <div key={p.id} style={{ background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: 20, boxShadow: "var(--shadow-sm)", cursor: "pointer" }} onClick={() => (p.kind === "retreat" ? openRetreatDetail(p.id) : openPackageSheet(p.id))}>
             {p.recommended && <span className="tag tag-accent" style={{ marginBottom: 10 }}>{p.badge}</span>}
             <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
