@@ -15,7 +15,11 @@ export default function CalendarSection() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editCapacity, setEditCapacity] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editDuration, setEditDuration] = useState("60");
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   function reload() {
     api.admin.calendar(dayId).then(setSessions);
@@ -27,13 +31,20 @@ export default function CalendarSection() {
     setEditingId(s.id);
     setEditTitle(s.title);
     setEditCapacity(String(s.capacity));
+    const start = new Date(s.startsAt);
+    setEditDate(start.toISOString().slice(0, 10));
+    setEditTime(`${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`);
+    setEditDuration(String(Math.round((new Date(s.endsAt).getTime() - start.getTime()) / 60000)));
   }
 
   async function saveEdit() {
     if (!editingId) return;
     setSaving(true);
     try {
-      await api.admin.updateSession(editingId, { title: editTitle, capacity: Number(editCapacity) || 1 });
+      await api.admin.updateSession(editingId, {
+        title: editTitle, capacity: Number(editCapacity) || 1,
+        date: editDate, startTime: editTime, durationMinutes: Number(editDuration) || 60,
+      });
       flash("Session updated");
       setEditingId(null);
       reload();
@@ -49,6 +60,20 @@ export default function CalendarSection() {
     const r = await api.admin.cancelSession(s.id);
     flash(`Session cancelled · ${r.guestsNotified} guest(s) notified`);
     reload();
+  }
+
+  async function deleteSession(s: CalendarSession) {
+    if (!window.confirm(`Delete ${s.title}? This removes it completely and can't be undone.`)) return;
+    setDeletingId(s.id);
+    try {
+      await api.admin.deleteSession(s.id);
+      flash("Session deleted");
+      reload();
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Could not delete session");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   async function blockDate() {
@@ -109,8 +134,13 @@ export default function CalendarSection() {
             {editingId === c.id ? (
               <div style={{ marginTop: 12 }}>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <input className="input" style={{ flex: 2 }} value={editTitle} onChange={(e) => setEditTitle(e.target.value)} />
-                  <input className="input" type="number" min={1} style={{ flex: 1 }} value={editCapacity} onChange={(e) => setEditCapacity(e.target.value)} />
+                  <input className="input" style={{ flex: 2 }} value={editTitle} onChange={(e) => setEditTitle(e.target.value)} placeholder="Title" />
+                  <input className="input" type="number" min={1} style={{ flex: 1 }} value={editCapacity} onChange={(e) => setEditCapacity(e.target.value)} placeholder="Capacity" />
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <input className="input" type="date" style={{ flex: 1 }} value={editDate} onChange={(e) => setEditDate(e.target.value)} />
+                  <input className="input" type="time" style={{ flex: 1 }} value={editTime} onChange={(e) => setEditTime(e.target.value)} />
+                  <input className="input" type="number" min={5} step={5} style={{ flex: 1 }} value={editDuration} onChange={(e) => setEditDuration(e.target.value)} placeholder="Mins" />
                 </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                   <button className="btn btn-ghost" style={{ flex: 1, padding: "8px 0", fontSize: 12.5 }} onClick={() => setEditingId(null)}>Cancel</button>
@@ -121,6 +151,9 @@ export default function CalendarSection() {
               <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
                 <button className="btn btn-secondary" style={{ flex: 1, padding: "8px 0", fontSize: 12.5 }} onClick={() => startEdit(c)}>Edit</button>
                 <button className="btn btn-ghost" style={{ flex: 1, padding: "8px 0", fontSize: 12.5, color: "var(--color-accent-700)" }} onClick={() => cancelSession(c)}>Cancel session</button>
+                <button className="btn btn-ghost" style={{ flex: "none", padding: "8px 12px", fontSize: 12.5, color: "var(--color-accent-700)" }} disabled={deletingId === c.id} onClick={() => deleteSession(c)}>
+                  {deletingId === c.id ? "…" : "Delete"}
+                </button>
               </div>
             )}
           </div>

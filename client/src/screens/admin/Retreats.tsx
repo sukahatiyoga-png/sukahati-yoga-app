@@ -10,8 +10,12 @@ export default function Retreats() {
 }
 
 function RetreatList({ onSelect }: { onSelect: (id: string | "new") => void }) {
+  const { flash } = useApp();
   const [retreats, setRetreats] = useState<RetreatItem[]>([]);
-  useEffect(() => { api.adminRetreats.list().then(setRetreats); }, []);
+  useEffect(() => {
+    api.adminRetreats.list().then(setRetreats)
+      .catch((e) => flash(e instanceof Error ? e.message : "Couldn't load retreats"));
+  }, [flash]);
 
   return (
     <>

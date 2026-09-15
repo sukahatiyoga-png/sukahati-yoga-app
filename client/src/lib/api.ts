@@ -117,7 +117,7 @@ export interface Teacher { id: string; name: string; initials: string; meta: str
 export interface TeacherDetail { id: string; name: string; specialties: string[]; weeklyHourCap: number }
 export interface RoomItem { id: string; name: string; meta: string; state: string }
 export interface RoomDetail { id: string; name: string; matCapacity: number | null; isAccommodation: boolean; beds: number | null; note: string }
-export interface CalendarSession { id: string; time: string; ampm: string; title: string; assign: string; load: string; pct: string; pctRaw: number; capacity: number; status: string }
+export interface CalendarSession { id: string; time: string; ampm: string; title: string; assign: string; load: string; pct: string; pctRaw: number; capacity: number; status: string; startsAt: string; endsAt: string; teacherId: string; roomId: string }
 export interface CheckinItem { id: string; name: string; initials: string; meta: string; checkedIn: boolean }
 
 export interface DashboardTodo { id: string; title: string; body: string; cta: string; kind: string; sessionId?: string }
@@ -250,8 +250,9 @@ export const api = {
     raiseCapacity: (sessionId: string) => patch<{ ok: boolean; capacity: number }>(`/admin/sessions/${sessionId}/capacity`, { increaseBy: 2 }),
     calendar: (date: string) => get<CalendarSession[]>(`/admin/calendar?date=${date}`),
     addSession: (data: Record<string, unknown>) => post<{ ok: boolean; id: string }>("/admin/sessions", data),
-    updateSession: (id: string, data: { title?: string; capacity?: number }) => patch<{ ok: boolean; id: string }>(`/admin/sessions/${id}`, data),
+    updateSession: (id: string, data: { title?: string; capacity?: number; date?: string; startTime?: string; durationMinutes?: number; teacherId?: string; roomId?: string }) => patch<{ ok: boolean; id: string }>(`/admin/sessions/${id}`, data),
     cancelSession: (id: string) => patch<{ ok: boolean; guestsNotified: number }>(`/admin/sessions/${id}/cancel`),
+    deleteSession: (id: string) => del<{ ok: boolean }>(`/admin/sessions/${id}`),
     blockDay: (date: string) => post<{ ok: boolean; sessionsBlocked: number; guestsNotified: number }>(`/admin/days/${date}/block`),
     customers: (q?: string) => get<Customer[]>(`/admin/customers${q ? "?q=" + encodeURIComponent(q) : ""}`),
     customerDetail: (id: string) => get<CustomerDetail>(`/admin/customers/${id}`),

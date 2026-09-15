@@ -10,8 +10,12 @@ export default function Events() {
 }
 
 function EventList({ onSelect }: { onSelect: (id: string | "new") => void }) {
+  const { flash } = useApp();
   const [events, setEvents] = useState<EventItem[]>([]);
-  useEffect(() => { api.adminEvents.list().then(setEvents); }, []);
+  useEffect(() => {
+    api.adminEvents.list().then(setEvents)
+      .catch((e) => flash(e instanceof Error ? e.message : "Couldn't load events"));
+  }, [flash]);
 
   return (
     <>

@@ -76,6 +76,8 @@ adminRouter.get("/calendar", async (req, res) => {
       id: s.id, time, ampm, title: s.title, assign: `${s.teacher.name} · ${s.room.name}`,
       load: `${s.seatsTaken}/${s.capacity}`, pct: `${pct}%`, pctRaw: pct,
       capacity: s.capacity, status: s.status,
+      startsAt: s.startsAt.toISOString(), endsAt: s.endsAt.toISOString(),
+      teacherId: s.teacherId, roomId: s.roomId,
     };
   }));
 });
@@ -88,19 +90,47 @@ adminRouter.patch("/sessions/:id", async (req, res) => {
   const capacity = b.capacity !== undefined ? Number(b.capacity) : s.capacity;
   const teacherId = b.teacherId || s.teacherId;
   const roomId = b.roomId || s.roomId;
+
+  let startsAt = s.startsAt;
+  let endsAt = s.endsAt;
+  if (b.date || b.startTime) {
+    const durationMinutes = b.durationMinutes !== undefined ? Number(b.durationMinutes) : (s.endsAt.getTime() - s.startsAt.getTime()) / 60000;
+    const day = b.date ? new Date(b.date) : new Date(s.startsAt);
+    const [h, m] = String(b.startTime || `${s.startsAt.getHours()}:${s.startsAt.getMinutes()}`).split(":").map(Number);
+    startsAt = new Date(day);
+    startsAt.setHours(h, m || 0, 0, 0);
+    endsAt = new Date(startsAt.getTime() + durationMinutes * 60000);
+  }
+
   try {
-    if (teacherId !== s.teacherId || roomId !== s.roomId) {
-      await assertNoConflict({ teacherId, roomId, startsAt: s.startsAt, endsAt: s.endsAt, excludeSessionId: s.id });
+    if (teacherId !== s.teacherId || roomId !== s.roomId || startsAt.getTime() !== s.startsAt.getTime()) {
+      await assertNoConflict({ teacherId, roomId, startsAt, endsAt, excludeSessionId: s.id });
     }
-    const updated = await db.session.update({ where: { id: s.id }, data: { title, capacity, teacherId, roomId } });
+    const updated = await db.session.update({ where: { id: s.id }, data: { title, capacity, teacherId, roomId, startsAt, endsAt } });
     await db.auditLog.create({
-      data: { actorUserId: req.userId!, entityTable: "sessions", entityId: s.id, action: "update", diff: JSON.stringify({ title, capacity }) },
+      data: { actorUserId: req.userId!, entityTable: "sessions", entityId: s.id, action: "update", diff: JSON.stringify({ title, capacity, startsAt }) },
     }).catch(() => {});
     res.json({ ok: true, id: updated.id });
   } catch (e) {
     if (e instanceof ConflictError) return res.status(409).json({ error: e.message });
     throw e;
   }
+});
+
+adminRouter.delete("/sessions/:id", async (req, res) => {
+  const s = await db.session.findUnique({ where: { id: req.params.id }, include: { bookings: { where: { status: { in: ["pending", "confirmed", "attended"] } } } } });
+  if (!s) return res.status(404).json({ error: "Session not found" });
+  if (s.bookings.length > 0) {
+    return res.status(400).json({ error: `Can't delete — ${s.bookings.length} booking(s) reference this session. Cancel it instead.` });
+  }
+  await db.$transaction(async (tx) => {
+    await tx.waitlistEntry.deleteMany({ where: { sessionId: s.id } });
+    await tx.session.delete({ where: { id: s.id } });
+    await tx.auditLog.create({
+      data: { actorUserId: req.userId!, entityTable: "sessions", entityId: s.id, action: "delete", diff: JSON.stringify({ title: s.title }) },
+    });
+  });
+  res.json({ ok: true });
 });
 
 adminRouter.patch("/sessions/:id/cancel", async (req, res) => {
