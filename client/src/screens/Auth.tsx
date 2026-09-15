@@ -30,20 +30,19 @@ export default function Auth({ onAuthed }: { onAuthed: () => void }) {
   }
 
   return (
-    <div style={{ position: "relative", height: "100dvh", width: "100%", maxWidth: 480, margin: "0 auto", overflow: "hidden", background: "#000" }}>
-      <img
-        src={new URL("../assets/studio.jpg", import.meta.url).toString()} alt=""
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-      />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(20,14,10,0.55) 0%, rgba(20,14,10,0.35) 32%, rgba(20,14,10,0.15) 52%, var(--color-bg) 78%)" }} />
+    <div style={{ position: "relative", height: "100dvh", width: "100%", maxWidth: 480, margin: "0 auto", overflow: "hidden", background: "linear-gradient(165deg, var(--color-accent-600), var(--color-accent-2-700))" }}>
+      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 50% 32%, rgba(255,255,255,0.22), transparent 60%)" }} />
 
       <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
         <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 30 }}>
-          <img
-            src={new URL("../assets/logo.png", import.meta.url).toString()} alt="Sukahati Yoga"
-            style={{ width: 96, filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.35))" }}
-          />
-          <div style={{ marginTop: 14, fontFamily: "var(--font-heading)", fontSize: 26, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.35)" }}>
+          <svg width="130" height="120" viewBox="0 0 120 110" fill="none" style={{ filter: "drop-shadow(0 6px 18px rgba(0,0,0,0.2))" }}>
+            <circle cx="60" cy="18" r="12" fill="rgba(255,255,255,0.95)" />
+            <path
+              d="M60 32c-16 0-26 12-26 26v6c-14 4-24 14-28 28 -1 4 2 7 6 6 5-13 14-22 24-26v-4c0 10 10 16 24 16s24-6 24-16v4c10 4 19 13 24 26 4 1 7-2 6-6-4-14-14-24-28-28v-6c0-14-10-26-26-26z"
+              fill="rgba(255,255,255,0.95)"
+            />
+          </svg>
+          <div style={{ marginTop: 8, fontFamily: "var(--font-heading)", fontSize: 26, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
             Sukahati Yoga
           </div>
           <div style={{ marginTop: 4, fontSize: 12.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.85)" }}>
