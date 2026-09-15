@@ -3,6 +3,7 @@ import Sheet from "./Sheet";
 import Toggle from "./Toggle";
 import { useApp } from "../context/AppContext";
 import { api, type Pkg } from "../lib/api";
+import { fileToDataUrl, MAX_IMAGE_MB } from "../lib/upload";
 
 export default function PackageEditSheet({ pkg, onSaved }: { pkg: Pkg | null; onSaved: () => void }) {
   const { closeSheet, flash } = useApp();
@@ -14,13 +15,24 @@ export default function PackageEditSheet({ pkg, onSaved }: { pkg: Pkg | null; on
   const [desc, setDesc] = useState(pkg?.desc || "");
   const [active, setActive] = useState(pkg?.active ?? true);
   const [recommended, setRecommended] = useState(pkg?.recommended ?? false);
+  const [imageUrl, setImageUrl] = useState(pkg?.imageUrl || "");
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) { flash(`Please choose a photo under ${MAX_IMAGE_MB}MB`); return; }
+    setPhotoBusy(true);
+    try { setImageUrl(await fileToDataUrl(file)); } finally { setPhotoBusy(false); }
+  }
 
   async function save() {
     setSaving(true);
     try {
-      const body = { name, priceRaw, unit, capacity, desc, active, recommended };
+      const body = { name, priceRaw, unit, capacity, desc, active, recommended, imageUrl };
       if (isNew) {
         await api.createPackage(body);
         flash("Package added to the booking form");
@@ -77,6 +89,16 @@ export default function PackageEditSheet({ pkg, onSaved }: { pkg: Pkg | null; on
         <label htmlFor="e-desc">Short description</label>
         <input className="input" id="e-desc" value={desc} onChange={(e) => setDesc(e.target.value)} />
       </div>
+      <div className="field" style={{ marginTop: 14 }}>
+        <label htmlFor="e-photo">{photoBusy ? "Uploading…" : imageUrl ? "Photo attached — choose a file to replace" : `Photo — JPG or PNG, up to ${MAX_IMAGE_MB}MB`}</label>
+        <input className="input" id="e-photo" type="file" accept="image/*" disabled={photoBusy} onChange={onPhoto} style={{ borderRadius: "var(--radius-sm)", padding: "10px 14px" }} />
+      </div>
+      {imageUrl && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+          <img src={imageUrl} alt="" style={{ width: 72, height: 54, borderRadius: "var(--radius-sm)", objectFit: "cover" }} />
+          <button className="btn btn-ghost" style={{ padding: "6px 10px", fontSize: 12.5, color: "var(--color-accent-700)" }} onClick={() => setImageUrl("")}>Remove photo</button>
+        </div>
+      )}
 
       <div style={{ marginTop: 18, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "15px 0", borderBottom: "1px solid var(--color-divider)" }}>

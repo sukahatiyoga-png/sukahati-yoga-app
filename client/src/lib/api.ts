@@ -49,7 +49,7 @@ export interface Pkg {
   unit: string; capacity: string; sold: number; revenueMinor: number;
   active: boolean; recommended: boolean; badge: string;
   desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
-  valid: string; cancel: string; incl: string[]; excl: string[]; sortOrder: number;
+  valid: string; cancel: string; incl: string[]; excl: string[]; sortOrder: number; imageUrl: string;
   retreat: { id: string; startsOn: string; endsOn: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
   event: { id: string; startsAt: string; endsAt: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
 }
@@ -165,7 +165,7 @@ export interface RetreatItem {
   id: string; name: string; priceMinor: number; currency: string; unit: string;
   desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
   capacityLabel: string; cancellationHours: number; cancelLabel: string;
-  incl: string[]; excl: string[]; active: boolean; recommended: boolean; badge: string; sortOrder: number;
+  incl: string[]; excl: string[]; active: boolean; recommended: boolean; badge: string; sortOrder: number; imageUrl: string;
   sold: number; revenueMinor: number;
   startsOn: string; endsOn: string; checkInAt: string; checkOutAt: string;
   totalPlaces: number; placesTaken: number; placesLeft: number; earlyBirdUntil: string | null;
@@ -173,7 +173,7 @@ export interface RetreatItem {
 export interface RetreatInput {
   name: string; priceRaw: string; unit?: string; capacityLabel?: string; desc?: string; long?: string;
   goodFor?: string; category?: string; dur?: string; rating?: string; cancellationHours?: number; cancelLabel?: string;
-  incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string;
+  incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string; imageUrl?: string;
   startsOn: string; endsOn: string; checkInAt?: string; checkOutAt?: string; totalPlaces?: number; earlyBirdUntil?: string | null;
 }
 
@@ -181,7 +181,7 @@ export interface EventItem {
   id: string; name: string; priceMinor: number; currency: string; unit: string;
   desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
   capacityLabel: string; cancellationHours: number; cancelLabel: string;
-  incl: string[]; excl: string[]; active: boolean; recommended: boolean; badge: string; sortOrder: number;
+  incl: string[]; excl: string[]; active: boolean; recommended: boolean; badge: string; sortOrder: number; imageUrl: string;
   sold: number; revenueMinor: number;
   startsAt: string; endsAt: string;
   totalPlaces: number; placesTaken: number; placesLeft: number; earlyBirdUntil: string | null;
@@ -189,7 +189,7 @@ export interface EventItem {
 export interface EventInput {
   name: string; priceRaw: string; unit?: string; capacityLabel?: string; desc?: string; long?: string;
   goodFor?: string; category?: string; dur?: string; rating?: string; cancellationHours?: number; cancelLabel?: string;
-  incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string;
+  incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string; imageUrl?: string;
   startsAt: string; endsAt: string; totalPlaces?: number; earlyBirdUntil?: string | null;
 }
 

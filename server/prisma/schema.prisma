@@ -108,6 +108,7 @@ model Package {
   isRecommended        Boolean @default(false)
   badge                String?
   sortOrder            Int     @default(0)
+  imageUrl             String  @default("") // data URL, uploaded from admin
 
   // Display copy (beyond the proposed schema — see file header).
   shortDescription String  @default("")

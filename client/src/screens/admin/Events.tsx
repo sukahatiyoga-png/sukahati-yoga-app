@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { api, type EventInput, type EventItem } from "../../lib/api";
 import { money } from "../../lib/format";
+import { fileToDataUrl, MAX_IMAGE_MB } from "../../lib/upload";
 
 export default function Events() {
   const [editingId, setEditingId] = useState<string | "new" | null>(null);
@@ -86,6 +87,8 @@ function EventForm({ id, onDone }: { id: string | null; onDone: () => void }) {
   const [active, setActive] = useState(true);
   const [recommended, setRecommended] = useState(false);
   const [badge, setBadge] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -97,10 +100,19 @@ function EventForm({ id, onDone }: { id: string | null; onDone: () => void }) {
       setCategory(e.cat); setDur(e.dur); setRating(e.rating);
       setCancellationHours(String(e.cancellationHours)); setCancelLabel(e.cancelLabel);
       setIncl(e.incl.join("\n")); setExcl(e.excl.join("\n"));
-      setActive(e.active); setRecommended(e.recommended); setBadge(e.badge);
+      setActive(e.active); setRecommended(e.recommended); setBadge(e.badge); setImageUrl(e.imageUrl);
       setLoaded(true);
     });
   }, [id]);
+
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_IMAGE_MB * 1024 * 1024) { flash(`Please choose a photo under ${MAX_IMAGE_MB}MB`); return; }
+    setPhotoBusy(true);
+    try { setImageUrl(await fileToDataUrl(file)); } finally { setPhotoBusy(false); }
+  }
 
   async function save() {
     setSaving(true);
@@ -110,7 +122,7 @@ function EventForm({ id, onDone }: { id: string | null; onDone: () => void }) {
         cancellationHours: Number(cancellationHours) || 24, cancelLabel,
         incl: incl.split("\n").map((s) => s.trim()).filter(Boolean),
         excl: excl.split("\n").map((s) => s.trim()).filter(Boolean),
-        active, recommended, badge,
+        active, recommended, badge, imageUrl,
         startsAt, endsAt, totalPlaces: Number(totalPlaces) || 0,
         earlyBirdUntil: earlyBirdUntil || null,
       };
@@ -237,6 +249,16 @@ function EventForm({ id, onDone }: { id: string | null; onDone: () => void }) {
         <label htmlFor="e-badge">Badge (optional)</label>
         <input className="input" id="e-badge" placeholder="e.g. New" value={badge} onChange={(e) => setBadge(e.target.value)} />
       </div>
+      <div className="field" style={{ marginTop: 14 }}>
+        <label htmlFor="e-photo">{photoBusy ? "Uploading…" : imageUrl ? "Photo attached — choose a file to replace" : `Photo — JPG or PNG, up to ${MAX_IMAGE_MB}MB`}</label>
+        <input className="input" id="e-photo" type="file" accept="image/*" disabled={photoBusy} onChange={onPhoto} style={{ borderRadius: "var(--radius-sm)", padding: "10px 14px" }} />
+      </div>
+      {imageUrl && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+          <img src={imageUrl} alt="" style={{ width: 90, height: 60, borderRadius: "var(--radius-sm)", objectFit: "cover" }} />
+          <button className="btn btn-ghost" style={{ padding: "6px 10px", fontSize: 12.5, color: "var(--color-accent-700)" }} onClick={() => setImageUrl("")}>Remove photo</button>
+        </div>
+      )}
 
       <div style={{ marginTop: 18, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>
         <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "15px 0", borderBottom: "1px solid var(--color-divider)", cursor: "pointer" }}>

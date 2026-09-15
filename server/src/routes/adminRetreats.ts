@@ -11,7 +11,7 @@ function serialize(p: any, r: any, sold: number, revenueMinor: number) {
     dur: p.durationLabel, rating: p.ratingLabel, capacityLabel: p.capacityLabel,
     cancellationHours: p.cancellationHours, cancelLabel: p.cancelLabel,
     incl: JSON.parse(p.inclusions || "[]"), excl: JSON.parse(p.exclusions || "[]"),
-    active: p.isVisible, recommended: p.isRecommended, badge: p.badge || "", sortOrder: p.sortOrder,
+    active: p.isVisible, recommended: p.isRecommended, badge: p.badge || "", sortOrder: p.sortOrder, imageUrl: p.imageUrl || "",
     sold, revenueMinor,
     startsOn: r.startsOn.toISOString(), endsOn: r.endsOn.toISOString(),
     checkInAt: r.checkInAt, checkOutAt: r.checkOutAt,
@@ -71,7 +71,7 @@ adminRetreatsRouter.post("/", async (req, res) => {
         ratingLabel: b.rating || "", cancellationHours: Number(b.cancellationHours) || 336, cancelLabel: b.cancelLabel || "",
         inclusions: JSON.stringify(b.incl || []), exclusions: JSON.stringify(b.excl || []),
         isVisible: b.active !== false, isRecommended: !!b.recommended, badge: b.badge || "",
-        sortOrder: (await tx.package.count()) + 1,
+        sortOrder: (await tx.package.count()) + 1, imageUrl: b.imageUrl || "",
       },
     });
     const r = await tx.retreat.create({
@@ -115,6 +115,7 @@ adminRetreatsRouter.put("/:id", async (req, res) => {
         isVisible: b.active !== undefined ? !!b.active : existing.isVisible,
         isRecommended: b.recommended !== undefined ? !!b.recommended : existing.isRecommended,
         badge: b.badge ?? existing.badge,
+        imageUrl: b.imageUrl !== undefined ? b.imageUrl : existing.imageUrl,
       },
     });
     const r = await tx.retreat.update({

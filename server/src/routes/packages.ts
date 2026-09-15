@@ -14,7 +14,7 @@ function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, ea
     cat: p.category, dur: p.durationLabel, rating: p.ratingLabel,
     valid: p.validLabel, cancel: p.cancelLabel,
     incl: JSON.parse(p.inclusions || "[]"), excl: JSON.parse(p.exclusions || "[]"),
-    sortOrder: p.sortOrder,
+    sortOrder: p.sortOrder, imageUrl: p.imageUrl || "",
     retreat: retreat ? {
       id: retreat.id,
       startsOn: retreat.startsOn.toISOString(), endsOn: retreat.endsOn.toISOString(),
@@ -120,6 +120,7 @@ packagesRouter.post("/", requireAuth, requireStaff, async (req: Request, res: Re
       inclusions: JSON.stringify([]),
       exclusions: JSON.stringify([]),
       sortOrder: (await db.package.count()) + 1,
+      imageUrl: b.imageUrl || "",
     },
   });
   await db.auditLog.create({
@@ -143,6 +144,7 @@ packagesRouter.put("/:id", requireAuth, requireStaff, async (req: Request<{ id: 
       isVisible: b.active !== undefined ? !!b.active : existing.isVisible,
       isRecommended: b.recommended !== undefined ? !!b.recommended : existing.isRecommended,
       badge: b.badge ?? existing.badge,
+      imageUrl: b.imageUrl !== undefined ? b.imageUrl : existing.imageUrl,
     },
   });
   await db.auditLog.create({
