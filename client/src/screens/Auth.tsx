@@ -33,7 +33,7 @@ export default function Auth({ onAuthed }: { onAuthed: () => void }) {
     <div style={{ position: "relative", height: "100dvh", width: "100%", maxWidth: 480, margin: "0 auto", overflow: "hidden", background: "#2a1d14" }}>
       <img
         src={new URL("../assets/auth-hero.jpg", import.meta.url).toString()} alt=""
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 15%" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 0%" }}
       />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(50,32,18,0.45) 0%, rgba(50,32,18,0.22) 28%, rgba(50,32,18,0.08) 48%, var(--color-bg) 78%)" }} />
 
