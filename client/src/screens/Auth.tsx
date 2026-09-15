@@ -33,12 +33,12 @@ export default function Auth({ onAuthed }: { onAuthed: () => void }) {
     <div style={{ position: "relative", height: "100dvh", width: "100%", maxWidth: 480, margin: "0 auto", overflow: "hidden", background: "#2a1d14" }}>
       <img
         src={new URL("../assets/auth-hero.jpg", import.meta.url).toString()} alt=""
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 15%" }}
       />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(50,32,18,0.45) 0%, rgba(50,32,18,0.22) 28%, rgba(50,32,18,0.08) 48%, var(--color-bg) 78%)" }} />
 
       <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 30 }}>
+        <div style={{ flex: "0 0 40%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 20 }}>
           <div style={{ fontFamily: "var(--font-heading)", fontSize: 26, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
             Sukahati Yoga
           </div>
