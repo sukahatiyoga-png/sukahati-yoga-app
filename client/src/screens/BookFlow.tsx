@@ -210,7 +210,7 @@ export default function BookFlow({ draft, setDraft, onDone }: { draft: BookDraft
           <Step1 days={days} draft={draft} setDraft={setDraft} slots={slots} flash={flash} />
         )}
         {draft.step === 2 && (
-          <Step2 draft={draft} setDraft={setDraft} packages={packages.filter((p) => !p.retreat && !p.event)} addons={addons} toggleAddon={toggleAddon} />
+          <Step2 draft={draft} setDraft={setDraft} packages={packages.filter((p) => !p.retreat && !p.event)} addons={addons} toggleAddon={toggleAddon} selectedPkg={selectedPkg} />
         )}
         {draft.step === 3 && (
           <Step3 draft={draft} setDraft={setDraft} quote={quote} selectedDay={selectedDay} selectedSlot={selectedSlot} selectedPkg={selectedPkg} applyPromo={applyPromo} />
@@ -274,27 +274,42 @@ function Step1({ days, draft, setDraft, slots, flash }: {
   );
 }
 
-function Step2({ draft, setDraft, packages, addons, toggleAddon }: {
-  draft: BookDraft; setDraft: (fn: (d: BookDraft) => BookDraft) => void; packages: Pkg[]; addons: Addon[]; toggleAddon: (id: string) => void;
+function Step2({ draft, setDraft, packages, addons, toggleAddon, selectedPkg }: {
+  draft: BookDraft; setDraft: (fn: (d: BookDraft) => BookDraft) => void; packages: Pkg[]; addons: Addon[]; toggleAddon: (id: string) => void; selectedPkg: Pkg | null;
 }) {
+  const isFixedFlow = !!(draft.retreatId || draft.eventId);
   return (
     <>
-      <div style={{ marginTop: 22, ...sectionLabel }}>Package</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 11 }}>
-        {packages.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setDraft((d) => ({ ...d, packageId: p.id, retreatId: p.retreat?.id ?? null, eventId: p.event?.id ?? null, sessionId: (p.retreat || p.event) ? null : d.sessionId }))}
-            style={{ border: 0, textAlign: "left", cursor: "pointer", fontFamily: "var(--font-body)", borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", gap: 12, alignItems: "center", background: draft.packageId === p.id ? "var(--color-accent-200)" : "var(--color-neutral-100)" }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: 14.5, lineHeight: 1.25 }}>{p.name}</div>
-              <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 3 }}>{p.unit}</div>
-            </div>
-            <div style={{ flex: "none", fontFamily: "var(--font-heading)", fontSize: 17 }}>{money(p.priceMinor, p.currency === "MYR" ? "RM" : p.currency)}</div>
-          </button>
-        ))}
-      </div>
+      {isFixedFlow ? (
+        <div style={{ marginTop: 22, background: "var(--color-accent-200)", borderRadius: "var(--radius-lg)", padding: 18 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-accent-800)" }}>
+            {draft.retreatId ? "Your retreat" : "Your event"}
+          </div>
+          <div style={{ fontFamily: "var(--font-heading)", fontSize: 19, marginTop: 7 }}>{selectedPkg?.name}</div>
+          <div style={{ fontSize: 13, color: "var(--color-accent-800)", marginTop: 4 }}>
+            {draft.retreatId ? retreatDateLabel(selectedPkg) : eventDateLabel(selectedPkg)}
+          </div>
+        </div>
+      ) : (
+        <>
+          <div style={{ marginTop: 22, ...sectionLabel }}>Package</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 11 }}>
+            {packages.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setDraft((d) => ({ ...d, packageId: p.id, retreatId: null, eventId: null, sessionId: d.sessionId }))}
+                style={{ border: 0, textAlign: "left", cursor: "pointer", fontFamily: "var(--font-body)", borderRadius: "var(--radius-md)", padding: "14px 16px", display: "flex", gap: 12, alignItems: "center", background: draft.packageId === p.id ? "var(--color-accent-200)" : "var(--color-neutral-100)" }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14.5, lineHeight: 1.25 }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 3 }}>{p.unit}</div>
+                </div>
+                <div style={{ flex: "none", fontFamily: "var(--font-heading)", fontSize: 17 }}>{money(p.priceMinor, p.currency === "MYR" ? "RM" : p.currency)}</div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       <div style={{ marginTop: 22, ...sectionLabel }}>Level</div>
       <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
