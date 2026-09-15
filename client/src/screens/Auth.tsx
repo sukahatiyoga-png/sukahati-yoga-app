@@ -38,7 +38,7 @@ export default function Auth({ onAuthed }: { onAuthed: () => void }) {
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(50,32,18,0.45) 0%, rgba(50,32,18,0.22) 28%, rgba(50,32,18,0.08) 48%, var(--color-bg) 78%)" }} />
 
       <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: "0 0 40%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 20 }}>
+        <div style={{ flex: "0 0 48%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingTop: 20 }}>
           <div style={{ fontFamily: "var(--font-heading)", fontSize: 26, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}>
             Sukahati Yoga
           </div>
