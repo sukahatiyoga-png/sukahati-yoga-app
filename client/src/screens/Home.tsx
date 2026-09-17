@@ -90,7 +90,7 @@ export default function Home() {
       <Reveal3D delayMs={0}>
         <div style={{ borderRadius: "var(--radius-lg)", overflow: "hidden", position: "relative" }}>
           <img src={homeHeroUrl} alt="" style={{ width: "100%", height: 220, objectFit: "cover", display: "block" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 35%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.6) 100%)" }} />
           <button
             style={{ position: "absolute", top: 14, left: 14, width: 40, height: 40, borderRadius: 999, border: 0, background: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--color-text)" }}
             onClick={() => goTab("alerts")}
@@ -108,15 +108,14 @@ export default function Home() {
           >
             {initials}
           </button>
+          <div style={{ position: "absolute", left: 16, right: 16, bottom: 14 }}>
+            <div style={{ ...kicker, color: "var(--color-accent-300)" }}>Sukahati Yoga · Kuala Lumpur</div>
+            <div style={{ fontSize: 14.5, color: "#fff", marginTop: 4 }}>{greeting()}, {me.name.split(" ")[0]}</div>
+          </div>
         </div>
       </Reveal3D>
 
-      <div style={{ marginTop: 14 }}>
-        <div style={kicker}>Sukahati Yoga · Kuala Lumpur</div>
-        <div style={{ fontSize: 14.5, color: "var(--color-neutral-700)", marginTop: 4 }}>{greeting()}, {me.name.split(" ")[0]}</div>
-      </div>
-
-      <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 32, lineHeight: 1.12, margin: "16px 0 0" }}>
+      <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 32, lineHeight: 1.12, margin: "18px 0 0" }}>
         Breathe in,<br /><span style={{ color: "var(--color-accent-600)" }}>find your flow.</span>
       </h1>
 
