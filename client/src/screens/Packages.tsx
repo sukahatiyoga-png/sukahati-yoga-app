@@ -8,7 +8,7 @@ export default function Packages() {
   const { openPackageSheet, openRetreatDetail } = useApp();
   const [packages, setPackages] = useState<Pkg[]>([]);
 
-  useEffect(() => { api.packages().then((list) => setPackages(list.sort((a, b) => a.sortOrder - b.sortOrder))); }, []);
+  useEffect(() => { api.packages().then((list) => setPackages(list.filter((p) => p.kind !== "event").sort((a, b) => a.sortOrder - b.sortOrder))); }, []);
 
   return (
     <div style={screenPad}>
