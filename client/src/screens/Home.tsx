@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useApp } from "../context/AppContext";
 import { api, type ActivePass, type BookingCustomer, type Pkg, type SessionSlot } from "../lib/api";
 import { money } from "../lib/format";
-import { isoDate, buildDays } from "../lib/dates";
+import { buildDays } from "../lib/dates";
 import { screenPad, kicker, h2 } from "../styles/shared";
 import Countdown from "../components/Countdown";
 import Reveal3D from "../components/Reveal3D";
@@ -26,8 +26,8 @@ function gradientFor(seed: string): string {
   return PLACEHOLDER_GRADIENTS[h % PLACEHOLDER_GRADIENTS.length];
 }
 
-type Pill = "All" | "Classes" | "Retreats" | "Events" | "Packages";
-const PILLS: Pill[] = ["All", "Classes", "Retreats", "Events", "Packages"];
+type Pill = "All" | "Retreats" | "Events";
+const PILLS: Pill[] = ["All", "Retreats", "Events"];
 
 interface ExploreCard {
   key: string; kindLabel: string; title: string; meta: string; priceMinor: number;
@@ -39,7 +39,6 @@ export default function Home() {
   const [nextBooking, setNextBooking] = useState<BookingCustomer | null>(null);
   const [pass, setPass] = useState<ActivePass | null>(null);
   const [packages, setPackages] = useState<Pkg[]>([]);
-  const [today, setToday] = useState<SessionSlot[]>([]);
   const [unread, setUnread] = useState(0);
   const [pill, setPill] = useState<Pill>("All");
   const calDays = useMemo(() => buildDays(7), []);
@@ -47,11 +46,9 @@ export default function Home() {
   const [calSessions, setCalSessions] = useState<SessionSlot[]>([]);
 
   useEffect(() => {
-    const todayIso = isoDate(new Date());
     api.myBookings().then((b) => setNextBooking(b.upcoming[0] || null));
     api.activePass(me.id).then(setPass);
     api.packages().then(setPackages);
-    api.sessions({ date: todayIso }).then(setToday);
     api.notifications().then((list) => setUnread(list.filter((n) => n.unread).length));
   }, [me.id]);
 
@@ -59,14 +56,9 @@ export default function Home() {
 
   const retreats = useMemo(() => packages.filter((p) => p.kind === "retreat" && p.retreat), [packages]);
   const events = useMemo(() => packages.filter((p) => p.kind === "event" && p.event), [packages]);
-  const plainPackages = useMemo(() => packages.filter((p) => p.kind !== "retreat" && p.kind !== "event"), [packages]);
 
   const initials = me.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
-  const classCards: ExploreCard[] = today.map((t) => ({
-    key: "class-" + t.id, kindLabel: "Class", title: t.title, meta: `${t.time} ${t.ampm} · ${t.teacher}`,
-    priceMinor: t.price, imageUrl: "", onClick: () => goBook({ sessionId: t.id }),
-  }));
   const retreatCards: ExploreCard[] = retreats.map((r) => ({
     key: "retreat-" + r.id, kindLabel: "Retreat", title: r.name,
     meta: r.retreat ? `${new Date(r.retreat.startsOn).toLocaleDateString("en-MY", { month: "short", day: "numeric" })} · ${r.retreat.placesLeft} left` : "",
@@ -81,23 +73,15 @@ export default function Home() {
     badge: e.event && e.event.earlyBirdSaveMinor > 0 ? "Early bird" : undefined,
     onClick: () => openPackageSheet(e.id),
   }));
-  const packageCards: ExploreCard[] = plainPackages.map((p) => ({
-    key: "package-" + p.id, kindLabel: "Package", title: p.name, meta: p.unit,
-    priceMinor: p.priceMinor, imageUrl: p.imageUrl,
-    badge: p.recommended ? "Recommended" : undefined,
-    onClick: () => openPackageSheet(p.id),
-  }));
 
   const railCards: ExploreCard[] =
-    pill === "Classes" ? classCards
-    : pill === "Retreats" ? retreatCards
+    pill === "Retreats" ? retreatCards
     : pill === "Events" ? eventCards
-    : pill === "Packages" ? packageCards
-    : [...retreatCards, ...eventCards, ...packageCards.slice(0, 4), ...classCards.slice(0, 4)];
+    : [...retreatCards, ...eventCards];
 
   const featured: ExploreCard | null =
-    [...retreatCards, ...eventCards, ...packageCards].find((c) => c.badge) ||
-    retreatCards[0] || eventCards[0] || packageCards[0] || null;
+    [...retreatCards, ...eventCards].find((c) => c.badge) ||
+    retreatCards[0] || eventCards[0] || null;
 
   return (
     <div style={screenPad}>
