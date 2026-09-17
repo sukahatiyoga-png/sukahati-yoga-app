@@ -111,6 +111,38 @@ export default function Home() {
         </div>
       </div>
 
+      {featured && (
+        <Reveal3D delayMs={0} style={{ marginTop: 18 }}>
+          <div
+            onClick={featured.onClick}
+            style={{
+              cursor: "pointer", borderRadius: "var(--radius-lg)", overflow: "hidden", position: "relative",
+              height: 190, display: "flex", alignItems: "flex-end",
+              background: featured.imageUrl ? `url(${featured.imageUrl})` : gradientFor(featured.key),
+              backgroundSize: "cover", backgroundPosition: "center",
+            }}
+          >
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.68) 100%)" }} />
+            {featured.badge && (
+              <span style={{ position: "absolute", top: 14, left: 14, background: "rgba(255,255,255,0.92)", color: "var(--color-accent-800)", fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", padding: "5px 11px", borderRadius: 999 }}>
+                {featured.badge}
+              </span>
+            )}
+            <div style={{ position: "relative", padding: 18, color: "#fff", width: "100%", boxSizing: "border-box" }}>
+              <div style={{ fontFamily: "var(--font-heading)", fontSize: 21, lineHeight: 1.2 }}>{featured.title}</div>
+              <div style={{ fontSize: 12.5, marginTop: 4, opacity: 0.92 }}>{featured.meta}</div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
+                <span style={{ fontFamily: "var(--font-heading)", fontSize: 19 }}>{money(featured.priceMinor)}</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", color: "var(--color-accent-800)", fontSize: 12.5, fontWeight: 700, padding: "9px 15px", borderRadius: 999 }}>
+                  Explore Now
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 6 6-6 6" /></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </Reveal3D>
+      )}
+
       <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 32, lineHeight: 1.12, margin: "16px 0 0" }}>
         Where do you<br /><span style={{ color: "var(--color-accent-600)" }}>want to practice?</span>
       </h1>
@@ -150,38 +182,6 @@ export default function Home() {
             <div style={{ width: `${pass.pct}%`, height: "100%", background: "var(--color-accent-600)", borderRadius: 999 }} />
           </div>
         </div>
-      )}
-
-      {featured && (
-        <Reveal3D delayMs={0} style={{ marginTop: 22 }}>
-          <div
-            onClick={featured.onClick}
-            style={{
-              cursor: "pointer", borderRadius: "var(--radius-lg)", overflow: "hidden", position: "relative",
-              height: 190, display: "flex", alignItems: "flex-end",
-              background: featured.imageUrl ? `url(${featured.imageUrl})` : gradientFor(featured.key),
-              backgroundSize: "cover", backgroundPosition: "center",
-            }}
-          >
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.68) 100%)" }} />
-            {featured.badge && (
-              <span style={{ position: "absolute", top: 14, left: 14, background: "rgba(255,255,255,0.92)", color: "var(--color-accent-800)", fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", padding: "5px 11px", borderRadius: 999 }}>
-                {featured.badge}
-              </span>
-            )}
-            <div style={{ position: "relative", padding: 18, color: "#fff", width: "100%", boxSizing: "border-box" }}>
-              <div style={{ fontFamily: "var(--font-heading)", fontSize: 21, lineHeight: 1.2 }}>{featured.title}</div>
-              <div style={{ fontSize: 12.5, marginTop: 4, opacity: 0.92 }}>{featured.meta}</div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: 19 }}>{money(featured.priceMinor)}</span>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#fff", color: "var(--color-accent-800)", fontSize: 12.5, fontWeight: 700, padding: "9px 15px", borderRadius: 999 }}>
-                  Explore Now
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 6 6-6 6" /></svg>
-                </span>
-              </div>
-            </div>
-          </div>
-        </Reveal3D>
       )}
 
       <div style={{ display: "flex", gap: 8, marginTop: 22, overflow: "auto", paddingBottom: 4 }}>
