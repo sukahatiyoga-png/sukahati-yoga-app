@@ -117,7 +117,7 @@ export default function Home() {
       </div>
 
       <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 400, fontSize: 32, lineHeight: 1.12, margin: "16px 0 0" }}>
-        Where do you<br /><span style={{ color: "var(--color-accent-600)" }}>want to practice?</span>
+        Breathe in,<br /><span style={{ color: "var(--color-accent-600)" }}>find your flow.</span>
       </h1>
 
       <button
