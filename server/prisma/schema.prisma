@@ -47,12 +47,15 @@ model User {
   createdAt      DateTime  @default(now())
   deletedAt      DateTime?
 
-  preferences     UserPreferences?
-  teacherProfile  Teacher?
-  bookings        Booking[]
-  notifications   Notification[]
-  waitlistEntries WaitlistEntry[]
-  auditLogs       AuditLog[]
+  preferences      UserPreferences?
+  teacherProfile   Teacher?
+  bookings         Booking[]
+  notifications    Notification[]
+  waitlistEntries  WaitlistEntry[]
+  auditLogs        AuditLog[]
+  enquiries        Enquiry[]
+  enquiryMessages  EnquiryMessage[]
+  reviews          Review[]
 }
 
 model UserPreferences {
@@ -126,6 +129,7 @@ model Package {
   retreat  Retreat?
   event    Event?
   coupons  Coupon[]
+  reviews  Review[]
 }
 
 model PackageImage {
@@ -254,6 +258,7 @@ model Booking {
   addons        BookingAddon[]
   payments      Payment[]
   notifications Notification[]
+  review        Review?
 }
 
 model Addon {
@@ -389,6 +394,47 @@ model StudioProfile {
   aboutTitle String @default("About Sukahati Yoga")
   aboutBody  String @default("A calm, welcoming space to practice yoga in the heart of Kuala Lumpur.")
   imageUrl   String @default("")
+}
+
+// A customer question/support thread. First message is written on create;
+// staff and the customer can both add follow-up EnquiryMessage rows after.
+model Enquiry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  subject   String   @default("")
+  status    String   @default("open") // open | replied | closed
+  createdAt DateTime @default(now())
+
+  messages EnquiryMessage[]
+}
+
+model EnquiryMessage {
+  id           String   @id @default(cuid())
+  enquiryId    String
+  enquiry      Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  authorUserId String
+  author       User     @relation(fields: [authorUserId], references: [id])
+  isStaff      Boolean  @default(false)
+  body         String
+  createdAt    DateTime @default(now())
+}
+
+// One review per completed (attended) booking — rating + optional comment,
+// shown against the package/retreat/event it was booked from.
+model Review {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  packageId String
+  package   Package  @relation(fields: [packageId], references: [id])
+  rating    Int
+  comment   String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([packageId])
 }
 
 model AuditLog {

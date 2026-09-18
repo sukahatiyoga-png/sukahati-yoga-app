@@ -11,6 +11,7 @@ import Reports from "./Reports";
 import Promotions from "./Promotions";
 import Resources from "./Resources";
 import TeacherRegistrations from "./TeacherRegistrations";
+import Enquiries from "./Enquiries";
 import ScanCheckin from "./ScanCheckin";
 import ActivityLog from "./ActivityLog";
 import Retreats from "./Retreats";
@@ -35,6 +36,7 @@ const NAV: { id: AdminSection; name: string; icon: ReactNode }[] = [
   { id: "retreats", name: "Retreats", icon: <Icon d="M3 20 9 8l4 6 2-3 6 9Z" d2="M9 3v3" /> },
   { id: "events", name: "Events", icon: <Icon d="M8 3v4M16 3v4M3.5 9h17M5 5.5h14a1 1 0 0 1 1 1V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z" d2="M8.5 13.5h.01M12 13.5h.01M15.5 13.5h.01" /> },
   { id: "teacherReg", name: "Teacher Registrations", icon: <Icon d="M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" d2="M2 21a7 7 0 0 1 14 0M17 8h5M19.5 5.5v5" /> },
+  { id: "enquiries", name: "Enquiries", icon: <Icon d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" /> },
   { id: "reports", name: "Reports", icon: <Icon d="M4 20V10M12 20V4M20 20v-7" /> },
   { id: "promos", name: "Promotions", icon: <Icon d="m20 12-8 8-9-9V4h7l10 10Z" d2="M7 7.01 7.01 7" /> },
   { id: "resources", name: "Resources", icon: <Icon d="M14.7 6.3a4 4 0 0 1-5.3 5.3L4 17v3h3l5.4-5.4a4 4 0 0 1 5.3-5.3l-3 3-2-2 3-3Z" /> },
@@ -79,6 +81,7 @@ export default function AdminShell({ asec, setAsec, openPackageEditSheet }: {
           {asec === "retreats" && <Retreats />}
           {asec === "events" && <Events />}
           {asec === "teacherReg" && <TeacherRegistrations />}
+          {asec === "enquiries" && <Enquiries />}
           {asec === "reports" && <Reports />}
           {asec === "promos" && <Promotions />}
           {asec === "resources" && <Resources />}

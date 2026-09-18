@@ -5,7 +5,7 @@ import { money } from "../lib/format";
 import { screenPad, h2 } from "../styles/shared";
 
 export default function Profile() {
-  const { me, refreshMe, flash, goAdmin, logout } = useApp();
+  const { me, refreshMe, flash, goAdmin, logout, openEnquiries } = useApp();
   const [name, setName] = useState(me.name);
   const [email, setEmail] = useState(me.email);
   const [phone, setPhone] = useState(me.phone);
@@ -81,6 +81,9 @@ export default function Profile() {
           <button className="btn btn-ghost" style={{ flex: "none", padding: "6px 12px", fontSize: 12 }} onClick={() => { navigator.clipboard?.writeText(me.referralCode).catch(() => {}); flash(me.referralCode + " copied"); }}>Copy</button>
         </div>
       </div>
+
+      <h2 style={h2}>Help</h2>
+      <button className="btn btn-secondary btn-block" style={{ padding: "14px 0" }} onClick={openEnquiries}>Contact us / My enquiries</button>
 
       {(me.role === "owner" || me.role === "desk") && (
         <button className="btn btn-secondary btn-block" style={{ marginTop: 24, padding: "14px 0" }} onClick={goAdmin}>Switch to studio admin</button>

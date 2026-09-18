@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, type Pkg } from "../lib/api";
+import { api, type Pkg, type Review } from "../lib/api";
 import { money } from "../lib/format";
 import Countdown from "../components/Countdown";
 
@@ -15,8 +15,10 @@ function Stat({ icon, label, value }: { icon: string; label: string; value: stri
 
 export default function RetreatDetail({ id, onBook, onClose }: { id: string; onBook: (packageId: string) => void; onClose: () => void }) {
   const [pkg, setPkg] = useState<Pkg | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => { api.package(id).then(setPkg).catch(() => setPkg(null)); }, [id]);
+  useEffect(() => { api.reviews.list(id).then(setReviews).catch(() => {}); }, [id]);
 
   if (!pkg) {
     return (
@@ -47,7 +49,11 @@ export default function RetreatDetail({ id, onBook, onClose }: { id: string; onB
         <div style={{ padding: "18px 20px 0" }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>Retreat</div>
           <div style={{ fontFamily: "var(--font-heading)", fontSize: 26, lineHeight: 1.15, marginTop: 5 }}>{pkg.name}</div>
-          {pkg.rating && <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 6 }}>★ {pkg.rating}</div>}
+          {pkg.reviewCount > 0 ? (
+            <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 6 }}>★ {pkg.reviewAvg} ({pkg.reviewCount} review{pkg.reviewCount === 1 ? "" : "s"})</div>
+          ) : pkg.rating ? (
+            <div style={{ fontSize: 13, color: "var(--color-neutral-700)", marginTop: 6 }}>★ {pkg.rating}</div>
+          ) : null}
 
           {r && (
             <div style={{ marginTop: 18, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "16px 8px", display: "flex" }}>
@@ -92,6 +98,23 @@ export default function RetreatDetail({ id, onBook, onClose }: { id: string; onB
           )}
 
           {pkg.cancel && <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 18, lineHeight: 1.5 }}>{pkg.cancel}</div>}
+
+          {reviews.length > 0 && (
+            <>
+              <div style={{ marginTop: 26, fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--color-accent-700)" }}>Reviews</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 12 }}>
+                {reviews.map((r) => (
+                  <div key={r.id}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 13 }}>{r.authorName}</span>
+                      <span style={{ fontSize: 12, color: "var(--color-accent-600)" }}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
+                    </div>
+                    {r.comment && <div style={{ fontSize: 13, color: "var(--color-neutral-800)", marginTop: 4, lineHeight: 1.5 }}>{r.comment}</div>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           <div style={{ height: 110 }} />
         </div>

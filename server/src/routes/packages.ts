@@ -5,13 +5,15 @@ import { requireAuth, requireStaff } from "../domain/auth";
 
 export const packagesRouter = Router();
 
-function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, earlyBirdSaveMinor?: number, event?: any, eventEarlyBirdSaveMinor?: number) {
+function serialize(p: any, sold: number, revenueMinor: number, retreat?: any, earlyBirdSaveMinor?: number, event?: any, eventEarlyBirdSaveMinor?: number, reviewStats?: { avg: number; count: number }) {
   return {
     id: p.id, name: p.name, kind: p.kind, priceMinor: p.priceMinor, currency: p.currency,
     unit: p.billingUnit, capacity: p.capacityLabel, sold, revenueMinor,
     active: p.isVisible, recommended: p.isRecommended, badge: p.badge || "",
     desc: p.shortDescription, long: p.longDescription, goodFor: p.goodFor,
     cat: p.category, dur: p.durationLabel, rating: p.ratingLabel,
+    reviewAvg: reviewStats && reviewStats.count > 0 ? Math.round(reviewStats.avg * 10) / 10 : null,
+    reviewCount: reviewStats?.count || 0,
     valid: p.validLabel, cancel: p.cancelLabel,
     incl: JSON.parse(p.inclusions || "[]"), excl: JSON.parse(p.exclusions || "[]"),
     sortOrder: p.sortOrder, imageUrl: p.imageUrl || "",
@@ -80,6 +82,9 @@ packagesRouter.get("/", async (req, res) => {
     where: includeHidden ? undefined : { isVisible: true },
     orderBy: { sortOrder: "asc" },
   });
+  // One grouped query for every package's rating instead of one per package.
+  const ratingRows = await db.review.groupBy({ by: ["packageId"], _avg: { rating: true }, _count: { rating: true } });
+  const ratingMap = new Map(ratingRows.map((r) => [r.packageId, { avg: r._avg.rating || 0, count: r._count.rating }]));
   // Fetch every package's stats concurrently instead of one at a time —
   // sequential awaits here were the main cause of this endpoint being slow.
   const out = await Promise.all(packages.map(async (p) => {
@@ -88,7 +93,7 @@ packagesRouter.get("/", async (req, res) => {
       retreatFor(p),
       eventFor(p),
     ]);
-    return serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor);
+    return serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor, ratingMap.get(p.id));
   }));
   res.json(out);
 });
@@ -96,10 +101,14 @@ packagesRouter.get("/", async (req, res) => {
 packagesRouter.get("/:id", async (req, res) => {
   const p = await db.package.findUnique({ where: { id: req.params.id } });
   if (!p) return res.status(404).json({ error: "Package not found" });
-  const { sold, revenueMinor } = await soldAndRevenue(p.id);
-  const { retreat, earlyBirdSaveMinor } = await retreatFor(p);
-  const { event, earlyBirdSaveMinor: eventEarlyBirdSaveMinor } = await eventFor(p);
-  res.json(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor));
+  const [{ sold, revenueMinor }, { retreat, earlyBirdSaveMinor }, { event, earlyBirdSaveMinor: eventEarlyBirdSaveMinor }, ratingAgg] = await Promise.all([
+    soldAndRevenue(p.id),
+    retreatFor(p),
+    eventFor(p),
+    db.review.aggregate({ where: { packageId: p.id }, _avg: { rating: true }, _count: { rating: true } }),
+  ]);
+  const reviewStats = { avg: ratingAgg._avg.rating || 0, count: ratingAgg._count.rating };
+  res.json(serialize(p, sold, revenueMinor, retreat, earlyBirdSaveMinor, event, eventEarlyBirdSaveMinor, reviewStats));
 });
 
 packagesRouter.post("/", requireAuth, requireStaff, async (req: Request, res: Response) => {

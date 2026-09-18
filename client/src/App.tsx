@@ -5,6 +5,8 @@ import PackageSheet from "./components/PackageSheet";
 import RetreatDetail from "./screens/RetreatDetail";
 import QrSheet from "./components/QrSheet";
 import PackageEditSheet from "./components/PackageEditSheet";
+import ReviewSheet from "./components/ReviewSheet";
+import Enquiries from "./screens/Enquiries";
 import Splash from "./components/Splash";
 import { AppContext, type AdminSection, type Tab } from "./context/AppContext";
 import { api, clearToken, getToken, type Me, type Pkg } from "./lib/api";
@@ -26,6 +28,8 @@ type SheetState =
   | { kind: "retreatDetail"; id: string }
   | { kind: "qr"; booking: { title: string; meta: string; ref: string; qrToken: string } }
   | { kind: "pkgEdit"; pkg: Pkg | null }
+  | { kind: "enquiries" }
+  | { kind: "review"; bookingId: string; title: string }
   | null;
 
 const initialRoute = parseRoute(window.location.pathname);
@@ -110,6 +114,8 @@ export default function App() {
   const openRetreatDetail = useCallback((id: string) => setSheet({ kind: "retreatDetail", id }), []);
   const openQrSheet = useCallback((booking: { title: string; meta: string; ref: string; qrToken: string }) => setSheet({ kind: "qr", booking }), []);
   const openPackageEditSheet = useCallback((pkg: Pkg | null) => setSheet({ kind: "pkgEdit", pkg }), []);
+  const openEnquiries = useCallback(() => setSheet({ kind: "enquiries" }), []);
+  const openReview = useCallback((bookingId: string, title: string) => setSheet({ kind: "review", bookingId, title }), []);
   const closeSheet = useCallback(() => setSheet(null), []);
 
   if (showSplash) {
@@ -144,7 +150,7 @@ export default function App() {
 
     const ctx = {
       me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
-      openPackageSheet, openRetreatDetail, openQrSheet, closeSheet,
+      openPackageSheet, openRetreatDetail, openQrSheet, openEnquiries, openReview, closeSheet,
     };
     return (
       <AppContext.Provider value={ctx}>
@@ -175,7 +181,7 @@ export default function App() {
 
   const ctx = {
     me, refreshMe, flash, goTab, goBook, goAdmin, exitAdmin, logout,
-    openPackageSheet, openRetreatDetail, openQrSheet, closeSheet,
+    openPackageSheet, openRetreatDetail, openQrSheet, openEnquiries, openReview, closeSheet,
   };
 
   return (
@@ -200,6 +206,10 @@ export default function App() {
         {sheet?.kind === "qr" && <QrSheet booking={sheet.booking} />}
         {sheet?.kind === "pkgEdit" && (
           <PackageEditSheet pkg={sheet.pkg} onSaved={() => { setSheet(null); setRefreshTick((n) => n + 1); }} />
+        )}
+        {sheet?.kind === "enquiries" && <Enquiries onClose={closeSheet} />}
+        {sheet?.kind === "review" && (
+          <ReviewSheet bookingId={sheet.bookingId} title={sheet.title} onDone={() => setRefreshTick((n) => n + 1)} />
         )}
       </div>
     </AppContext.Provider>

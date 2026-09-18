@@ -21,6 +21,9 @@ export default function PackageSheet({ id, onBook }: { id: string; onBook: (pack
         <div style={{ fontFamily: "var(--font-heading)", fontSize: 31 }}>{money(pkg.priceMinor, pkg.currency === "MYR" ? "RM" : pkg.currency)}</div>
         <div style={{ fontSize: 13, color: "var(--color-neutral-700)" }}>{pkg.unit}</div>
       </div>
+      {pkg.reviewCount > 0 && (
+        <div style={{ fontSize: 12.5, color: "var(--color-neutral-700)", marginTop: 6 }}>★ {pkg.reviewAvg} ({pkg.reviewCount} review{pkg.reviewCount === 1 ? "" : "s"})</div>
+      )}
       <div style={{ fontSize: 14, lineHeight: 1.55, color: "var(--color-neutral-800)", marginTop: 13 }}>{pkg.long}</div>
 
       <div style={{ marginTop: 18, background: "var(--color-neutral-100)", borderRadius: "var(--radius-lg)", padding: "4px 16px" }}>

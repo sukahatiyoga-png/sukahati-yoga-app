@@ -41,13 +41,14 @@ function customerMeta(b: any): string {
   return b.package.name;
 }
 
-function serializeCustomer(b: any) {
+function serializeCustomer(b: any, reviewedBookingIds?: Set<string>) {
   const { mon, num } = dayParts(effectiveDate(b));
   const balance = Math.max(0, b.totalMinor - b.amountPaidMinor);
   return {
     id: b.id, mon, day: num, title: b.session?.title || b.package.name, meta: customerMeta(b),
     status: b.status, confirmed: b.status === "confirmed", pending: b.status === "pending",
     attended: b.status === "attended", cancelled: b.status === "cancelled",
+    hasReview: reviewedBookingIds ? reviewedBookingIds.has(b.id) : false,
     balanceMinor: balance || null, ref: b.reference, qrToken: b.qrToken,
     packageName: b.package.name, createdAt: b.createdAt.toISOString(),
   };
@@ -107,7 +108,9 @@ bookingsRouter.get("/", async (req, res) => {
     const past = bookings.filter((b) => !upcoming.includes(b));
     upcoming.sort((a, b) => effectiveDate(a).getTime() - effectiveDate(b).getTime());
     past.sort((a, b) => effectiveDate(b).getTime() - effectiveDate(a).getTime());
-    return res.json({ upcoming: upcoming.map(serializeCustomer), past: past.map(serializeCustomer) });
+    const reviews = await db.review.findMany({ where: { userId }, select: { bookingId: true } });
+    const reviewedBookingIds = new Set(reviews.map((r) => r.bookingId));
+    return res.json({ upcoming: upcoming.map((b) => serializeCustomer(b, reviewedBookingIds)), past: past.map((b) => serializeCustomer(b, reviewedBookingIds)) });
   }
 
   const { status, search } = req.query as Record<string, string | undefined>;

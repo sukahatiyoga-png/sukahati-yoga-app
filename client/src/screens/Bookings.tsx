@@ -5,7 +5,7 @@ import { money } from "../lib/format";
 import { screenPad, kicker, h1, h2 } from "../styles/shared";
 
 export default function Bookings() {
-  const { me, flash, openQrSheet } = useApp();
+  const { me, flash, openQrSheet, openReview } = useApp();
   const [pass, setPass] = useState<ActivePass | null>(null);
   const [upcoming, setUpcoming] = useState<BookingCustomer[]>([]);
   const [past, setPast] = useState<BookingCustomer[]>([]);
@@ -88,7 +88,13 @@ export default function Bookings() {
               <div style={{ fontWeight: 600, fontSize: 14.5 }}>{b.title}</div>
               <div style={{ fontSize: 12, color: "var(--color-neutral-700)", marginTop: 2 }}>{b.meta} · {b.cancelled ? "cancelled" : "attended"}</div>
             </div>
-            <button className="btn btn-ghost" style={{ flex: "none", padding: "6px 11px", fontSize: 11.5 }}>Receipt</button>
+            {b.attended && (
+              b.hasReview ? (
+                <span className="tag tag-accent-2" style={{ flex: "none" }}>Reviewed</span>
+              ) : (
+                <button className="btn btn-secondary" style={{ flex: "none", padding: "6px 11px", fontSize: 11.5 }} onClick={() => openReview(b.id, b.title)}>Rate & review</button>
+              )
+            )}
           </div>
         ))}
       </div>

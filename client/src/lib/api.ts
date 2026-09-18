@@ -49,6 +49,7 @@ export interface Pkg {
   unit: string; capacity: string; sold: number; revenueMinor: number;
   active: boolean; recommended: boolean; badge: string;
   desc: string; long: string; goodFor: string; cat: string; dur: string; rating: string;
+  reviewAvg: number | null; reviewCount: number;
   valid: string; cancel: string; incl: string[]; excl: string[]; sortOrder: number; imageUrl: string;
   retreat: { id: string; startsOn: string; endsOn: string; checkInAt: string; checkOutAt: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
   event: { id: string; startsAt: string; endsAt: string; totalPlaces: number; placesLeft: number; earlyBirdUntil: string | null; earlyBirdSaveMinor: number } | null;
@@ -66,7 +67,7 @@ export interface Addon { id: string; name: string; priceMinor: number }
 
 export interface BookingCustomer {
   id: string; mon: string; day: string; title: string; meta: string; status: string;
-  confirmed: boolean; pending: boolean; attended: boolean; cancelled: boolean;
+  confirmed: boolean; pending: boolean; attended: boolean; cancelled: boolean; hasReview: boolean;
   balanceMinor: number | null; ref: string; qrToken: string; packageName: string; createdAt: string;
 }
 
@@ -193,6 +194,15 @@ export interface EventInput {
   incl?: string[]; excl?: string[]; active?: boolean; recommended?: boolean; badge?: string; imageUrl?: string;
   startsAt: string; endsAt: string; totalPlaces?: number; earlyBirdUntil?: string | null;
 }
+
+export interface EnquiryMessage { id: string; body: string; isStaff: boolean; authorName: string; createdAt: string }
+export interface EnquirySummary { id: string; subject: string; status: string; createdAt: string; lastMessage: string; lastAt: string }
+export interface EnquiryThread { id: string; subject: string; status: string; createdAt: string; messages: EnquiryMessage[] }
+export interface AdminEnquiryRow extends EnquirySummary { userName: string; initials: string }
+export interface AdminEnquiryThread extends EnquiryThread { userName: string; userEmail: string; userPhone: string }
+
+export interface Review { id: string; rating: number; comment: string; authorName: string; createdAt: string }
+export interface ReviewEligible { bookingId: string; packageId: string; title: string }
 
 export interface Reports {
   revenueMinor: number; bookingsThisMonth: number; cancellationRate: number; retentionPct: number;
@@ -334,4 +344,23 @@ export const api = {
   },
   studioProfile: () => get<StudioProfileData>("/studio-profile"),
   updateStudioProfile: (data: StudioProfileData) => put<StudioProfileData>("/studio-profile", data),
+
+  enquiries: {
+    list: () => get<EnquirySummary[]>("/enquiries"),
+    detail: (id: string) => get<EnquiryThread>(`/enquiries/${id}`),
+    create: (data: { subject?: string; message: string }) => post<EnquiryThread>("/enquiries", data),
+    reply: (id: string, message: string) => post<EnquiryThread>(`/enquiries/${id}/reply`, { message }),
+  },
+  adminEnquiries: {
+    list: (status?: string) => get<AdminEnquiryRow[]>(`/admin/enquiries${status ? "?status=" + encodeURIComponent(status) : ""}`),
+    detail: (id: string) => get<AdminEnquiryThread>(`/admin/enquiries/${id}`),
+    reply: (id: string, message: string) => post<AdminEnquiryThread>(`/admin/enquiries/${id}/reply`, { message }),
+    setStatus: (id: string, status: string) => patch<{ ok: boolean; status: string }>(`/admin/enquiries/${id}/status`, { status }),
+  },
+
+  reviews: {
+    list: (packageId: string) => get<Review[]>(`/reviews?packageId=${encodeURIComponent(packageId)}`),
+    eligible: () => get<ReviewEligible[]>("/reviews/eligible"),
+    create: (data: { bookingId: string; rating: number; comment?: string }) => post<Review>("/reviews", data),
+  },
 };

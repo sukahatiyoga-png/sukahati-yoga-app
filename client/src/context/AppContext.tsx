@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import type { Me } from "../lib/api";
 
 export type Tab = "home" | "search" | "packages" | "book" | "bookings" | "alerts" | "profile";
-export type AdminSection = "dash" | "cal" | "bookings" | "customers" | "packages" | "retreats" | "events" | "reports" | "promos" | "resources" | "teacherReg" | "scan" | "activity" | "gallery";
+export type AdminSection = "dash" | "cal" | "bookings" | "customers" | "packages" | "retreats" | "events" | "reports" | "promos" | "resources" | "teacherReg" | "scan" | "activity" | "gallery" | "enquiries";
 
 export interface BookPreset {
   sessionId?: string;
@@ -23,6 +23,8 @@ export interface AppCtx {
   openPackageSheet: (id: string) => void;
   openRetreatDetail: (id: string) => void;
   openQrSheet: (booking: { title: string; meta: string; ref: string; qrToken: string }) => void;
+  openEnquiries: () => void;
+  openReview: (bookingId: string, title: string) => void;
   closeSheet: () => void;
 }
 
