@@ -202,7 +202,6 @@ export interface AdminEnquiryRow extends EnquirySummary { userName: string; init
 export interface AdminEnquiryThread extends EnquiryThread { userName: string; userEmail: string; userPhone: string }
 
 export interface Review { id: string; rating: number; comment: string; authorName: string; createdAt: string }
-export interface ReviewEligible { bookingId: string; packageId: string; title: string }
 
 export interface Reports {
   revenueMinor: number; bookingsThisMonth: number; cancellationRate: number; retentionPct: number;
@@ -360,7 +359,6 @@ export const api = {
 
   reviews: {
     list: (packageId: string) => get<Review[]>(`/reviews?packageId=${encodeURIComponent(packageId)}`),
-    eligible: () => get<ReviewEligible[]>("/reviews/eligible"),
     create: (data: { bookingId: string; rating: number; comment?: string }) => post<Review>("/reviews", data),
   },
 };

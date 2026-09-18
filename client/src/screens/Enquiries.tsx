@@ -33,8 +33,9 @@ export default function Enquiries({ onClose }: { onClose: () => void }) {
 }
 
 function ListView({ onSelect, onNew }: { onSelect: (id: string) => void; onNew: () => void }) {
+  const { flash } = useApp();
   const [rows, setRows] = useState<EnquirySummary[]>([]);
-  useEffect(() => { api.enquiries.list().then(setRows); }, []);
+  useEffect(() => { api.enquiries.list().then(setRows).catch((err) => flash(err instanceof Error ? err.message : "Could not load enquiries")); }, [flash]);
 
   return (
     <div style={{ padding: "18px 20px" }}>
@@ -106,7 +107,7 @@ function ThreadView({ id }: { id: string }) {
   const [reply, setReply] = useState("");
   const [busy, setBusy] = useState(false);
 
-  function reload() { api.enquiries.detail(id).then(setThread); }
+  function reload() { api.enquiries.detail(id).then(setThread).catch((err) => flash(err instanceof Error ? err.message : "Could not load enquiry")); }
   useEffect(reload, [id]);
 
   async function send() {

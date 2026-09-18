@@ -17,14 +17,22 @@ export default function Bookings() {
   useEffect(reload, [me.id]);
 
   async function cancel(b: BookingCustomer) {
-    await api.cancelBooking(b.id);
-    flash(`${b.title} cancelled · refund in 3 days`);
-    reload();
+    try {
+      await api.cancelBooking(b.id);
+      flash(`${b.title} cancelled · refund in 3 days`);
+      reload();
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Could not cancel booking");
+    }
   }
   async function pay(b: BookingCustomer) {
-    await api.payBalance(b.id, "card");
-    flash("Balance paid · receipt emailed");
-    reload();
+    try {
+      await api.payBalance(b.id, "card");
+      flash("Balance paid · receipt emailed");
+      reload();
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Could not process payment");
+    }
   }
 
   return (

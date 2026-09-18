@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useApp } from "../../context/AppContext";
 import { api, type AdminEnquiryRow, type AdminEnquiryThread } from "../../lib/api";
 
 const STATUS_FILTERS = ["All", "Open", "Replied", "Closed"];
@@ -11,10 +12,14 @@ export default function Enquiries() {
 }
 
 function EnquiryList({ onSelect }: { onSelect: (id: string) => void }) {
+  const { flash } = useApp();
   const [rows, setRows] = useState<AdminEnquiryRow[]>([]);
   const [status, setStatus] = useState("All");
 
-  useEffect(() => { api.adminEnquiries.list(status === "All" ? undefined : status.toLowerCase()).then(setRows); }, [status]);
+  useEffect(() => {
+    api.adminEnquiries.list(status === "All" ? undefined : status.toLowerCase()).then(setRows)
+      .catch((e) => flash(e instanceof Error ? e.message : "Couldn't load enquiries"));
+  }, [status, flash]);
 
   return (
     <>
@@ -47,11 +52,12 @@ function EnquiryList({ onSelect }: { onSelect: (id: string) => void }) {
 }
 
 function EnquiryDetail({ id, onBack }: { id: string; onBack: () => void }) {
+  const { flash } = useApp();
   const [thread, setThread] = useState<AdminEnquiryThread | null>(null);
   const [reply, setReply] = useState("");
   const [busy, setBusy] = useState(false);
 
-  function reload() { api.adminEnquiries.detail(id).then(setThread); }
+  function reload() { api.adminEnquiries.detail(id).then(setThread).catch((e) => flash(e instanceof Error ? e.message : "Couldn't load enquiry")); }
   useEffect(reload, [id]);
 
   async function send() {

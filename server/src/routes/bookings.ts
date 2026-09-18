@@ -16,6 +16,7 @@ const FULL_INCLUDE = {
   coupon: true,
   addons: { include: { addon: true } },
   payments: true,
+  review: true,
 } as const;
 
 function isStaff(req: { userRole?: string }): boolean {
@@ -143,7 +144,8 @@ bookingsRouter.get("/:id", async (req, res) => {
   const b = await db.booking.findUnique({ where: { id: req.params.id }, include: FULL_INCLUDE });
   if (!b) return res.status(404).json({ error: "Booking not found" });
   if (b.userId !== req.userId && !isStaff(req)) return res.status(403).json({ error: "Not allowed" });
-  res.json({ ...serializeCustomer(b), addons: b.addons.map((a: any) => ({ name: a.addon.name, quantity: a.quantity })) });
+  const reviewedBookingIds = b.review ? new Set([b.id]) : undefined;
+  res.json({ ...serializeCustomer(b, reviewedBookingIds), addons: b.addons.map((a: any) => ({ name: a.addon.name, quantity: a.quantity })) });
 });
 
 // ── Create booking ──────────────────────────────────────────────────────

@@ -18,17 +18,6 @@ reviewsRouter.get("/", async (req, res) => {
   })));
 });
 
-// Bookings this customer has attended but hasn't reviewed yet — drives the
-// "Rate & review" prompt on the Bookings screen.
-reviewsRouter.get("/eligible", requireAuth, async (req, res) => {
-  const bookings = await db.booking.findMany({
-    where: { userId: req.userId!, status: "attended", review: null },
-    include: { package: true },
-    orderBy: { createdAt: "desc" },
-  });
-  res.json(bookings.map((b) => ({ bookingId: b.id, packageId: b.packageId, title: b.package.name })));
-});
-
 reviewsRouter.post("/", requireAuth, async (req, res) => {
   const { bookingId, rating, comment } = req.body || {};
   const ratingNum = Number(rating);
